@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+apps/**/.env
+apps/**/.env.*
+!apps/**/.env.example
+vault/
+
+# Build outputs
+dist/
+build/
+*.log
+
+# PocketBase runtime data & platform binaries
+apps/pocketbase/pb_data/
+apps/pocketbase/pb_data.encrypted.bak/
+apps/pocketbase/pocketbase
+apps/pocketbase/pocketbase.exe
+apps/pocketbase/CHANGELOG.md
+apps/pocketbase/LICENSE.md
+
+# Archives / local caches
+app.tar.gz
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
