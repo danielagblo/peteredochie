@@ -67,7 +67,7 @@ const OrderPage = () => {
             </Helmet>
             <div className="mx-auto max-w-[52rem] px-5 py-12 md:px-10">
                 {meta ? (
-                    <div className="border border-border bg-[hsl(0_0%_6%)] p-8 md:p-10">
+                    <div className="border border-border bg-card p-8 md:p-10">
                         <Icon size={36} strokeWidth={1.4} className={`${meta.tone} ${status === 'verifying' ? 'animate-spin' : ''}`} />
                         <h1 className="mt-5 font-display text-4xl">{meta.title}</h1>
                         <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{meta.text}</p>

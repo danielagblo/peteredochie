@@ -152,7 +152,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && close()}>
-            <DialogContent className="max-w-lg border-border bg-[hsl(0_0%_6%)] p-0 md:max-w-xl">
+            <DialogContent className="max-w-lg border-border bg-card p-0 md:max-w-xl">
                 <DialogHeader className="border-b border-border px-7 py-6">
                     <DialogTitle className="font-display text-3xl">{event.title}</DialogTitle>
                     <DialogDescription className="mt-2 text-sm text-muted-foreground">

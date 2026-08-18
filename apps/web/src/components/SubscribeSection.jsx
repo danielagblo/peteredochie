@@ -36,7 +36,7 @@ const SubscribeSection = () => {
         'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
 
     return (
-        <section id="subscribe" className="scroll-mt-24 border-y border-border bg-[hsl(0_0%_6%)] py-24 md:py-32">
+        <section id="subscribe" className="scroll-mt-24 border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
             <div className="mx-auto grid w-full max-w-[80rem] gap-14 px-5 md:grid-cols-2 md:px-10">
                 <Reveal>
                     <div>

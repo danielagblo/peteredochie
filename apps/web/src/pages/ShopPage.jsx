@@ -91,7 +91,7 @@ const ShopPage = () => {
                             const cartLine = inCart(p);
                             return (
                                 <Reveal key={p.id} delay={i * 0.05}>
-                                    <article className="flex h-full flex-col border border-border bg-[hsl(0_0%_6%)]">
+                                    <article className="flex h-full flex-col border border-border bg-card">
                                         <div className="relative overflow-hidden">
                                             <img
                                                 src={p.image || IMG.artifact}

@@ -92,7 +92,7 @@ const SponsorApplyPage = () => {
                     description="Your sponsorship application has been received and is under review by King Dawie Publishing."
                 />
                 <Section width="max-w-[48rem]">
-                    <div className="border border-border bg-[hsl(0_0%_6%)] p-10 text-center">
+                    <div className="border border-border bg-card p-10 text-center">
                         <Check size={40} strokeWidth={1.2} className="mx-auto text-[hsl(var(--gold))]" />
                         <h1 className="mt-6 font-display text-4xl">Application received</h1>
                         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">

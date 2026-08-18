@@ -142,7 +142,7 @@ const CheckoutPage = () => {
                 ) : (
                     <form onSubmit={purchase} className="mt-10 grid gap-10 md:grid-cols-[1.4fr_1fr]">
                         <div className="space-y-6">
-                            <section className="border border-border bg-[hsl(0_0%_6%)] p-6">
+                            <section className="border border-border bg-card p-6">
                                 <h2 className="font-display text-2xl">Your items</h2>
                                 <ul className="mt-5 divide-y divide-border">
                                     {lines.map((l) => (
@@ -174,7 +174,7 @@ const CheckoutPage = () => {
                                 </ul>
                             </section>
 
-                            <section className="border border-border bg-[hsl(0_0%_6%)] p-6">
+                            <section className="border border-border bg-card p-6">
                                 <h2 className="font-display text-2xl">Shipping & contact details</h2>
                                 <p className="mt-2 text-sm text-muted-foreground">All purchases require a delivery address and contact details, even digital editions, for order records and fulfilment.</p>
                                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -230,7 +230,7 @@ const CheckoutPage = () => {
                         </div>
 
                         <aside className="space-y-6">
-                            <section className="border border-border bg-[hsl(0_0%_6%)] p-6 md:sticky md:top-28">
+                            <section className="border border-border bg-card p-6 md:sticky md:top-28">
                                 <h2 className="font-display text-2xl">Order summary</h2>
                                 <ul className="mt-5 space-y-3 text-sm">
                                     {lines.map((l) => (
