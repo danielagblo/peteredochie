@@ -7,16 +7,16 @@ export const PUBLISHER = {
 };
 
 export const IMG = {
-    portrait: 'https://horizons-cdn.hostinger.com/3a245905-cb8a-4489-a66d-2312f75190f5/chatgpt-image-aug-14-2026-02_04_46-pm-rME5J.png',
-    stage: 'https://horizons-cdn.hostinger.com/3a245905-cb8a-4489-a66d-2312f75190f5/pete-edochie-1-iddPl.jpg',
-    set: 'https://images.hostinger.com/622bf08c-3c84-4e49-a72e-1568f82f7288.png',
-    book: 'https://images.hostinger.com/3283c1af-6e58-4eca-a80a-6d5dc5464e9d.png',
-    award: 'https://images.hostinger.com/271ce9e7-93a9-4390-b46b-65ec34679e73.png',
-    youth: 'https://images.hostinger.com/f9bbc10b-9993-4be6-bb20-0f31a23fd314.png',
-    podium: 'https://images.hostinger.com/3fb9501e-28bc-4e82-89a5-3377eb9f780b.png',
-    family: 'https://images.hostinger.com/355f08af-c1e0-451a-b3c6-a511eba8aa55.png',
-    artifact: 'https://images.hostinger.com/beb1e1ef-58c3-46be-ad82-d16089436d87.png',
-    theatre: 'https://images.hostinger.com/64c337f2-f627-4055-9d43-d348d976dc63.png',
+    portrait: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    stage: 'https://images.unsplash.com/photo-1460881680858-30d872d5b530?auto=format&fit=crop&w=1920&q=80',
+    set: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80',
+    book: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80',
+    award: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80',
+    youth: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
+    podium: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=1200&q=80',
+    family: 'https://images.unsplash.com/photo-1581579438747-1dc8d1e0ca96?auto=format&fit=crop&w=1200&q=80',
+    artifact: 'https://images.unsplash.com/photo-1505664194779-8bebcb95c02e?auto=format&fit=crop&w=1200&q=80',
+    theatre: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1200&q=80',
 };
 
 export const NAV = [
