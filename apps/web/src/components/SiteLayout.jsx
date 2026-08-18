@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, ShoppingCart, X } from 'lucide-react';
+import { ChevronDown, Menu, ShoppingCart, X } from 'lucide-react';
 import { NAV, PUBLISHER } from '@/lib/content';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+
+const primaryLinks = [
+    { to: '/pete-edochie', label: 'Biography' },
+    { to: '/legacy', label: 'Archive' },
+    { to: '/shop', label: 'Shop' },
+];
+
+const dropdownLinks = [
+    { to: '/events', label: 'Events' },
+    { to: '/mentorship', label: 'Mentorship' },
+    { to: '/gallery', label: 'Gallery' },
+    { to: '/news', label: 'Journal' },
+];
 
 const SiteLayout = ({ children }) => {
     const [open, setOpen] = useState(false);
@@ -31,39 +44,73 @@ const SiteLayout = ({ children }) => {
             >
                 <div className="mx-auto flex max-w-[90rem] items-center justify-between px-5 py-4 md:px-10">
                     <Link to="/" className="group flex items-baseline gap-3">
-                        <span className="font-display text-xl tracking-wide text-foreground md:text-2xl">Pete Edochie</span>
-                        <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] sm:block">
+                        <span className={`font-display text-xl tracking-wide md:text-2xl transition-colors duration-300 ${
+                            solid ? 'text-foreground' : 'text-white'
+                        }`}>Pete Edochie</span>
+                        <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] xl:block">
                             Official Legacy Platform
                         </span>
                     </Link>
 
-                    <nav className="hidden items-center gap-7 lg:flex">
-                        {NAV.map((item) => (
+                    <nav className="hidden items-center gap-4 xl:gap-7 lg:flex">
+                        {primaryLinks.map((item) => (
                             <NavLink
                                 key={item.to}
                                 to={item.to}
                                 className={({ isActive }) =>
-                                    `text-[0.78rem] uppercase tracking-[0.16em] transition-colors ${
-                                        isActive ? 'text-[hsl(var(--gold))]' : 'text-muted-foreground hover:text-foreground'
+                                    `text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                                        isActive 
+                                            ? 'text-[hsl(var(--gold))] font-medium' 
+                                            : solid 
+                                                ? 'text-muted-foreground hover:text-foreground' 
+                                                : 'text-stone-300 hover:text-white'
                                     }`
                                 }
                             >
                                 {item.label}
                             </NavLink>
                         ))}
+                        
+                        <div className="relative group py-2">
+                            <button className={`flex items-center gap-1 text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
+                            }`}>
+                                Explore
+                                <ChevronDown size={12} className="transition-transform duration-200 group-hover:rotate-180" />
+                            </button>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1 hidden w-48 rounded-md border border-border bg-background/95 p-2 shadow-lg backdrop-blur-md group-hover:block transition-all duration-300">
+                                {dropdownLinks.map((item) => (
+                                    <NavLink
+                                        key={item.to}
+                                        to={item.to}
+                                        className={({ isActive }) =>
+                                            `block rounded px-4 py-2.5 text-[0.75rem] uppercase tracking-[0.14em] transition-colors ${
+                                                isActive ? 'bg-secondary text-[hsl(var(--gold))] font-medium' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                                            }`
+                                        }
+                                    >
+                                        {item.label}
+                                    </NavLink>
+                                ))}
+                            </div>
+                        </div>
                     </nav>
 
-                    <div className="hidden items-center gap-4 lg:flex">
+                    <div className="hidden items-center gap-3 xl:gap-5 lg:flex">
                         <ThemeToggle compact />
                         <Link
                             to={isAuthed ? '/dashboard' : '/login'}
-                            className="text-[0.78rem] uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+                            className={`text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
+                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
+                            }`}
                         >
                             {isAuthed ? 'Dashboard' : 'Sign in'}
                         </Link>
                         <Link
                             to="/checkout"
-                            className="relative flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground"
+                            className={`relative flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.22em] transition-colors duration-300 ${
+                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
+                            }`}
                         >
                             <ShoppingCart size={15} strokeWidth={1.5} />
                             {count > 0 ? (
@@ -72,9 +119,13 @@ const SiteLayout = ({ children }) => {
                         </Link>
                         <Link
                             to="/book"
-                            className="border border-[hsl(var(--gold))]/60 px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black active:scale-[0.98]"
+                            className={`border px-3 py-1.5 xl:px-4 xl:py-2 text-[0.7rem] uppercase tracking-[0.22em] transition-colors duration-300 active:scale-[0.98] ${
+                                solid 
+                                    ? 'border-[hsl(var(--gold))]/60 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black' 
+                                    : 'border-white/60 text-white hover:bg-white hover:text-black'
+                            }`}
                         >
-                            The Autobiography
+                            Autobiography
                         </Link>
                     </div>
 
@@ -82,7 +133,9 @@ const SiteLayout = ({ children }) => {
                         type="button"
                         aria-label={open ? 'Close menu' : 'Open menu'}
                         onClick={() => setOpen((v) => !v)}
-                        className="flex h-11 w-11 items-center justify-center text-foreground lg:hidden"
+                        className={`flex h-11 w-11 items-center justify-center transition-colors duration-300 lg:hidden ${
+                            solid ? 'text-foreground' : 'text-white'
+                        }`}
                     >
                         {open ? <X size={22} strokeWidth={1.4} /> : <Menu size={22} strokeWidth={1.4} />}
                     </button>
