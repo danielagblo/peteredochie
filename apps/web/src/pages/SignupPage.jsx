@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { PageHead } from '@/components/Section';
 import { IMG } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,7 +62,7 @@ const SignupPage = () => {
             });
             navigate(next || '/dashboard', { replace: true });
         } catch (err) {
-            setError(err?.status === 400 ? 'That email may already be registered.' : 'We could not create your account. Please try again.');
+            setError(err?.message || 'We could not create your account. Please try again.');
         } finally {
             setBusy(false);
         }
@@ -77,6 +78,10 @@ const SignupPage = () => {
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
+                    <Link to="/join" className="group mb-8 inline-flex items-center gap-2 text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+                        <ArrowLeft size={13} strokeWidth={1.6} className="transition-transform group-hover:-translate-x-1" />
+                        Back to Join
+                    </Link>
                     <p className="eyebrow">{meta.title}</p>
                     <h1 className="mt-4 font-display text-5xl leading-tight">Create your account</h1>
                     <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{meta.description}</p>

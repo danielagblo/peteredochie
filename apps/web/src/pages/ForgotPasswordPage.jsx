@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { PageHead } from '@/components/Section';
 import { IMG } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +29,10 @@ const ForgotPasswordPage = () => {
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
+                    <Link to="/" className="group mb-8 inline-flex items-center gap-2 text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+                        <ArrowLeft size={13} strokeWidth={1.6} className="transition-transform group-hover:-translate-x-1" />
+                        Back to Home
+                    </Link>
                     <p className="eyebrow">Account recovery</p>
                     <h1 className="mt-4 font-display text-5xl">Reset password</h1>
                     {state === 'sent' ? (

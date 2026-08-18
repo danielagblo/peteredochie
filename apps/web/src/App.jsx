@@ -3,6 +3,7 @@ import { Route, Routes, Outlet, BrowserRouter as Router } from 'react-router-dom
 import { ThemeProvider } from 'next-themes';
 import ScrollToTop from './components/ScrollToTop';
 import SiteLayout from './components/SiteLayout';
+import PortalLayout from './components/PortalLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
@@ -41,6 +42,12 @@ const PublicLayout = () => (
     </SiteLayout>
 );
 
+const PortalLayoutRoute = () => (
+    <PortalLayout>
+        <Outlet />
+    </PortalLayout>
+);
+
 function App() {
     return (
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
@@ -73,11 +80,7 @@ function App() {
                                 <Route path="/contact" element={<ContactPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
-                                <Route path="/login" element={<LoginPage />} />
-                                <Route path="/join" element={<AccountTypePage />} />
-                                <Route path="/signup" element={<SignupPage />} />
-                                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                                <Route
+                                 <Route
                                     path="/checkout"
                                     element={
                                         <ProtectedRoute>
@@ -86,6 +89,11 @@ function App() {
                                     }
                                 />
                                 <Route path="/order/:reference" element={<OrderPage />} />
+                                <Route path="*" element={<NotFoundPage />} />
+                            </Route>
+
+                            {/* Account portal (slim header, no footer) */}
+                            <Route element={<PortalLayoutRoute />}>
                                 <Route
                                     path="/dashboard"
                                     element={
@@ -94,8 +102,13 @@ function App() {
                                         </ProtectedRoute>
                                     }
                                 />
-                                <Route path="*" element={<NotFoundPage />} />
                             </Route>
+
+                            {/* Authentication Pages (no public chrome/header/footer) */}
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/join" element={<AccountTypePage />} />
+                            <Route path="/signup" element={<SignupPage />} />
+                            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
                             {/* Admin portal (standalone, no public chrome) */}
                             <Route path="/admin/login" element={<AdminLoginPage />} />

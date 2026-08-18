@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { ArrowLeft, Mail } from 'lucide-react';
 import { PageHead } from '@/components/Section';
 import { IMG } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,11 +43,15 @@ const LoginPage = () => {
                 <img src={IMG.portrait} alt="" className="h-full w-full object-cover" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute bottom-12 left-10 right-10">
-                    <p className="font-display text-4xl leading-tight">A legacy is only alive if it is handed on.</p>
+                    <p className="font-display text-4xl leading-tight text-white">A legacy is only alive if it is handed on.</p>
                 </div>
             </div>
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
+                    <Link to="/" className="group mb-8 inline-flex items-center gap-2 text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+                        <ArrowLeft size={13} strokeWidth={1.6} className="transition-transform group-hover:-translate-x-1" />
+                        Back to Home
+                    </Link>
                     <p className="eyebrow">Members</p>
                     <h1 className="mt-4 font-display text-5xl">Sign in</h1>
                     <form onSubmit={submit} className="mt-10 space-y-5">
@@ -82,18 +86,24 @@ const LoginPage = () => {
                         </button>
                     </form>
 
-                    <div className="mt-10 space-y-3 border-t border-border pt-8 text-sm text-muted-foreground">
+                    <div className="mt-10 space-y-4 border-t border-border pt-8 text-sm text-muted-foreground">
                         <p>
                             No account yet?{' '}
                             <Link to={`/join${next !== '/dashboard' ? `?next=${encodeURIComponent(next)}` : ''}`} className="text-[hsl(var(--gold))]">
                                 Create an account
                             </Link>
                         </p>
-                        <p className="flex items-center gap-2">
-                            <Mail size={14} strokeWidth={1.4} />
-                            <Link to="/#subscribe" className="text-[hsl(var(--gold))]">Continue as a subscriber</Link>
-                            <span>— newsletter only, no account needed.</span>
-                        </p>
+                        <div className="flex items-start gap-2.5">
+                            <Mail size={15} strokeWidth={1.4} className="mt-1 shrink-0 text-[hsl(var(--gold))]" />
+                            <div>
+                                <Link to="/#subscribe" className="text-[hsl(var(--gold))] hover:underline block">
+                                    Continue as a subscriber
+                                </Link>
+                                <span className="block mt-0.5 text-xs text-muted-foreground">
+                                    Newsletter only, no account needed.
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
