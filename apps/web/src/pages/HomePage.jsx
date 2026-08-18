@@ -44,7 +44,7 @@ const HomePage = () => {
           delay: 0.5,
           duration: 0.9
         }} className="eyebrow">CHIEF PETE EDOCHIE LEGACY PROJECT</motion.p>
-                    <h1 className="mt-6 max-w-4xl font-display text-6xl leading-[0.9] tracking-tight md:text-[7.5rem]">
+                    <h1 className="mt-6 max-w-4xl font-display text-6xl leading-[0.9] tracking-tight md:text-[7.5rem] text-white">
                         {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
                                 <motion.span className="block" initial={{
               y: '110%'
@@ -69,7 +69,7 @@ const HomePage = () => {
           delay: 1.3,
           duration: 1
         }} className="mt-9 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <p className="max-w-md text-sm leading-relaxed text-muted-foreground md:text-base">
+                        <p className="max-w-md text-sm leading-relaxed text-stone-300 md:text-base">
                             Actor. Elder. Custodian of Igbo proverb and African memory. Six decades of work, gathered
                             into one archive — and given forward to the next generation.
                         </p>
@@ -178,7 +178,7 @@ const HomePage = () => {
                         </Link>
                     </div>
                     <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
-                        {['https://images.hostinger.com/3ae11c1c-803c-4021-939e-151bd89ffe16.png', 'https://images.hostinger.com/1a411ea8-babd-45bc-add6-73e265f0453a.png', 'https://images.hostinger.com/205049b9-855d-4650-9911-cccbe2bc0f04.png', 'https://images.hostinger.com/aadb37ee-05d5-40da-8715-c56376d122d1.png'].map((src, i) => <Reveal key={src} delay={i * 0.06}>
+                        {['https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80', 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80', 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=80'].map((src, i) => <Reveal key={src} delay={i * 0.06}>
                                 <Link to="/shop" className="group block overflow-hidden">
                                     <img src={src} alt="Official Pete Edochie Legacy merchandise" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
                                 </Link>

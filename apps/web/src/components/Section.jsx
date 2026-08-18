@@ -16,9 +16,9 @@ export const PageHero = ({ eyebrow, title, lead, image, align = 'left' }) => (
         <div className={`relative mx-auto w-full max-w-[72rem] px-5 pb-16 pt-32 md:px-10 ${align === 'center' ? 'text-center' : ''}`}>
             <Reveal>
                 <p className="eyebrow">{eyebrow}</p>
-                <h1 className="mt-5 font-display text-5xl leading-[0.95] md:text-7xl">{title}</h1>
+                <h1 className="mt-5 font-display text-5xl leading-[0.95] md:text-7xl text-white">{title}</h1>
                 {lead ? (
-                    <p className={`mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg ${align === 'center' ? 'mx-auto' : ''}`}>
+                    <p className={`mt-6 max-w-2xl text-base leading-relaxed text-stone-300 md:text-lg ${align === 'center' ? 'mx-auto' : ''}`}>
                         {lead}
                     </p>
                 ) : null}
