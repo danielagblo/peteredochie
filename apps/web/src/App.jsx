@@ -14,6 +14,7 @@ import HomePage from './pages/HomePage';
 import PetePage from './pages/PetePage';
 import LegacyPage from './pages/LegacyPage';
 import BookPage from './pages/BookPage';
+import BookProductPage from './pages/BookProductPage';
 import ShopPage from './pages/ShopPage';
 import EventsPage from './pages/EventsPage';
 import MentorshipPage from './pages/MentorshipPage';
@@ -31,6 +32,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderPage from './pages/OrderPage';
+import TrackOrderPage from './pages/TrackOrderPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminForgotPasswordPage from './pages/admin/AdminForgotPasswordPage';
@@ -62,6 +64,7 @@ function App() {
                                 <Route path="/" element={<HomePage />} />
                                 <Route path="/pete-edochie" element={<PetePage />} />
                                 <Route path="/legacy" element={<LegacyPage />} />
+                                <Route path="/book/item/:productId" element={<BookProductPage />} />
                                 <Route path="/book" element={<BookPage />} />
                                 <Route path="/shop" element={<ShopPage />} />
                                 <Route path="/events" element={<EventsPage />} />
@@ -80,15 +83,9 @@ function App() {
                                 <Route path="/contact" element={<ContactPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
-                                 <Route
-                                    path="/checkout"
-                                    element={
-                                        <ProtectedRoute>
-                                            <CheckoutPage />
-                                        </ProtectedRoute>
-                                    }
-                                />
+                                <Route path="/checkout" element={<CheckoutPage />} />
                                 <Route path="/order/:reference" element={<OrderPage />} />
+                                <Route path="/track-order" element={<TrackOrderPage />} />
                                 <Route path="*" element={<NotFoundPage />} />
                             </Route>
 

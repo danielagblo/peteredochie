@@ -5,10 +5,12 @@ import { Loader2, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { formatUSD, initializeOrder, paystackStatus } from '@/lib/commerce';
-import { COUNTRIES, regionsFor, zipRequired } from '@/lib/countries';
+import { zipRequired } from '@/lib/countries';
+import { fetchCountryDistributor } from '@/lib/distributors';
+import CountryCollectionFields, { collectionInput } from '@/components/CountryCollectionFields';
 import pb from '@/lib/pocketbaseClient';
 
-const input = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none focus:border-[hsl(var(--gold))]';
+const input = collectionInput;
 
 const CheckoutPage = () => {
     const { user, isAuthed } = useAuth();
@@ -29,12 +31,17 @@ const CheckoutPage = () => {
         postal_code: '',
         phone: user?.phone || '',
     });
+    const [fulfillmentMethod, setFulfillmentMethod] = useState('ship');
 
     useEffect(() => {
-        if (!isAuthed) {
-            navigate('/login?next=/checkout');
-        }
-    }, [isAuthed, navigate]);
+        if (!user) return;
+        setForm((prev) => ({
+            ...prev,
+            full_name: prev.full_name || user.name || '',
+            email: prev.email || user.email || '',
+            phone: prev.phone || user.phone || '',
+        }));
+    }, [user]);
 
     useEffect(() => {
         paystackStatus().then(setConfigured);
@@ -69,8 +76,8 @@ const CheckoutPage = () => {
         [lines],
     );
 
-    const countryRegions = useMemo(() => regionsFor(form.country), [form.country]);
     const needsZip = zipRequired(form.country);
+    const collecting = fulfillmentMethod === 'distributor_collection';
 
     // Reset region when country changes.
     useEffect(() => {
@@ -86,21 +93,44 @@ const CheckoutPage = () => {
             setError('Your cart is empty.');
             return;
         }
-        if (!form.full_name || !form.email || !form.address_line || !form.city || !form.country || !form.region) {
-            setError('Please complete all required fields (name, email, address, city, country and region/state).');
+        if (!form.full_name || !form.email || !form.country || !form.region) {
+            setError('Please complete all required fields (name, email, country and region/state).');
             return;
         }
-        if (needsZip && !form.postal_code) {
+        if (!collecting && (!form.address_line || !form.city)) {
+            setError('Please enter your street address and city for shipping.');
+            return;
+        }
+        if (!collecting && needsZip && !form.postal_code) {
             setError('A postal / zip code is required for the selected country.');
             return;
         }
         setSubmitting(true);
         try {
+            let distributorId = '';
+            if (collecting) {
+                const match = await fetchCountryDistributor(form.country);
+                if (!match?.distributor?.id) {
+                    setError('No distributor is available for collection in that country. Choose shipping instead.');
+                    setSubmitting(false);
+                    return;
+                }
+                distributorId = match.distributor.id;
+            }
+            const shipping = collecting
+                ? {
+                    ...form,
+                    address_line: form.address_line || 'Collect from distributor',
+                    city: form.city || form.region,
+                }
+                : form;
             const result = await initializeOrder({
                 items: lines.map((l) => ({ product_id: l.product_id, quantity: l.quantity, variant: l.variant || '' })),
-                shipping_address: form,
+                shipping_address: shipping,
                 email: form.email,
                 country: form.country,
+                fulfillment_method: fulfillmentMethod,
+                distributor_id: distributorId || undefined,
                 return_origin: window.location.origin,
             });
             clear();
@@ -115,8 +145,6 @@ const CheckoutPage = () => {
         }
     };
 
-    if (!isAuthed) return null;
-
     return (
         <div className="pt-28">
             <Helmet>
@@ -126,6 +154,16 @@ const CheckoutPage = () => {
             <div className="mx-auto max-w-[64rem] px-5 py-12 md:px-10">
                 <p className="eyebrow">Checkout</p>
                 <h1 className="mt-4 font-display text-4xl md:text-5xl">Review your order</h1>
+                {!isAuthed ? (
+                    <p className="mt-3 max-w-xl text-sm text-muted-foreground">
+                        No account needed. Enter your contact and shipping details below to complete your purchase.
+                        {' '}
+                        Prefer a dashboard for orders later?{' '}
+                        <Link to="/join?next=/checkout" className="text-[hsl(var(--gold))]">Create an account</Link>
+                        {' '}or{' '}
+                        <Link to="/login?next=/checkout" className="text-[hsl(var(--gold))]">sign in</Link>.
+                    </p>
+                ) : null}
 
                 {loading ? (
                     <div className="mt-10 flex items-center gap-3 text-sm text-muted-foreground">
@@ -175,8 +213,28 @@ const CheckoutPage = () => {
                             </section>
 
                             <section className="border border-border bg-card p-6">
-                                <h2 className="font-display text-2xl">Shipping & contact details</h2>
-                                <p className="mt-2 text-sm text-muted-foreground">All purchases require a delivery address and contact details, even digital editions, for order records and fulfilment.</p>
+                                <h2 className="font-display text-2xl">Country & collection</h2>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    Select your country and choose shipping or collection from your local distributor.
+                                </p>
+                                <CountryCollectionFields
+                                    className="mt-5"
+                                    country={form.country}
+                                    region={form.region}
+                                    fulfillmentMethod={fulfillmentMethod}
+                                    onCountry={(code) => setForm({ ...form, country: code, region: '' })}
+                                    onRegion={(region) => setForm({ ...form, region })}
+                                    onFulfillmentMethod={setFulfillmentMethod}
+                                />
+                            </section>
+
+                            <section className="border border-border bg-card p-6">
+                                <h2 className="font-display text-2xl">{collecting ? 'Contact details' : 'Shipping & contact details'}</h2>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    {collecting
+                                        ? 'We need your contact details for order records. Your items will be held for collection at the distributor shown above.'
+                                        : 'All purchases require a delivery address and contact details for order records and fulfilment.'}
+                                </p>
                                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                                     <div className="grid gap-2 sm:col-span-2">
                                         <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Full name *</label>
@@ -186,6 +244,8 @@ const CheckoutPage = () => {
                                         <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Email *</label>
                                         <input className={input} type="email" required value={form.email} onChange={set('email')} />
                                     </div>
+                                    {!collecting ? (
+                                        <>
                                     <div className="grid gap-2 sm:col-span-2">
                                         <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Street address *</label>
                                         <input className={input} required value={form.address_line} onChange={set('address_line')} />
@@ -195,32 +255,13 @@ const CheckoutPage = () => {
                                         <input className={input} required value={form.city} onChange={set('city')} />
                                     </div>
                                     <div className="grid gap-2">
-                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Country *</label>
-                                        <select className={input} required value={form.country} onChange={set('country')}>
-                                            {COUNTRIES.map((c) => (
-                                                <option key={c.code} value={c.code}>{c.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Region / State *</label>
-                                        {countryRegions.length > 0 ? (
-                                            <select className={input} required value={form.region} onChange={set('region')}>
-                                                <option value="" disabled>Select region</option>
-                                                {countryRegions.map((r) => (
-                                                    <option key={r} value={r}>{r}</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <input className={input} required value={form.region} onChange={set('region')} placeholder="Enter region / state" />
-                                        )}
-                                    </div>
-                                    <div className="grid gap-2">
                                         <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
                                             Postal / Zip code{needsZip ? ' *' : ' (optional)'}
                                         </label>
                                         <input className={input} required={needsZip} value={form.postal_code} onChange={set('postal_code')} />
                                     </div>
+                                        </>
+                                    ) : null}
                                     <div className="grid gap-2 sm:col-span-2">
                                         <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Phone</label>
                                         <input className={input} value={form.phone} onChange={set('phone')} />

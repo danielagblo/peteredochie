@@ -21,8 +21,9 @@ const HomePage = () => {
             <Seo title="Pete Edochie — The Official Legacy Platform | King Dawie Publishing" description="Archive, autobiography, events and mentorship from one of Africa's most respected storytellers. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
             {/* HERO */}
-            <section className="relative flex min-h-[100dvh] items-end overflow-hidden">
-                <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
+            <section className="relative flex min-h-[100svh] flex-col justify-end">
+                <div className="absolute inset-0 overflow-hidden">
+                    <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
         scale: 1.08,
         opacity: 0
       }} animate={{
@@ -31,9 +32,10 @@ const HomePage = () => {
       }} transition={{
         duration: 2.4,
         ease: [0.22, 1, 0.36, 1]
-      }} className="absolute inset-0 h-full w-full object-cover [filter:brightness(0.7)]" />
-                <div className="img-veil absolute inset-0" />
-                <div className="relative mx-auto w-full max-w-[90rem] px-5 pb-20 md:px-10 md:pb-28">
+      }} className="absolute inset-0 h-full w-full object-cover [filter:brightness(0.72)]" />
+                    <div className="img-veil absolute inset-0" />
+                </div>
+                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-16 pt-28 md:px-10 md:pb-24">
                     <motion.p initial={{
           opacity: 0,
           y: 12
@@ -44,7 +46,7 @@ const HomePage = () => {
           delay: 0.5,
           duration: 0.9
         }} className="eyebrow">CHIEF PETE EDOCHIE LEGACY PROJECT</motion.p>
-                    <h1 className="mt-6 max-w-4xl font-display text-6xl leading-[0.9] tracking-tight md:text-[7.5rem] text-white">
+                    <h1 className="mt-5 max-w-4xl font-display text-5xl leading-[0.94] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[6.5rem]">
                         {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
                                 <motion.span className="block" initial={{
               y: '110%'
@@ -69,7 +71,7 @@ const HomePage = () => {
           delay: 1.3,
           duration: 1
         }} className="mt-9 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <p className="max-w-md text-sm leading-relaxed text-stone-300 md:text-base">
+                        <p className="max-w-md text-sm leading-relaxed text-white/75 md:text-base">
                             Actor. Elder. Custodian of Igbo proverb and African memory. Six decades of work, gathered
                             into one archive — and given forward to the next generation.
                         </p>
@@ -78,7 +80,7 @@ const HomePage = () => {
                                 Enter the story
                                 <ArrowRight size={15} strokeWidth={1.6} className="transition-transform group-hover:translate-x-1" />
                             </Link>
-                            <Link to="/events" className="flex items-center gap-3 border border-border px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-foreground transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
+                            <Link to="/events" className="flex items-center gap-3 border border-white/35 px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                 <CalendarDays size={14} strokeWidth={1.6} /> View events
                             </Link>
                         </div>
@@ -319,8 +321,9 @@ const HomePage = () => {
             <SubscribeSection />
 
             <section className="relative overflow-hidden border-t border-border">
-                <img src={IMG.theatre} alt="" className="h-[60vh] w-full object-cover opacity-40" />
-                <div className="absolute inset-0 flex items-center justify-center text-center">
+                <img src={IMG.theatre} alt="" className="h-[60vh] w-full object-cover" />
+                <div className="img-veil absolute inset-0" />
+                <div className="absolute inset-0 flex items-center justify-center text-center text-white">
                     <Section width="max-w-[56rem]">
                         <Reveal>
                             <h2 className="font-display text-4xl leading-tight md:text-6xl">
@@ -330,7 +333,7 @@ const HomePage = () => {
                                 <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
                                     Create your account
                                 </Link>
-                                <Link to="/contact" className="border border-border px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
+                                <Link to="/contact" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                     Partner with us
                                 </Link>
                             </div>

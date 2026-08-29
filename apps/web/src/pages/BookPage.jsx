@@ -5,13 +5,11 @@ import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
 import { IMG, PUBLISHER } from '@/lib/content';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { formatUSD, isRedirectOnly, isPurchasable } from '@/lib/commerce';
 import pb from '@/lib/pocketbaseClient';
 
 const BookPage = () => {
     const { items, add } = useCart();
-    const { isAuthed } = useAuth();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [added, setAdded] = useState(null);
@@ -131,11 +129,8 @@ const BookPage = () => {
 
                     <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
                         <p className="text-xs text-muted-foreground">
-                            {isAuthed ? (
-                                <Link to="/checkout" className="text-[hsl(var(--gold))]">Review cart & checkout →</Link>
-                            ) : (
-                                'Sign in at checkout to complete your preorder.'
-                            )}
+                            <Link to="/checkout" className="text-[hsl(var(--gold))]">Review cart & checkout →</Link>
+                            {' '}No account required.
                         </p>
                         <Link
                             to="/checkout"

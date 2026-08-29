@@ -90,3 +90,30 @@ export const verifyOrder = async (reference) => {
     }
     return data;
 };
+
+export const claimGuestOrders = async () => {
+    const res = await apiServerClient.fetch('/paystack/claim-orders', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({}),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        const err = new Error(data?.error || 'Could not claim guest orders.');
+        err.payload = data;
+        throw err;
+    }
+    return data;
+};
+
+export const lookupGuestOrder = async (reference, email) => {
+    const qs = `reference=${encodeURIComponent(reference)}&email=${encodeURIComponent(email)}`;
+    const res = await apiServerClient.fetch(`/paystack/lookup?${qs}`);
+    const data = await res.json();
+    if (!res.ok) {
+        const err = new Error(data?.error || 'Could not find that order.');
+        err.payload = data;
+        throw err;
+    }
+    return data;
+};

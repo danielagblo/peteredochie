@@ -57,6 +57,48 @@ function ticketCode(tier) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 }
 
+async function validateDistributorForCountry(distributorId, countryCode) {
+  if (!distributorId) return null;
+  let dist;
+  try {
+    dist = await pocketbaseClient.collection("users").getOne(distributorId, {
+      expand: "assigned_country",
+      requestKey: `dist-validate-${distributorId}`,
+    });
+  } catch (_) {
+    const err = new Error("Selected distributor is not available.");
+    err.status = 422;
+    throw err;
+  }
+  if (dist.account_type !== "distributor" || dist.approval_status !== "approved") {
+    const err = new Error("Selected distributor is not available.");
+    err.status = 422;
+    throw err;
+  }
+  const assignedCode = dist.expand?.assigned_country?.code;
+  if (assignedCode && countryCode && assignedCode !== countryCode) {
+    const err = new Error("That distributor does not serve the selected country.");
+    err.status = 422;
+    throw err;
+  }
+  if (countryCode && !assignedCode) {
+    try {
+      const country = await pocketbaseClient.collection("countries").getFirstListItem(
+        `code = "${countryCode}"`,
+        { requestKey: `dist-country-${countryCode}` },
+      );
+      if (country.primary_distributor && country.primary_distributor !== distributorId) {
+        const err = new Error("That distributor is not assigned to the selected country.");
+        err.status = 422;
+        throw err;
+      }
+    } catch (e) {
+      if (e.status === 422) throw e;
+    }
+  }
+  return distributorId;
+}
+
 // GET /paystack/status — is Paystack configured?
 router.get("/status", (req, res) => {
   res.json({ configured: isIntegrationConfigured("PAYSTACK_SECRET_KEY") });
@@ -65,26 +107,34 @@ router.get("/status", (req, res) => {
 // POST /paystack/initialize — create a pending order + line items, then start
 // a Paystack transaction. Body: { items: [{product_id, quantity}],
 // shipping_address, email, return_origin }
+// Auth is optional: signed-in buyers keep owner-linked orders; guests check out
+// with contact details only via the superuser client.
 router.post("/initialize", async (req, res) => {
   const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-  let client;
-  try {
-    client = await userClient(token);
-  } catch (err) {
-    return res.status(err.status || 401).json({ error: err.message });
+  const userId = token ? userIdFromToken(token) : null;
+  let client = pocketbaseClient;
+  if (token && userId) {
+    try {
+      client = await userClient(token);
+    } catch (err) {
+      return res.status(err.status || 401).json({ error: err.message });
+    }
   }
 
-  const { items, shipping_address: shipping, email, return_origin, country } = req.body || {};
+  const {
+    items,
+    shipping_address: shipping,
+    email,
+    return_origin,
+    country,
+    fulfillment_method,
+    distributor_id,
+  } = req.body || {};
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(422).json({ error: "Your cart is empty." });
   }
   if (!email) {
     return res.status(422).json({ error: "An email address is required." });
-  }
-
-  const userId = userIdFromToken(token);
-  if (!userId) {
-    return res.status(401).json({ error: "Authentication required." });
   }
 
   // Load products via the superuser client (broad read, including disabled).
@@ -121,14 +171,29 @@ router.post("/initialize", async (req, res) => {
   }
   total = Math.round(total * 100) / 100;
 
+  const fulfillment = fulfillment_method === "distributor_collection" ? "distributor_collection" : "ship";
+  let distributor = "";
+  if (fulfillment === "distributor_collection") {
+    if (!country) {
+      return res.status(422).json({ error: "A country is required for distributor collection." });
+    }
+    if (!distributor_id) {
+      return res.status(422).json({ error: "A distributor is required for collection orders." });
+    }
+    try {
+      distributor = await validateDistributorForCountry(distributor_id, country);
+    } catch (err) {
+      return res.status(err.status || 422).json({ error: err.message });
+    }
+  }
+
   const reference = genReference();
   const summary = lineItems.map((l) => `${l.product_name} × ${l.quantity}`).join(", ");
 
-  // Create the order as the caller (owner-scoped).
+  // Create the order as the caller when signed in, otherwise as a guest order.
   let order;
   try {
-    order = await client.collection("orders").create({
-      owner: userId,
+    const payload = {
       email,
       total_price: total,
       currency: "USD",
@@ -139,13 +204,17 @@ router.post("/initialize", async (req, res) => {
       items_summary: summary,
       confirmation_sent: false,
       country: country || "",
-    });
+      fulfillment_method: fulfillment,
+    };
+    if (distributor) payload.distributor = distributor;
+    if (userId) payload.owner = userId;
+    order = await client.collection("orders").create(payload);
   } catch (err) {
     logger.error("order create failed", err.message);
     throw new Error(`Could not create your order: ${err.status || ""} ${err.message || ""}`);
   }
 
-  // Create line items as the caller.
+  // Create line items with the same client used for the order.
   try {
     for (let i = 0; i < lineItems.length; i++) {
       await client.collection("order_items").create(
@@ -240,7 +309,7 @@ router.post("/tickets/initialize", async (req, res) => {
     return res.status(err.status || 401).json({ error: err.message });
   }
 
-  const { event_id, tier, email, return_origin } = req.body || {};
+  const { event_id, tier, email, return_origin, country, fulfillment_method, distributor_id } = req.body || {};
   if (!event_id || !tier) {
     return res.status(422).json({ error: "Event and ticket tier are required." });
   }
@@ -272,11 +341,27 @@ router.post("/tickets/initialize", async (req, res) => {
   const reference = genTicketReference();
   const confirmationCode = ticketCode(tier);
 
+  const fulfillment = fulfillment_method === "distributor_collection" ? "distributor_collection" : "ship";
+  let distributor = "";
+  if (fulfillment === "distributor_collection") {
+    if (!country) {
+      return res.status(422).json({ error: "A country is required for distributor collection." });
+    }
+    if (!distributor_id) {
+      return res.status(422).json({ error: "A distributor is required for collection." });
+    }
+    try {
+      distributor = await validateDistributorForCountry(distributor_id, country);
+    } catch (err) {
+      return res.status(err.status || 422).json({ error: err.message });
+    }
+  }
+
   // Create the ticket as the caller (owner-scoped), held as pending until
   // Paystack confirms payment.
   let ticket;
   try {
-    ticket = await client.collection("meet_and_greet_tickets").create({
+    const ticketPayload = {
       owner: userId,
       event: event_id,
       tier,
@@ -286,7 +371,11 @@ router.post("/tickets/initialize", async (req, res) => {
       photographer: tier === "vip",
       payment_reference: reference,
       payment_status: "pending",
-    });
+      country: country || "",
+      fulfillment_method: fulfillment,
+    };
+    if (distributor) ticketPayload.distributor = distributor;
+    ticket = await client.collection("meet_and_greet_tickets").create(ticketPayload);
   } catch (err) {
     logger.error("ticket create failed", err.message);
     throw new Error(`Could not create your ticket: ${err.status || ""} ${err.message || ""}`);
@@ -406,14 +495,15 @@ async function markOrderPaid(reference, paystackRef) {
       const prev = Number(product.current_stock) || 0;
       const next = Math.max(0, prev - (Number(item.quantity) || 0));
       await pocketbaseClient.collection("products").update(product.id, { current_stock: next });
-      await pocketbaseClient.collection("stock_movements").create({
+      const movement = {
         product: product.id,
         quantity_change: -(Number(item.quantity) || 0),
         previous_stock: prev,
         new_stock: next,
         reason: `Order ${reference} paid`,
-        created_by: order.owner,
-      });
+      };
+      if (order.owner) movement.created_by = order.owner;
+      await pocketbaseClient.collection("stock_movements").create(movement);
     } catch (err) {
       logger.error("stock decrement failed", "product", item.product, "err", err.message);
     }
@@ -484,7 +574,18 @@ router.get("/verify", async (req, res) => {
         `payment_reference = "${reference}"`,
         { requestKey: `verify-nok-${reference}` },
       );
-      return res.json({ configured: false, kind: "order", order_id: order.id, reference, payment_status: order.payment_status });
+      return res.json({
+        configured: false,
+        kind: "order",
+        order_id: order.id,
+        reference,
+        payment_status: order.payment_status,
+        email: order.email,
+        total_price: order.total_price,
+        currency: order.currency,
+        items_summary: order.items_summary,
+        order_status: order.order_status,
+      });
     } catch (_) {
       throw new Error(`Record not found for reference ${reference}`);
     }
@@ -531,7 +632,18 @@ router.get("/verify", async (req, res) => {
   }
 
   const order = await markOrderPaid(reference, data.data);
-  res.json({ configured: true, kind: "order", order_id: order?.id, reference, payment_status: "paid" });
+  res.json({
+    configured: true,
+    kind: "order",
+    order_id: order?.id,
+    reference,
+    payment_status: "paid",
+    email: order?.email,
+    total_price: order?.total_price,
+    currency: order?.currency,
+    items_summary: order?.items_summary,
+    order_status: order?.order_status,
+  });
 });
 
 // POST /paystack/webhook — Paystack event callback.
@@ -567,6 +679,102 @@ router.post("/webhook", async (req, res) => {
   }
 
   res.status(200).json({ status: "ok" });
+});
+
+// POST /paystack/claim-orders — attach guest orders (no owner) to the signed-in
+// user when the order email matches. Lets shoppers unlock the dashboard after
+// buying without an account.
+router.post("/claim-orders", async (req, res) => {
+  const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const userId = token ? userIdFromToken(token) : null;
+  if (!userId) {
+    return res.status(401).json({ error: "Authentication required." });
+  }
+
+  let user;
+  try {
+    user = await pocketbaseClient.collection("users").getOne(userId, { requestKey: `claim-user-${userId}` });
+  } catch (_) {
+    return res.status(401).json({ error: "User not found." });
+  }
+
+  const email = String(user.email || "").trim().toLowerCase();
+  if (!email) {
+    return res.status(422).json({ error: "Your account has no email address." });
+  }
+
+  let guests = [];
+  try {
+    guests = await pocketbaseClient.collection("orders").getFullList({
+      filter: `email = "${email.replace(/"/g, '\\"')}" && owner = ""`,
+      requestKey: `claim-orders-${userId}`,
+    });
+  } catch (err) {
+    logger.error("claim-orders list failed", err.message);
+    return res.status(500).json({ error: "Could not look up guest orders." });
+  }
+
+  const claimed = [];
+  for (const order of guests) {
+    try {
+      await pocketbaseClient.collection("orders").update(order.id, { owner: userId });
+      claimed.push(order.id);
+    } catch (err) {
+      logger.error("claim-orders update failed", order.id, err.message);
+    }
+  }
+
+  res.json({ claimed: claimed.length, order_ids: claimed });
+});
+
+// GET /paystack/lookup?reference=&email= — guest order tracker (no auth).
+router.get("/lookup", async (req, res) => {
+  const reference = String(req.query.reference || "").trim();
+  const email = String(req.query.email || "").trim().toLowerCase();
+  if (!reference || !email) {
+    return res.status(422).json({ error: "Order reference and email are required." });
+  }
+
+  let order;
+  try {
+    order = await pocketbaseClient.collection("orders").getFirstListItem(
+      `payment_reference = "${reference.replace(/"/g, '\\"')}"`,
+      { requestKey: `lookup-${reference}` },
+    );
+  } catch (_) {
+    return res.status(404).json({ error: "No order found for that reference." });
+  }
+
+  if (String(order.email || "").trim().toLowerCase() !== email) {
+    return res.status(404).json({ error: "No order found for that reference and email." });
+  }
+
+  let items = [];
+  try {
+    items = await pocketbaseClient.collection("order_items").getFullList({
+      filter: `order = "${order.id}"`,
+      requestKey: `lookup-items-${order.id}`,
+    });
+  } catch (_) {
+    /* optional */
+  }
+
+  res.json({
+    reference: order.payment_reference,
+    email: order.email,
+    payment_status: order.payment_status,
+    order_status: order.order_status,
+    total_price: order.total_price,
+    currency: order.currency,
+    items_summary: order.items_summary,
+    shipping_address: order.shipping_address,
+    created: order.created,
+    items: items.map((it) => ({
+      product_name: it.product_name,
+      quantity: it.quantity,
+      total_price: it.total_price,
+    })),
+  });
 });
 
 export default router;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Reveal from '@/components/Reveal';
 import pb from '@/lib/pocketbaseClient';
 import { INTEREST_OPTIONS } from '@/lib/accounts';
+import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 
 const SubscribeSection = () => {
     const [email, setEmail] = useState('');
@@ -19,17 +20,20 @@ const SubscribeSection = () => {
         e.preventDefault();
         setState('busy');
         setMessage('');
+        openWhatsApp(
+            composeWhatsApp('Newsletter subscription', {
+                Name: name,
+                Email: email,
+                Country: country,
+                Interests: interests.join(', '),
+            }),
+        );
         try {
             await pb.collection('subscribers').create({ email, name, country, interests });
-            setState('done');
-        } catch (err) {
-            if (err?.status === 400) {
-                setState('done');
-            } else {
-                setState('error');
-                setMessage('We could not save your subscription. Please try again.');
-            }
+        } catch (_) {
+            /* WhatsApp is the primary channel */
         }
+        setState('done');
     };
 
     const field =
@@ -57,7 +61,7 @@ const SubscribeSection = () => {
                         <div className="border border-[hsl(var(--gold))]/40 p-9">
                             <p className="font-display text-3xl">You are on the list.</p>
                             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                                Thank you. Updates will arrive at {email}.
+                                WhatsApp should have opened with your details. Updates will also be noted for {email}.
                             </p>
                         </div>
                     ) : (
@@ -96,7 +100,7 @@ const SubscribeSection = () => {
                                 disabled={state === 'busy'}
                                 className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
                             >
-                                {state === 'busy' ? 'Subscribing…' : 'Subscribe'}
+                                {state === 'busy' ? 'Opening WhatsApp…' : 'Subscribe via WhatsApp'}
                             </button>
                         </form>
                     )}

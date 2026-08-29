@@ -68,7 +68,7 @@ const GalleryPage = () => {
 
             {open ? (
                 <div
-                    className="fixed inset-0 z-[70] flex items-center justify-center bg-black/95 p-6"
+                    className="fixed inset-0 z-[90] flex items-center justify-center bg-black/95 p-6"
                     onClick={() => setOpen(null)}
                     role="presentation"
                 >

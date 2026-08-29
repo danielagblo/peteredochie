@@ -10,7 +10,14 @@ const ICONS = { user: User, truck: Truck, building: Building2 };
 const AccountTypePage = () => {
     const [params] = useSearchParams();
     const next = params.get('next');
-    const suffix = next ? `&next=${encodeURIComponent(next)}` : '';
+    const email = params.get('email');
+    const suffix = [
+        next ? `next=${encodeURIComponent(next)}` : '',
+        email ? `email=${encodeURIComponent(email)}` : '',
+    ]
+        .filter(Boolean)
+        .map((p) => `&${p}`)
+        .join('');
 
     return (
         <div className="pt-32 pb-28">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
 import { IMG, PUBLISHER } from '@/lib/content';
 import { useToast } from '@/hooks/use-toast';
+import { composeWhatsApp, openWhatsApp, whatsappHref } from '@/lib/whatsapp';
 import pb from '@/lib/pocketbaseClient';
 
 const SUBJECTS = ['General enquiry', 'Media & press', 'Booking & appearances', 'Partnership', 'Book orders', 'Publishing & rights'];
@@ -15,16 +16,23 @@ const ContactPage = () => {
     const submit = async (e) => {
         e.preventDefault();
         setSending(true);
+        const text = composeWhatsApp('Contact enquiry', {
+            Name: form.name,
+            Email: form.email,
+            Organisation: form.organisation,
+            Subject: form.subject,
+            Message: form.message,
+        });
+        openWhatsApp(text);
         try {
             await pb.collection('enquiries').create(form);
-            setSent(true);
-            setForm({ name: '', email: '', organisation: '', subject: SUBJECTS[0], message: '' });
-            toast({ title: 'Message received', description: 'Our office will respond within three working days.' });
-        } catch (err) {
-            toast({ variant: 'destructive', title: 'Message not sent', description: err?.message || 'Please try again.' });
-        } finally {
-            setSending(false);
+        } catch (_) {
+            /* WhatsApp is the primary channel */
         }
+        setSent(true);
+        setForm({ name: '', email: '', organisation: '', subject: SUBJECTS[0], message: '' });
+        toast({ title: 'Opening WhatsApp', description: 'Your message is ready to send to the publishing office.' });
+        setSending(false);
     };
 
     const field = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
@@ -45,13 +53,25 @@ const ContactPage = () => {
                             ['Office', 'Victoria Island, Lagos, Nigeria'],
                             ['Archive', 'Nteje, Anambra State, Nigeria'],
                             ['Publisher & rights holder', PUBLISHER.name],
+                            ['WhatsApp', PUBLISHER.phoneDisplay],
                             ['Publishing & rights', PUBLISHER.email],
                             ['Response time', 'Within three working days'],
                             ['Press', 'Please state your outlet and deadline'],
                         ].map(([k, v]) => (
                             <div key={k} className="border-t border-border pt-5">
                                 <p className="text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">{k}</p>
-                                <p className="mt-2 font-display text-2xl">{v}</p>
+                                {k === 'WhatsApp' ? (
+                                    <a
+                                        href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-2 inline-block font-display text-2xl text-[hsl(var(--gold))] transition-colors hover:text-foreground"
+                                    >
+                                        {v}
+                                    </a>
+                                ) : (
+                                    <p className="mt-2 font-display text-2xl">{v}</p>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -70,7 +90,7 @@ const ContactPage = () => {
                     {sent ? (
                         <div>
                             <p className="font-display text-3xl text-[hsl(var(--gold))]">Thank you.</p>
-                            <p className="mt-3 text-sm text-muted-foreground">Your message has been filed with the office.</p>
+                            <p className="mt-3 text-sm text-muted-foreground">WhatsApp should have opened with your message. If it did not, use the green button on this page.</p>
                             <button type="button" onClick={() => setSent(false)} className="mt-8 text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
                                 Send another message
                             </button>
@@ -110,7 +130,7 @@ const ContactPage = () => {
                                 disabled={sending}
                                 className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
                             >
-                                {sending ? 'Sending…' : 'Send message'}
+                                {sending ? 'Opening WhatsApp…' : 'Send via WhatsApp'}
                             </button>
                         </form>
                     )}

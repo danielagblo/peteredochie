@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { Bell, BookOpen, CalendarDays, Camera, Check, Clock, Gauge, GraduationCap, Mail, QrCode, Settings, Ticket, Users, X } from 'lucide-react';
+import { Bell, BookOpen, CalendarDays, Camera, Check, Clock, Download, ExternalLink, Gauge, GraduationCap, Mail, QrCode, Settings, Ticket, Users, X } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import { INTEREST_OPTIONS } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
 import { useAuth } from '@/contexts/AuthContext';
+import { effectiveRegistrationType, registrationTypeLabel } from '@/lib/mentorship';
 import pb from '@/lib/pocketbaseClient';
 
 const NAV = [
@@ -47,6 +48,8 @@ const SubscriberDashboard = () => {
     const [tickets, setTickets] = useState([]);
     const [registrations, setRegistrations] = useState([]);
     const [mentorship, setMentorship] = useState(null);
+    const [materials, setMaterials] = useState([]);
+    const [materialsLoading, setMaterialsLoading] = useState(false);
     const [orders, setOrders] = useState([]);
     const [orderItems, setOrderItems] = useState({});
     const [loading, setLoading] = useState(true);
@@ -87,6 +90,21 @@ const SubscriberDashboard = () => {
         return () => { active = false; };
     }, [orders]);
 
+    useEffect(() => {
+        if (mentorship?.status !== 'accepted') {
+            setMaterials([]);
+            return;
+        }
+        let active = true;
+        setMaterialsLoading(true);
+        pb.collection('mentorship_materials')
+            .getFullList({ sort: 'sort,title', requestKey: 'sub-materials' })
+            .then((items) => { if (active) setMaterials(items); })
+            .catch(() => { if (active) setMaterials([]); })
+            .finally(() => { if (active) setMaterialsLoading(false); });
+        return () => { active = false; };
+    }, [mentorship?.status, mentorship?.registration_type, mentorship?.requested_type]);
+
     const saveProfile = async (e) => {
         e.preventDefault();
         try {
@@ -122,6 +140,11 @@ const SubscriberDashboard = () => {
     const ticketEventIds = new Set(tickets.map((t) => t.event));
 
     const mentorMeta = mentorship ? STATUS_META[mentorship.status || 'pending'] : null;
+    const mentorAccessType = effectiveRegistrationType(mentorship);
+    const materialUrl = (item) => {
+        if (item.file) return pb.files.getUrl(item, item.file);
+        return item.url || item.video_url || '';
+    };
 
     return (
         <DashboardShell
@@ -300,18 +323,22 @@ const SubscriberDashboard = () => {
                     ) : null}
 
                     {tab === 'mentorship' ? (
-                        <Panel title="Mentorship application" lead="Your application to the African Youth Mentorship Initiative and its current status.">
+                        <Panel title="Mentorship application" lead="Your application to the African Youth Mentorship Initiative, programme materials and status.">
                             {!mentorship ? (
                                 <EmptyState>
                                     You have not applied yet.{' '}
                                     <Link to="/mentorship" className="text-[hsl(var(--gold))]">Apply to the 2027 cohort</Link>
                                 </EmptyState>
                             ) : (
+                                <>
                                 <div className="border border-border p-6">
                                     <div className="flex flex-wrap items-center justify-between gap-4">
                                         <div>
                                             <p className="font-display text-2xl">{mentorship.cohort || '2027'} cohort</p>
-                                            <p className="mt-1 text-xs text-muted-foreground">{mentorship.discipline || 'Discipline not specified'} · {mentorship.country || 'Country not set'}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {mentorship.discipline || 'Discipline not specified'} · {mentorship.country || 'Country not set'}
+                                                {mentorAccessType ? ` · ${registrationTypeLabel(mentorAccessType)}` : ''}
+                                            </p>
                                         </div>
                                         {mentorMeta ? (
                                             <span className={`flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.2em] ${mentorMeta.tone}`}>
@@ -322,7 +349,7 @@ const SubscriberDashboard = () => {
                                     <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{mentorship.statement}</p>
                                     {mentorship.status === 'accepted' ? (
                                         <p className="mt-5 border-t border-border pt-4 text-sm text-[hsl(var(--gold))]">
-                                            Congratulations — you have been accepted. The programme team will write to you with onboarding details.
+                                            You are enrolled as {registrationTypeLabel(mentorAccessType)}. Programme materials for your registration type are below.
                                         </p>
                                     ) : mentorship.status === 'rejected' ? (
                                         <p className="mt-5 border-t border-border pt-4 text-sm text-muted-foreground">
@@ -331,9 +358,67 @@ const SubscriberDashboard = () => {
                                     ) : (
                                         <p className="mt-5 border-t border-border pt-4 text-sm text-muted-foreground">
                                             Your application is under review. You will be notified here and by email when a decision is made.
+                                            {mentorship.requested_type ? ` Requested registration: ${registrationTypeLabel(mentorship.requested_type)}.` : ''}
                                         </p>
                                     )}
                                 </div>
+
+                                {mentorship.status === 'accepted' ? (
+                                    <div className="mt-8 border border-border p-6">
+                                        <p className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">Programme materials</p>
+                                        <p className="mt-2 text-sm text-muted-foreground">
+                                            Resources unlocked for {registrationTypeLabel(mentorAccessType)} registrants and lower tiers included in your plan.
+                                        </p>
+                                        {materialsLoading ? (
+                                            <p className="mt-6 text-sm text-muted-foreground">Loading materials…</p>
+                                        ) : materials.length === 0 ? (
+                                            <p className="mt-6 text-sm text-muted-foreground">No materials published for your cohort yet. Check back soon.</p>
+                                        ) : (
+                                            <ul className="mt-6 divide-y divide-border">
+                                                {materials.map((item) => {
+                                                    const href = materialUrl(item);
+                                                    return (
+                                                        <li key={item.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
+                                                            <div className="max-w-xl">
+                                                                <p className="font-display text-xl">{item.title}</p>
+                                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                                    {item.module || 'General'}{item.cohort ? ` · ${item.cohort} cohort` : ''} · {registrationTypeLabel(item.registration_type)} tier
+                                                                </p>
+                                                                {item.description ? (
+                                                                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                                                                ) : null}
+                                                            </div>
+                                                            <div className="flex flex-col gap-2">
+                                                                {href ? (
+                                                                    <a
+                                                                        href={href}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="inline-flex items-center gap-2 border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                                                                    >
+                                                                        {item.file ? <Download size={13} /> : <ExternalLink size={13} />}
+                                                                        {item.file ? 'Download' : 'Open'}
+                                                                    </a>
+                                                                ) : null}
+                                                                {item.video_url ? (
+                                                                    <a
+                                                                        href={item.video_url}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="inline-flex items-center gap-2 border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                                                                    >
+                                                                        <ExternalLink size={13} /> Watch
+                                                                    </a>
+                                                                ) : null}
+                                                            </div>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </div>
+                                ) : null}
+                                </>
                             )}
                         </Panel>
                     ) : null}

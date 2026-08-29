@@ -3,6 +3,8 @@ export const PUBLISHER = {
     short: 'King Dawie Publishing',
     role: 'Official owner, publisher and rights holder of the Pete Edochie Legacy platform',
     email: 'rights@kingdawiepublishing.com',
+    phoneDisplay: '+233 533 330 800',
+    whatsapp: '233533330800',
     note: 'All works on this platform — the autobiography, the archive, the events and the journal — are published and administered by King Dawie Publishing as the official rights holder.',
 };
 
@@ -19,16 +21,23 @@ export const IMG = {
     theatre: 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1200&q=80',
 };
 
-export const NAV = [
+export const PRIMARY_NAV = [
     { to: '/pete-edochie', label: 'The Man' },
     { to: '/legacy', label: 'Legacy' },
     { to: '/book', label: 'The Book' },
-    { to: '/shop', label: 'Shop' },
     { to: '/events', label: 'Events' },
+    { to: '/shop', label: 'Shop' },
     { to: '/mentorship', label: 'Mentorship' },
+];
+
+export const MORE_NAV = [
     { to: '/gallery', label: 'Gallery' },
     { to: '/news', label: 'Journal' },
+    { to: '/sponsors', label: 'Partners' },
+    { to: '/contact', label: 'Contact' },
 ];
+
+export const NAV = [...PRIMARY_NAV, ...MORE_NAV];
 
 export const MILESTONES = [
     { year: '1947', title: 'Born in Enugu', text: 'A childhood shaped by Igbo oral tradition, proverb and the discipline of a teaching household.' },

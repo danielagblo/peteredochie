@@ -15,11 +15,12 @@ const SignupPage = () => {
     const [params] = useSearchParams();
     const type = params.get('type');
     const next = params.get('next');
+    const emailPrefill = params.get('email') || '';
     const meta = ACCOUNT_TYPE_MAP[type];
 
     const [form, setForm] = useState({
         name: '',
-        email: '',
+        email: emailPrefill,
         password: '',
         organisation: '',
         country: '',

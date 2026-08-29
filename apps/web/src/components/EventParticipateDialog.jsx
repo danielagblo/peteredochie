@@ -11,6 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { initializeTicket } from '@/lib/commerce';
+import { fetchCountryDistributor } from '@/lib/distributors';
+import CountryCollectionFields from '@/components/CountryCollectionFields';
 import pb from '@/lib/pocketbaseClient';
 
 const fmtDate = (iso) =>
@@ -66,6 +68,9 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
 
     const [tier, setTier] = useState('standard');
     const [step, setStep] = useState('select'); // select | pay | done
+    const [country, setCountry] = useState('GH');
+    const [region, setRegion] = useState('');
+    const [fulfillmentMethod, setFulfillmentMethod] = useState('ship');
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const [ticket, setTicket] = useState(null);
@@ -79,6 +84,9 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
     const reset = () => {
         setStep('select');
         setTier('standard');
+        setCountry('GH');
+        setRegion('');
+        setFulfillmentMethod('ship');
         setError('');
         setTicket(null);
     };
@@ -88,16 +96,41 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         onClose();
     };
 
+    const resolveCollection = async () => {
+        if (fulfillmentMethod !== 'distributor_collection') {
+            return { country, fulfillment_method: 'ship', distributor_id: undefined };
+        }
+        if (!country || !region) {
+            throw new Error('Please select your country and region for collection.');
+        }
+        const match = await fetchCountryDistributor(country);
+        if (!match?.distributor?.id) {
+            throw new Error('No distributor is available for collection in that country. Choose shipping instead.');
+        }
+        return {
+            country,
+            fulfillment_method: 'distributor_collection',
+            distributor_id: match.distributor.id,
+        };
+    };
+
     const submitRegistration = async () => {
         setBusy(true);
         setError('');
         try {
+            if (!region) {
+                setError('Please select your country and region.');
+                setBusy(false);
+                return;
+            }
+            const collection = await resolveCollection();
             const confirm = code('MC');
             const rec = await pb.collection('event_registrations').create({
                 owner: user.id,
                 event: event.id,
                 status: 'registered',
                 confirmation_code: confirm,
+                ...collection,
             });
             setTicket({ ...rec, kind: 'registration' });
             setStep('done');
@@ -115,11 +148,13 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         setBusy(true);
         setError('');
         try {
+            const collection = await resolveCollection();
             const result = await initializeTicket({
                 event_id: event.id,
                 tier,
                 email: user.email,
                 return_origin: window.location.origin,
+                ...collection,
             });
             if (result.configured && result.authorization_url) {
                 window.location.href = result.authorization_url;
@@ -191,6 +226,12 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                         <MasterclassRegister
                             event={event}
                             user={user}
+                            country={country}
+                            region={region}
+                            fulfillmentMethod={fulfillmentMethod}
+                            onCountry={setCountry}
+                            onRegion={setRegion}
+                            onFulfillmentMethod={setFulfillmentMethod}
                             busy={busy}
                             error={error}
                             onConfirm={submitRegistration}
@@ -207,6 +248,12 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                         <PaymentReview
                             event={event}
                             tier={tier}
+                            country={country}
+                            region={region}
+                            fulfillmentMethod={fulfillmentMethod}
+                            onCountry={setCountry}
+                            onRegion={setRegion}
+                            onFulfillmentMethod={setFulfillmentMethod}
                             busy={busy}
                             error={error}
                             onBack={() => setStep('select')}
@@ -282,7 +329,20 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
     </div>
 );
 
-const PaymentReview = ({ event, tier, busy, error, onBack, onPay }) => {
+const PaymentReview = ({
+    event,
+    tier,
+    country,
+    region,
+    fulfillmentMethod,
+    onCountry,
+    onRegion,
+    onFulfillmentMethod,
+    busy,
+    error,
+    onBack,
+    onPay,
+}) => {
     const meta = TIER_META[tier] || TIER_META.standard;
     return (
         <div>
@@ -303,6 +363,19 @@ const PaymentReview = ({ event, tier, busy, error, onBack, onPay }) => {
                     </li>
                 ))}
             </ul>
+
+            <div className="mt-6 border-t border-border pt-6">
+                <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Country & collection</p>
+                <CountryCollectionFields
+                    className="mt-4"
+                    country={country}
+                    region={region}
+                    fulfillmentMethod={fulfillmentMethod}
+                    onCountry={(code) => { onCountry(code); onRegion(''); }}
+                    onRegion={onRegion}
+                    onFulfillmentMethod={onFulfillmentMethod}
+                />
+            </div>
 
             <p className="mt-5 flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground">
                 <Lock size={12} strokeWidth={1.6} /> Secure payment via Paystack
@@ -335,7 +408,19 @@ const PaymentReview = ({ event, tier, busy, error, onBack, onPay }) => {
     );
 };
 
-const MasterclassRegister = ({ event, user, busy, error, onConfirm }) => (
+const MasterclassRegister = ({
+    event,
+    user,
+    country,
+    region,
+    fulfillmentMethod,
+    onCountry,
+    onRegion,
+    onFulfillmentMethod,
+    busy,
+    error,
+    onConfirm,
+}) => (
     <div>
         <p className="eyebrow">Open registration</p>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{event.summary}</p>
@@ -344,6 +429,18 @@ const MasterclassRegister = ({ event, user, busy, error, onConfirm }) => (
             <p className="mt-2 font-display text-xl">{user?.name || user?.email}</p>
             <p className="mt-1 text-xs text-muted-foreground">{user?.email}</p>
             <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">{event.price || 'Free'}</p>
+        </div>
+        <div className="mt-6 border-t border-border pt-6">
+            <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Country & pass collection</p>
+            <CountryCollectionFields
+                className="mt-4"
+                country={country}
+                region={region}
+                fulfillmentMethod={fulfillmentMethod}
+                onCountry={(code) => { onCountry(code); onRegion(''); }}
+                onRegion={onRegion}
+                onFulfillmentMethod={onFulfillmentMethod}
+            />
         </div>
         {error ? <p className="mt-4 text-sm text-[hsl(var(--destructive))]">{error}</p> : null}
         <button

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 
-const ThemeToggle = ({ className = '', compact = false }) => {
+const ThemeToggle = ({ className = '', compact = false, onDark = false }) => {
     const { resolvedTheme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
@@ -18,9 +18,11 @@ const ThemeToggle = ({ className = '', compact = false }) => {
             aria-pressed={isDark}
             title={label}
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            className={`flex items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))] active:scale-[0.96] ${
-                compact ? 'h-9 w-9' : 'h-10 w-10'
-            } ${className}`}
+            className={`flex items-center justify-center rounded-full border transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))] active:scale-[0.96] ${
+                onDark
+                    ? 'border-white/30 text-white'
+                    : 'border-border text-foreground'
+            } ${compact ? 'h-9 w-9' : 'h-10 w-10'} ${className}`}
         >
             {mounted ? (
                 isDark ? (

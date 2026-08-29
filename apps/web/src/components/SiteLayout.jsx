@@ -1,165 +1,205 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, ShoppingCart, X } from 'lucide-react';
-import { NAV, PUBLISHER } from '@/lib/content';
+import { MORE_NAV, NAV, PRIMARY_NAV, PUBLISHER } from '@/lib/content';
 import ThemeToggle from '@/components/ThemeToggle';
+import WhatsAppButton from '@/components/WhatsAppButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { whatsappHref } from '@/lib/whatsapp';
 
-const primaryLinks = [
-    { to: '/pete-edochie', label: 'Biography' },
-    { to: '/legacy', label: 'Archive' },
-    { to: '/shop', label: 'Shop' },
-];
+const OVERLAY_PATHS = new Set([
+    '/',
+    '/pete-edochie',
+    '/legacy',
+    '/book',
+    '/shop',
+    '/events',
+    '/mentorship',
+    '/gallery',
+    '/news',
+    '/sponsors',
+    '/contact',
+    '/terms',
+    '/privacy',
+]);
 
-const dropdownLinks = [
-    { to: '/events', label: 'Events' },
-    { to: '/mentorship', label: 'Mentorship' },
-    { to: '/gallery', label: 'Gallery' },
-    { to: '/news', label: 'Journal' },
-];
+const navClass = (overlay) =>
+    ({ isActive }) =>
+        `whitespace-nowrap text-[0.72rem] uppercase tracking-[0.18em] transition-colors ${
+            isActive
+                ? 'text-[hsl(var(--gold))]'
+                : overlay
+                    ? 'text-white/70 hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground'
+        }`;
 
 const SiteLayout = ({ children }) => {
     const [open, setOpen] = useState(false);
     const [solid, setSolid] = useState(false);
+    const [moreOpen, setMoreOpen] = useState(false);
+    const moreRef = useRef(null);
     const { isAuthed } = useAuth();
     const { count } = useCart();
     const location = useLocation();
+    const isOverlayPage = OVERLAY_PATHS.has(location.pathname);
+    const overlay = isOverlayPage && !solid && !open;
 
     useEffect(() => {
-        const onScroll = () => setSolid(window.scrollY > 40);
+        const onScroll = () => setSolid(window.scrollY > 24);
         onScroll();
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
-    useEffect(() => setOpen(false), [location.pathname]);
+    useEffect(() => {
+        setOpen(false);
+        setMoreOpen(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        document.body.style.overflow = open ? 'hidden' : '';
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [open]);
+
+    useEffect(() => {
+        const onClick = (e) => {
+            if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false);
+        };
+        document.addEventListener('mousedown', onClick);
+        return () => document.removeEventListener('mousedown', onClick);
+    }, []);
+
+    const moreActive = MORE_NAV.some((item) => location.pathname === item.to);
 
     return (
         <div className="grain min-h-screen bg-background text-foreground">
             <header
-                className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${
-                    solid ? 'bg-background/92 backdrop-blur-md border-b border-border' : 'bg-transparent'
+                className={`fixed inset-x-0 top-0 z-[80] transition-[background-color,border-color,box-shadow] duration-300 ${
+                    overlay
+                        ? 'border-b border-white/10 bg-black/25 backdrop-blur-sm'
+                        : 'border-b border-border bg-background/95 backdrop-blur-md'
                 }`}
             >
-                <div className="mx-auto flex max-w-[90rem] items-center justify-between px-5 py-4 md:px-10">
-                    <Link to="/" className="group flex items-baseline gap-3">
-                        <span className={`font-display text-xl tracking-wide md:text-2xl transition-colors duration-300 ${
-                            solid ? 'text-foreground' : 'text-white'
-                        }`}>Pete Edochie</span>
-                        <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] xl:block">
+                <div className="mx-auto flex h-[4.25rem] max-w-[90rem] items-center gap-4 px-5 md:h-[4.5rem] md:px-8 lg:px-10">
+                    <Link to="/" className="min-w-0 shrink-0 leading-tight">
+                        <span className={`block font-display text-[1.35rem] tracking-wide md:text-[1.55rem] ${overlay ? 'text-white' : 'text-foreground'}`}>
+                            Pete Edochie
+                        </span>
+                        <span className="block text-[0.58rem] uppercase tracking-[0.28em] text-[hsl(var(--gold))]">
                             Official Legacy Platform
                         </span>
                     </Link>
 
-                    <nav className="hidden items-center gap-4 xl:gap-7 lg:flex">
-                        {primaryLinks.map((item) => (
-                            <NavLink
-                                key={item.to}
-                                to={item.to}
-                                className={({ isActive }) =>
-                                    `text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
-                                        isActive 
-                                            ? 'text-[hsl(var(--gold))] font-medium' 
-                                            : solid 
-                                                ? 'text-muted-foreground hover:text-foreground' 
-                                                : 'text-stone-300 hover:text-white'
-                                    }`
-                                }
-                            >
+                    <nav className="ml-auto hidden items-center gap-5 lg:flex xl:gap-7">
+                        {PRIMARY_NAV.map((item) => (
+                            <NavLink key={item.to} to={item.to} className={navClass(overlay)}>
                                 {item.label}
                             </NavLink>
                         ))}
-                        
-                        <div className="relative group py-2">
-                            <button className={`flex items-center gap-1 text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
-                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
-                            }`}>
-                                Explore
-                                <ChevronDown size={12} className="transition-transform duration-200 group-hover:rotate-180" />
+                        <div className="relative" ref={moreRef}>
+                            <button
+                                type="button"
+                                aria-expanded={moreOpen}
+                                aria-haspopup="true"
+                                onClick={() => setMoreOpen((v) => !v)}
+                                className={`inline-flex items-center gap-1 text-[0.72rem] uppercase tracking-[0.18em] transition-colors ${
+                                    moreActive
+                                        ? 'text-[hsl(var(--gold))]'
+                                        : overlay
+                                            ? 'text-white/70 hover:text-white'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                More
+                                <ChevronDown size={13} strokeWidth={1.6} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
                             </button>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1 hidden w-48 rounded-md border border-border bg-background/95 p-2 shadow-lg backdrop-blur-md group-hover:block transition-all duration-300">
-                                {dropdownLinks.map((item) => (
-                                    <NavLink
-                                        key={item.to}
-                                        to={item.to}
-                                        className={({ isActive }) =>
-                                            `block rounded px-4 py-2.5 text-[0.75rem] uppercase tracking-[0.14em] transition-colors ${
-                                                isActive ? 'bg-secondary text-[hsl(var(--gold))] font-medium' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                                            }`
-                                        }
-                                    >
-                                        {item.label}
-                                    </NavLink>
-                                ))}
-                            </div>
+                            {moreOpen ? (
+                                <div className="absolute right-0 top-[calc(100%+0.85rem)] z-[90] min-w-[12rem] border border-border bg-background py-2">
+                                    {MORE_NAV.map((item) => (
+                                        <NavLink
+                                            key={item.to}
+                                            to={item.to}
+                                            className={({ isActive }) =>
+                                                `block px-4 py-2.5 text-[0.72rem] uppercase tracking-[0.18em] transition-colors ${
+                                                    isActive
+                                                        ? 'text-[hsl(var(--gold))]'
+                                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                                }`
+                                            }
+                                        >
+                                            {item.label}
+                                        </NavLink>
+                                    ))}
+                                </div>
+                            ) : null}
                         </div>
                     </nav>
 
-                    <div className="hidden items-center gap-3 xl:gap-5 lg:flex">
-                        <ThemeToggle compact />
+                    <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:ml-5">
+                        <ThemeToggle compact onDark={overlay} />
                         <Link
                             to={isAuthed ? '/dashboard' : '/login'}
-                            className={`text-[0.78rem] uppercase tracking-[0.16em] transition-colors duration-300 ${
-                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
+                            className={`hidden text-[0.72rem] uppercase tracking-[0.18em] transition-colors md:inline ${
+                                overlay ? 'text-white/75 hover:text-white' : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             {isAuthed ? 'Dashboard' : 'Sign in'}
                         </Link>
                         <Link
                             to="/checkout"
-                            className={`relative flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.22em] transition-colors duration-300 ${
-                                solid ? 'text-muted-foreground hover:text-foreground' : 'text-stone-300 hover:text-white'
+                            aria-label={count ? `Cart, ${count} items` : 'Cart'}
+                            className={`relative flex h-10 w-10 items-center justify-center transition-colors ${
+                                overlay ? 'text-white/80 hover:text-white' : 'text-muted-foreground hover:text-foreground'
                             }`}
                         >
-                            <ShoppingCart size={15} strokeWidth={1.5} />
+                            <ShoppingCart size={17} strokeWidth={1.5} />
                             {count > 0 ? (
-                                <span className="absolute -right-3 -top-2 flex h-4 min-w-4 items-center justify-center bg-[hsl(var(--primary))] px-1 text-[0.5rem] text-white">{count}</span>
+                                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center bg-[hsl(var(--primary))] px-1 text-[0.55rem] leading-none text-white">
+                                    {count}
+                                </span>
                             ) : null}
                         </Link>
-                        <Link
-                            to="/book"
-                            className={`border px-3 py-1.5 xl:px-4 xl:py-2 text-[0.7rem] uppercase tracking-[0.22em] transition-colors duration-300 active:scale-[0.98] ${
-                                solid 
-                                    ? 'border-[hsl(var(--gold))]/60 text-[hsl(var(--gold))] hover:bg-[hsl(var(--gold))] hover:text-black' 
-                                    : 'border-white/60 text-white hover:bg-white hover:text-black'
-                            }`}
+                        <button
+                            type="button"
+                            aria-label={open ? 'Close menu' : 'Open menu'}
+                            aria-expanded={open}
+                            onClick={() => setOpen((v) => !v)}
+                            className={`flex h-10 w-10 items-center justify-center lg:hidden ${overlay ? 'text-white' : 'text-foreground'}`}
                         >
-                            Autobiography
-                        </Link>
+                            {open ? <X size={22} strokeWidth={1.4} /> : <Menu size={22} strokeWidth={1.4} />}
+                        </button>
                     </div>
-
-                    <button
-                        type="button"
-                        aria-label={open ? 'Close menu' : 'Open menu'}
-                        onClick={() => setOpen((v) => !v)}
-                        className={`flex h-11 w-11 items-center justify-center transition-colors duration-300 lg:hidden ${
-                            solid ? 'text-foreground' : 'text-white'
-                        }`}
-                    >
-                        {open ? <X size={22} strokeWidth={1.4} /> : <Menu size={22} strokeWidth={1.4} />}
-                    </button>
                 </div>
 
                 {open ? (
-                    <div className="border-t border-border bg-background/98 px-5 pb-8 pt-4 lg:hidden">
+                    <div className="max-h-[calc(100dvh-4.25rem)] overflow-y-auto border-t border-border bg-background px-5 pb-10 pt-2 lg:hidden">
                         <div className="flex flex-col">
-                            {[...NAV, { to: '/sponsors', label: 'Sponsors' }, { to: '/contact', label: 'Contact' }].map((item) => (
+                            {NAV.map((item) => (
                                 <Link
                                     key={item.to}
                                     to={item.to}
-                                    className="border-b border-border/60 py-4 font-display text-2xl text-foreground"
+                                    className={`border-b border-border/70 py-3.5 font-display text-2xl ${
+                                        location.pathname === item.to ? 'text-[hsl(var(--gold))]' : 'text-foreground'
+                                    }`}
                                 >
                                     {item.label}
                                 </Link>
                             ))}
-                            <div className="mt-6 flex items-center justify-between gap-4">
-                                <ThemeToggle />
+                            <div className="mt-6 grid grid-cols-2 gap-3">
                                 <Link
                                     to={isAuthed ? '/dashboard' : '/login'}
-                                    className="flex-1 border border-[hsl(var(--gold))]/60 py-4 text-center text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]"
+                                    className="border border-border py-3.5 text-center text-[0.7rem] uppercase tracking-[0.2em]"
                                 >
-                                    {isAuthed ? 'My dashboard' : 'Sign in'}
+                                    {isAuthed ? 'Dashboard' : 'Sign in'}
+                                </Link>
+                                <Link
+                                    to="/book"
+                                    className="border border-[hsl(var(--gold))]/70 py-3.5 text-center text-[0.7rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]"
+                                >
+                                    The Book
                                 </Link>
                             </div>
                         </div>
@@ -168,10 +208,11 @@ const SiteLayout = ({ children }) => {
             </header>
 
             <main>{children}</main>
+            <WhatsAppButton />
 
             <footer className="border-t border-border bg-[hsl(var(--surface))]">
-                <div className="mx-auto grid max-w-[90rem] gap-12 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr] md:px-10">
-                    <div>
+                <div className="mx-auto grid max-w-[90rem] gap-12 px-5 py-16 sm:grid-cols-2 lg:grid-cols-12 md:px-10">
+                    <div className="sm:col-span-2 lg:col-span-4">
                         <p className="font-display text-2xl">Pete Edochie</p>
                         <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
                             The official digital home of a life in storytelling — archive, autobiography, events and mentorship.
@@ -183,6 +224,14 @@ const SiteLayout = ({ children }) => {
                         <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
                             Official owner &amp; rights holder of the Pete Edochie Legacy.
                         </p>
+                        <a
+                            href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-6 inline-block text-sm text-[hsl(var(--gold))] transition-colors hover:text-foreground"
+                        >
+                            WhatsApp {PUBLISHER.phoneDisplay}
+                        </a>
                         <div className="rule-gold mt-6 w-24" />
                     </div>
                     <FooterCol
@@ -202,6 +251,7 @@ const SiteLayout = ({ children }) => {
                             { to: '/mentorship', label: 'Mentorship' },
                             { to: '/sponsors', label: 'Partnership' },
                             { to: '/join', label: 'Create account' },
+                            { to: '/track-order', label: 'Track an order' },
                             { to: '/#subscribe', label: 'Subscribe to updates' },
                         ]}
                     />
@@ -240,7 +290,7 @@ const SiteLayout = ({ children }) => {
 };
 
 const FooterCol = ({ title, links }) => (
-    <div>
+    <div className="lg:col-span-2">
         <p className="eyebrow">{title}</p>
         <ul className="mt-5 space-y-3">
             {links.map((l, i) => (

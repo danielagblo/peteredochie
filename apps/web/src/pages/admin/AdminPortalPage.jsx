@@ -16,6 +16,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Panel, Stat, EmptyState } from '@/components/dashboard/DashboardShell';
 import { formatUSD } from '@/lib/commerce';
+import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { PUBLISHER } from '@/lib/content';
 
 const input =
@@ -98,10 +99,14 @@ const AdminPortalPage = () => {
     const [orders, setOrders] = useState([]);
     const [sponsorships, setSponsorships] = useState([]);
     const [applications, setApplications] = useState([]);
+    const [materials, setMaterials] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [countries, setCountries] = useState([]);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
+    const [materialForm, setMaterialForm] = useState({
+        title: '', description: '', module: '', cohort: '2027', registration_type: 'standard', sort: '', url: '', video_url: '', published: true,
+    });
 
     const load = useCallback(async () => {
         setError('');
@@ -119,6 +124,11 @@ const AdminPortalPage = () => {
                         .collection('mentorship_applications')
                         .getFullList({ sort: '-created', requestKey: 'adm-p-apps' })
                         .catch(() => []),
+                materials: () =>
+                    pb
+                        .collection('mentorship_materials')
+                        .getFullList({ sort: 'sort,title', requestKey: 'adm-p-materials' })
+                        .catch(() => []),
                 employees: () =>
                     pb
                         .collection('users')
@@ -133,6 +143,7 @@ const AdminPortalPage = () => {
             setOrders(map.orders);
             setSponsorships(map.sponsorships);
             setApplications(map.applications);
+            setMaterials(map.materials);
             setEmployees(
                 (map.employees || []).filter((u) => u.staff_role || u.account_type === 'admin'),
             );
@@ -324,12 +335,52 @@ const AdminPortalPage = () => {
     };
 
     // ---- Mentorship ----
-    const setMentorshipStatus = async (id, status) => {
+    const setMentorshipStatus = async (id, status, registrationType) => {
         try {
-            await pb.collection('mentorship_applications').update(id, { status });
+            const app = applications.find((a) => a.id === id);
+            const payload = { status };
+            if (status === 'accepted') {
+                payload.registration_type = registrationType || app?.registration_type || app?.requested_type || 'standard';
+            }
+            await pb.collection('mentorship_applications').update(id, payload);
             load();
         } catch (_) {
             setError('Could not update that application.');
+        }
+    };
+
+    const setMentorshipRegistrationType = async (id, registrationType) => {
+        try {
+            await pb.collection('mentorship_applications').update(id, { registration_type: registrationType });
+            load();
+        } catch (_) {
+            setError('Could not update registration type.');
+        }
+    };
+
+    const createMaterial = async (e) => {
+        e.preventDefault();
+        try {
+            await pb.collection('mentorship_materials').create({
+                ...materialForm,
+                sort: materialForm.sort === '' ? 0 : Number(materialForm.sort),
+                published: !!materialForm.published,
+            });
+            setMaterialForm({
+                title: '', description: '', module: '', cohort: '2027', registration_type: 'standard', sort: '', url: '', video_url: '', published: true,
+            });
+            load();
+        } catch (_) {
+            setError('Could not publish that material.');
+        }
+    };
+
+    const deleteMaterial = async (id) => {
+        try {
+            await pb.collection('mentorship_materials').delete(id);
+            load();
+        } catch (_) {
+            setError('Could not delete that material.');
         }
     };
 
@@ -796,9 +847,10 @@ const AdminPortalPage = () => {
                     ) : null}
 
                     {tab === 'mentorship' ? (
+                        <>
                         <Panel
                             title="Mentorship applications"
-                            lead="Review applications to the African Youth Mentorship Initiative and accept or reject candidates."
+                            lead="Review applications, assign registration type on acceptance, and manage programme materials."
                         >
                             {applications.length === 0 ? (
                                 <EmptyState>No applications submitted.</EmptyState>
@@ -813,28 +865,59 @@ const AdminPortalPage = () => {
                                                         {a.email} · {a.country || 'Country not set'} ·{' '}
                                                         {a.discipline || 'Discipline not set'} · {a.cohort || '2027'} cohort
                                                     </p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        Requested: {registrationTypeLabel(a.requested_type || 'standard')}
+                                                        {a.registration_type ? ` · Assigned: ${registrationTypeLabel(a.registration_type)}` : ''}
+                                                    </p>
                                                     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                                                         {a.statement}
                                                     </p>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-col items-end gap-3">
                                                     <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
                                                         {a.status || 'pending'}
                                                     </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setMentorshipStatus(a.id, 'accepted')}
-                                                        className={smallBtn}
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setMentorshipStatus(a.id, 'rejected')}
-                                                        className={dangerBtn}
-                                                    >
-                                                        Reject
-                                                    </button>
+                                                    {a.status === 'accepted' ? (
+                                                        <select
+                                                            value={a.registration_type || a.requested_type || 'standard'}
+                                                            onChange={(e) => setMentorshipRegistrationType(a.id, e.target.value)}
+                                                            className={`${input} max-w-[12rem]`}
+                                                        >
+                                                            {REGISTRATION_TYPES.map((t) => (
+                                                                <option key={t.value} value={t.value}>{t.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        <select
+                                                            id={`accept-type-${a.id}`}
+                                                            defaultValue={a.registration_type || a.requested_type || 'standard'}
+                                                            className={`${input} max-w-[12rem]`}
+                                                        >
+                                                            {REGISTRATION_TYPES.map((t) => (
+                                                                <option key={t.value} value={t.value}>{t.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    )}
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const sel = document.getElementById(`accept-type-${a.id}`);
+                                                                setMentorshipStatus(a.id, 'accepted', sel?.value);
+                                                            }}
+                                                            className={smallBtn}
+                                                            disabled={a.status === 'accepted'}
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setMentorshipStatus(a.id, 'rejected')}
+                                                            className={dangerBtn}
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </li>
@@ -842,6 +925,43 @@ const AdminPortalPage = () => {
                                 </ul>
                             )}
                         </Panel>
+                        <Panel title="Programme materials" lead="Publish resources and set the minimum registration type required to unlock each item.">
+                            <form onSubmit={createMaterial} className="grid gap-4 md:grid-cols-2">
+                                <input required placeholder="Title" value={materialForm.title} onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })} className={input} />
+                                <input placeholder="Module (e.g. Craft)" value={materialForm.module} onChange={(e) => setMaterialForm({ ...materialForm, module: e.target.value })} className={input} />
+                                <input placeholder="Cohort" value={materialForm.cohort} onChange={(e) => setMaterialForm({ ...materialForm, cohort: e.target.value })} className={input} />
+                                <select value={materialForm.registration_type} onChange={(e) => setMaterialForm({ ...materialForm, registration_type: e.target.value })} className={input}>
+                                    {REGISTRATION_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>{t.label} tier</option>
+                                    ))}
+                                </select>
+                                <input placeholder="Sort order" value={materialForm.sort} onChange={(e) => setMaterialForm({ ...materialForm, sort: e.target.value })} className={input} />
+                                <input placeholder="External URL" value={materialForm.url} onChange={(e) => setMaterialForm({ ...materialForm, url: e.target.value })} className={input} />
+                                <input placeholder="Video URL" value={materialForm.video_url} onChange={(e) => setMaterialForm({ ...materialForm, video_url: e.target.value })} className={`${input} md:col-span-2`} />
+                                <textarea placeholder="Description" value={materialForm.description} onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })} className={`${input} md:col-span-2`} rows={3} />
+                                <label className="flex items-center gap-2 text-sm text-muted-foreground md:col-span-2">
+                                    <input type="checkbox" checked={materialForm.published} onChange={(e) => setMaterialForm({ ...materialForm, published: e.target.checked })} />
+                                    Published
+                                </label>
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Add material</button>
+                            </form>
+                            <ul className="mt-8 divide-y divide-border">
+                                {materials.length === 0 ? <EmptyState>No materials yet.</EmptyState> : null}
+                                {materials.map((m) => (
+                                    <li key={m.id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                                        <div>
+                                            <p className="font-display text-lg">{m.title}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {m.module || 'General'} · {m.cohort || 'All cohorts'} · {registrationTypeLabel(m.registration_type)} · {m.published ? 'Published' : 'Draft'}
+                                            </p>
+                                            {m.description ? <p className="mt-2 text-sm text-muted-foreground">{m.description}</p> : null}
+                                        </div>
+                                        <button type="button" onClick={() => deleteMaterial(m.id)} className={dangerBtn}>Delete</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'history' ? (

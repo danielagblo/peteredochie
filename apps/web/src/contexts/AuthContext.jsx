@@ -1,11 +1,20 @@
 import React, { createContext, useContext, useCallback, useEffect, useMemo, useState } from 'react';
 import pb from '@/lib/pocketbaseClient';
 import { accountTypeOf } from '@/lib/accounts';
+import { claimGuestOrders } from '@/lib/commerce';
 
 const AuthContext = createContext(null);
 
 const EPHEMERAL_KEY = 'pel_auth_ephemeral';
 const TAB_KEY = 'pel_auth_tab';
+
+const claimOrdersQuietly = async () => {
+    try {
+        await claimGuestOrders();
+    } catch (_) {
+        /* best-effort — dashboard still works for owned orders */
+    }
+};
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(pb.authStore.record);
@@ -35,6 +44,7 @@ export const AuthProvider = ({ children }) => {
             .getFirstListItem(`user = "${id}"`, { requestKey: `emp-role-${id}` })
             .then((r) => setEmployeeRole(r.role))
             .catch(() => setEmployeeRole(null));
+        claimOrdersQuietly();
     }, [user]);
 
     const login = useCallback(async (email, password, remember = true) => {
@@ -49,6 +59,7 @@ export const AuthProvider = ({ children }) => {
         } catch (_) {
             /* storage unavailable */
         }
+        await claimOrdersQuietly();
         return result;
     }, []);
 

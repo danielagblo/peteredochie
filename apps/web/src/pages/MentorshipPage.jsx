@@ -6,6 +6,8 @@ import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section'
 import { IMG } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
+import { REGISTRATION_TYPES } from '@/lib/mentorship';
 import pb from '@/lib/pocketbaseClient';
 
 const PILLARS = [
@@ -24,7 +26,7 @@ const STATUS_META = {
 const MentorshipPage = () => {
     const { isAuthed, user } = useAuth();
     const { toast } = useToast();
-    const [form, setForm] = useState({ name: '', email: '', country: '', discipline: '', statement: '' });
+    const [form, setForm] = useState({ name: '', email: '', country: '', discipline: '', statement: '', requested_type: 'standard' });
     const [sending, setSending] = useState(false);
     const [done, setDone] = useState(false);
     const [existing, setExisting] = useState(null);
@@ -45,6 +47,16 @@ const MentorshipPage = () => {
     const submit = async (e) => {
         e.preventDefault();
         setSending(true);
+        openWhatsApp(
+            composeWhatsApp('Mentorship application — 2027 cohort', {
+                Name: form.name,
+                Email: form.email,
+                Country: form.country,
+                Discipline: form.discipline,
+                'Registration type': REGISTRATION_TYPES.find((t) => t.value === form.requested_type)?.label || form.requested_type,
+                Statement: form.statement,
+            }),
+        );
         try {
             await pb.collection('mentorship_applications').create({
                 ...form,
@@ -52,22 +64,17 @@ const MentorshipPage = () => {
                 status: 'pending',
                 cohort: '2027',
             });
-            setDone(true);
-            setForm({ name: '', email: '', country: '', discipline: '', statement: '' });
-            toast({ title: 'Application received', description: 'Our programme team will write to you before the cohort closes.' });
             pb.collection('mentorship_applications')
                 .getFullList({ filter: `owner = "${user.id}"`, sort: '-created' })
                 .then((items) => setExisting(items[0] || null))
                 .catch(() => {});
-        } catch (err) {
-            toast({
-                variant: 'destructive',
-                title: 'We could not submit your application',
-                description: err?.message || 'Please check your details and try again.',
-            });
-        } finally {
-            setSending(false);
+        } catch (_) {
+            /* WhatsApp is the primary channel */
         }
+        setDone(true);
+        setForm({ name: '', email: '', country: '', discipline: '', statement: '', requested_type: 'standard' });
+        toast({ title: 'Opening WhatsApp', description: 'Your application is ready to send to the programme team.' });
+        setSending(false);
     };
 
     const field = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
@@ -141,7 +148,7 @@ const MentorshipPage = () => {
                             <div className="mt-8 border border-[hsl(var(--gold))]/40 p-6">
                                 <p className="font-display text-2xl text-[hsl(var(--gold))]">Thank you.</p>
                                 <p className="mt-2 text-sm text-muted-foreground">
-                                    Your application is with the programme team. Shortlisted applicants are contacted by email.
+                                    Your application is ready on WhatsApp. The programme team will also follow up by email.
                                 </p>
                                 <Link to="/dashboard" className="mt-6 inline-block text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
                                     Track your application
@@ -170,6 +177,17 @@ const MentorshipPage = () => {
                                     </div>
                                 </div>
                                 <div className="grid gap-2">
+                                    <label htmlFor="m-type" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Registration type</label>
+                                    <select id="m-type" value={form.requested_type} onChange={(e) => setForm({ ...form, requested_type: e.target.value })} className={field}>
+                                        {REGISTRATION_TYPES.map((t) => (
+                                            <option key={t.value} value={t.value}>{t.label}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-muted-foreground">
+                                        {REGISTRATION_TYPES.find((t) => t.value === form.requested_type)?.hint}
+                                    </p>
+                                </div>
+                                <div className="grid gap-2">
                                     <label htmlFor="m-stmt" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Why this programme</label>
                                     <textarea id="m-stmt" required rows={5} value={form.statement} onChange={(e) => setForm({ ...form, statement: e.target.value })} className={field} />
                                 </div>
@@ -178,7 +196,7 @@ const MentorshipPage = () => {
                                     disabled={sending}
                                     className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
                                 >
-                                    {sending ? 'Submitting…' : 'Submit application'}
+                                    {sending ? 'Opening WhatsApp…' : 'Submit via WhatsApp'}
                                 </button>
                             </form>
                         )}

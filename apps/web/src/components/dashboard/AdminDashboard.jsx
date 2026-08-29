@@ -3,6 +3,8 @@ import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, 
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
+import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
+import ProductQrPanel from '@/components/ProductQrPanel';
 import pb from '@/lib/pocketbaseClient';
 
 const ALL_NAV = [
@@ -70,6 +72,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [news, setNews] = useState([]);
     const [subscribers, setSubscribers] = useState([]);
     const [applications, setApplications] = useState([]);
+    const [materials, setMaterials] = useState([]);
     const [sponsorships, setSponsorships] = useState([]);
     const [countries, setCountries] = useState([]);
     const [regions, setRegions] = useState([]);
@@ -86,7 +89,10 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [orderFilter, setOrderFilter] = useState({ status: 'all', product: 'all' });
     const [empForm, setEmpForm] = useState({ user: '', role: 'inventory_manager' });
     const [adjustForm, setAdjustForm] = useState({ product: '', delta: '', reason: '' });
-    const [countryForm, setCountryForm] = useState({ name: '', code: '', currency: '', status: 'coming_soon', launch_date: '', regional_coordinator: '' });
+    const [countryForm, setCountryForm] = useState({ name: '', code: '', currency: '', status: 'coming_soon', launch_date: '', regional_coordinator: '', primary_distributor: '' });
+    const [materialForm, setMaterialForm] = useState({
+        title: '', description: '', module: '', cohort: '2027', registration_type: 'standard', sort: '', url: '', video_url: '', published: true,
+    });
 
     const load = useCallback(async () => {
         try {
@@ -100,6 +106,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                 employees: () => pb.collection('employee_roles').getFullList({ sort: '-created', expand: 'user', requestKey: 'adm-emp' }).catch(() => []),
                 subscribers: () => pb.collection('subscribers').getFullList({ sort: '-created', requestKey: 'adm-subs' }).catch(() => []),
                 applications: () => pb.collection('mentorship_applications').getFullList({ sort: '-created', requestKey: 'adm-apps' }).catch(() => []),
+                materials: () => pb.collection('mentorship_materials').getFullList({ sort: 'sort,title', requestKey: 'adm-materials' }).catch(() => []),
                 sponsorships: () => pb.collection('sponsorships').getFullList({ sort: '-created', expand: 'package,owner', requestKey: 'adm-sponsorships' }).catch(() => []),
                 countries: () => pb.collection('countries').getFullList({ sort: 'name', requestKey: 'adm-countries' }).catch(() => []),
                 regions: () => pb.collection('regions').getFullList({ sort: 'name', expand: 'country', requestKey: 'adm-regions' }).catch(() => []),
@@ -116,6 +123,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             setEmployees(map.employees);
             setSubscribers(map.subscribers);
             setApplications(map.applications);
+            setMaterials(map.materials);
             setSponsorships(map.sponsorships);
             setCountries(map.countries);
             setRegions(map.regions);
@@ -147,9 +155,43 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         catch (_) { setError('Could not update that account.'); }
     };
 
-    const setMentorshipStatus = async (id, status) => {
-        try { await pb.collection('mentorship_applications').update(id, { status }); load(); }
-        catch (_) { setError('Could not update that application.'); }
+    const setMentorshipStatus = async (id, status, registrationType) => {
+        try {
+            const app = applications.find((a) => a.id === id);
+            const payload = { status };
+            if (status === 'accepted') {
+                payload.registration_type = registrationType || app?.registration_type || app?.requested_type || 'standard';
+            }
+            await pb.collection('mentorship_applications').update(id, payload);
+            load();
+        } catch (_) { setError('Could not update that application.'); }
+    };
+
+    const setMentorshipRegistrationType = async (id, registrationType) => {
+        try {
+            await pb.collection('mentorship_applications').update(id, { registration_type: registrationType });
+            load();
+        } catch (_) { setError('Could not update registration type.'); }
+    };
+
+    const createMaterial = async (e) => {
+        e.preventDefault();
+        try {
+            await pb.collection('mentorship_materials').create({
+                ...materialForm,
+                sort: materialForm.sort === '' ? 0 : Number(materialForm.sort),
+                published: !!materialForm.published,
+            });
+            setMaterialForm({
+                title: '', description: '', module: '', cohort: '2027', registration_type: 'standard', sort: '', url: '', video_url: '', published: true,
+            });
+            load();
+        } catch (_) { setError('Could not publish that material.'); }
+    };
+
+    const deleteMaterial = async (id) => {
+        try { await pb.collection('mentorship_materials').delete(id); load(); }
+        catch (_) { setError('Could not delete that material.'); }
     };
 
     const createEvent = async (e) => {
@@ -296,8 +338,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                 status: countryForm.status,
                 launch_date: countryForm.launch_date || null,
                 regional_coordinator: countryForm.regional_coordinator || '',
+                primary_distributor: countryForm.primary_distributor || '',
             });
-            setCountryForm({ name: '', code: '', currency: '', status: 'coming_soon', launch_date: '', regional_coordinator: '' });
+            setCountryForm({ name: '', code: '', currency: '', status: 'coming_soon', launch_date: '', regional_coordinator: '', primary_distributor: '' });
             load();
         } catch (_) { setError('Could not add that country. The code may already exist.'); }
     };
@@ -310,6 +353,11 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const assignCoordinator = async (id, userId) => {
         try { await pb.collection('countries').update(id, { regional_coordinator: userId || '' }); load(); }
         catch (_) { setError('Could not assign that coordinator.'); }
+    };
+
+    const assignPrimaryDistributor = async (id, userId) => {
+        try { await pb.collection('countries').update(id, { primary_distributor: userId || '' }); load(); }
+        catch (_) { setError('Could not assign that distributor.'); }
     };
 
     const exportOrdersCSV = () => {
@@ -452,11 +500,16 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                     {p.status} · {p.enabled ? 'storefront on' : 'storefront off'} · {p.main_order_enabled ? 'main order on' : 'main order off'}
                                                 </p>
                                             </div>
-                                            <div className="flex flex-wrap items-center gap-2">
-                                                <button type="button" onClick={() => quickToggle(p, 'enabled')} className={smallBtn}>{p.enabled ? 'Hide' : 'Show'}</button>
-                                                <button type="button" onClick={() => quickToggle(p, 'main_order_enabled')} className={smallBtn}>{p.main_order_enabled ? 'Disable main' : 'Enable main'}</button>
-                                                <button type="button" onClick={() => editProduct(p)} className={smallBtn}>Edit</button>
-                                                <button type="button" onClick={() => deleteProduct(p.id)} className={dangerBtn}>Delete</button>
+                                            <div className="flex flex-wrap items-start gap-4">
+                                                {p.product_type === 'book' ? (
+                                                    <ProductQrPanel product={p} compact />
+                                                ) : null}
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <button type="button" onClick={() => quickToggle(p, 'enabled')} className={smallBtn}>{p.enabled ? 'Hide' : 'Show'}</button>
+                                                    <button type="button" onClick={() => quickToggle(p, 'main_order_enabled')} className={smallBtn}>{p.main_order_enabled ? 'Disable main' : 'Enable main'}</button>
+                                                    <button type="button" onClick={() => editProduct(p)} className={smallBtn}>Edit</button>
+                                                    <button type="button" onClick={() => deleteProduct(p.id)} className={dangerBtn}>Delete</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </li>
@@ -689,30 +742,121 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     ) : null}
 
                     {tab === 'mentorship' ? (
-                        <Panel title="Mentorship applications" lead="Review applications to the African Youth Mentorship Initiative and accept or reject candidates.">
+                        <>
+                        <Panel title="Mentorship applications" lead="Review applications, assign registration type on acceptance, and manage programme materials.">
                             <ul className="divide-y divide-border">
                                 {applications.length === 0 ? <EmptyState>No applications submitted.</EmptyState> : null}
                                 {applications.map((a) => (
                                     <li key={a.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
                                         <div className="max-w-xl">
                                             <p className="font-display text-lg">{a.name || a.email}</p>
-                                            <p className="mt-1 text-xs text-muted-foreground">{a.email} · {a.country || 'Country not set'} · {a.discipline || 'Discipline not set'} · {a.cohort || '2027'} cohort</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {a.email} · {a.country || 'Country not set'} · {a.discipline || 'Discipline not set'} · {a.cohort || '2027'} cohort
+                                            </p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                Requested: {registrationTypeLabel(a.requested_type || 'standard')}
+                                                {a.registration_type ? ` · Assigned: ${registrationTypeLabel(a.registration_type)}` : ''}
+                                            </p>
                                             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a.statement}</p>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex flex-col items-end gap-3">
                                             <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{a.status || 'pending'}</span>
-                                            <button type="button" onClick={() => setMentorshipStatus(a.id, 'accepted')} className={smallBtn}>Accept</button>
-                                            <button type="button" onClick={() => setMentorshipStatus(a.id, 'rejected')} className={dangerBtn}>Reject</button>
+                                            {a.status === 'accepted' ? (
+                                                <select
+                                                    value={a.registration_type || a.requested_type || 'standard'}
+                                                    onChange={(e) => setMentorshipRegistrationType(a.id, e.target.value)}
+                                                    className={`${input} max-w-[12rem]`}
+                                                >
+                                                    {REGISTRATION_TYPES.map((t) => (
+                                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <select
+                                                    id={`accept-type-${a.id}`}
+                                                    defaultValue={a.registration_type || a.requested_type || 'standard'}
+                                                    className={`${input} max-w-[12rem]`}
+                                                >
+                                                    {REGISTRATION_TYPES.map((t) => (
+                                                        <option key={t.value} value={t.value}>{t.label}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const sel = document.getElementById(`accept-type-${a.id}`);
+                                                        setMentorshipStatus(a.id, 'accepted', sel?.value);
+                                                    }}
+                                                    className={smallBtn}
+                                                    disabled={a.status === 'accepted'}
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button type="button" onClick={() => setMentorshipStatus(a.id, 'rejected')} className={dangerBtn}>Reject</button>
+                                            </div>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
                         </Panel>
+                        <Panel title="Programme materials" lead="Publish resources and set the minimum registration type required to unlock each item.">
+                            <form onSubmit={createMaterial} className="grid gap-4 md:grid-cols-2">
+                                <input required placeholder="Title" value={materialForm.title} onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })} className={input} />
+                                <input placeholder="Module (e.g. Craft)" value={materialForm.module} onChange={(e) => setMaterialForm({ ...materialForm, module: e.target.value })} className={input} />
+                                <input placeholder="Cohort" value={materialForm.cohort} onChange={(e) => setMaterialForm({ ...materialForm, cohort: e.target.value })} className={input} />
+                                <select value={materialForm.registration_type} onChange={(e) => setMaterialForm({ ...materialForm, registration_type: e.target.value })} className={input}>
+                                    {REGISTRATION_TYPES.map((t) => (
+                                        <option key={t.value} value={t.value}>{t.label} tier</option>
+                                    ))}
+                                </select>
+                                <input placeholder="Sort order" value={materialForm.sort} onChange={(e) => setMaterialForm({ ...materialForm, sort: e.target.value })} className={input} />
+                                <input placeholder="External URL" value={materialForm.url} onChange={(e) => setMaterialForm({ ...materialForm, url: e.target.value })} className={input} />
+                                <input placeholder="Video URL" value={materialForm.video_url} onChange={(e) => setMaterialForm({ ...materialForm, video_url: e.target.value })} className={`${input} md:col-span-2`} />
+                                <textarea placeholder="Description" value={materialForm.description} onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })} className={`${input} md:col-span-2`} rows={3} />
+                                <label className="flex items-center gap-2 text-sm text-muted-foreground md:col-span-2">
+                                    <input type="checkbox" checked={materialForm.published} onChange={(e) => setMaterialForm({ ...materialForm, published: e.target.checked })} />
+                                    Published
+                                </label>
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Add material</button>
+                            </form>
+                            <ul className="mt-8 divide-y divide-border">
+                                {materials.length === 0 ? <EmptyState>No materials yet.</EmptyState> : null}
+                                {materials.map((m) => (
+                                    <li key={m.id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                                        <div>
+                                            <p className="font-display text-lg">{m.title}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {m.module || 'General'} · {m.cohort || 'All cohorts'} · {registrationTypeLabel(m.registration_type)} · {m.published ? 'Published' : 'Draft'}
+                                            </p>
+                                            {m.description ? <p className="mt-2 text-sm text-muted-foreground">{m.description}</p> : null}
+                                        </div>
+                                        <button type="button" onClick={() => deleteMaterial(m.id)} className={dangerBtn}>Delete</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'books' ? (
-                        <Panel title="Book management" lead="Editions, pricing and pre-order windows are managed under the Inventory tab.">
-                            <EmptyState>Use the Inventory tab to manage book editions, stock and pricing.</EmptyState>
+                        <Panel title="Book QR codes" lead="Generate scan-to-order QR codes for each book edition. Display these at events, on printed materials or in-store — scanning opens the edition order page.">
+                            {products.filter((p) => p.product_type === 'book').length === 0 ? (
+                                <EmptyState>No book editions yet. Add books under Inventory.</EmptyState>
+                            ) : (
+                                <ul className="divide-y divide-border">
+                                    {products.filter((p) => p.product_type === 'book').map((p) => (
+                                        <li key={p.id} className="flex flex-wrap items-start justify-between gap-6 py-6">
+                                            <div>
+                                                <p className="font-display text-xl">{p.edition || p.name}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">{p.format} · {formatUSD(p.price)} · {p.enabled ? 'On storefront' : 'Hidden'}</p>
+                                            </div>
+                                            <ProductQrPanel product={p} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </Panel>
                     ) : null}
 
@@ -798,6 +942,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                         <option value="">No coordinator</option>
                                         {users.map((u) => <option key={u.id} value={u.id}>{u.name || u.email}</option>)}
                                     </select>
+                                    <select value={countryForm.primary_distributor} onChange={(e) => setCountryForm({ ...countryForm, primary_distributor: e.target.value })} className={input}>
+                                        <option value="">No primary distributor</option>
+                                        {users.filter((u) => u.account_type === 'distributor' && u.approval_status === 'approved').map((u) => (
+                                            <option key={u.id} value={u.id}>{u.organisation || u.name || u.email}</option>
+                                        ))}
+                                    </select>
                                     <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-3">Add country</button>
                                 </form>
 
@@ -806,12 +956,18 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     {countries.map((c) => {
                                         const countryRegions = regions.filter((r) => r.country === c.id);
                                         const coord = users.find((u) => u.id === c.regional_coordinator);
+                                        const dist = users.find((u) => u.id === c.primary_distributor);
                                         return (
                                             <li key={c.id} className="py-5">
                                                 <div className="flex flex-wrap items-start justify-between gap-4">
                                                     <div>
                                                         <p className="font-display text-xl">{c.name} <span className="font-mono text-xs text-muted-foreground">({c.code})</span></p>
-                                                        <p className="mt-1 text-xs text-muted-foreground">Currency: {c.currency || '—'} · {countryRegions.length} regions · Coordinator: {coord?.name || coord?.email || 'Unassigned'}</p>
+                                                        <p className="mt-1 text-xs text-muted-foreground">
+                                                            Currency: {c.currency || '—'} · {countryRegions.length} regions · Coordinator: {coord?.name || coord?.email || 'Unassigned'}
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-muted-foreground">
+                                                            Primary distributor: {dist?.organisation || dist?.name || dist?.email || 'Unassigned'}
+                                                        </p>
                                                         {c.launch_date ? <p className="mt-1 text-xs text-muted-foreground">Launch: {fmtDate(c.launch_date)}</p> : null}
                                                         {countryRegions.length > 0 ? (
                                                             <p className="mt-2 max-w-2xl text-xs text-muted-foreground">{countryRegions.map((r) => r.name).join(' · ')}</p>
@@ -826,6 +982,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                         <select value={c.regional_coordinator || ''} onChange={(e) => assignCoordinator(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
                                                             <option value="">No coordinator</option>
                                                             {users.map((u) => <option key={u.id} value={u.id}>{u.name || u.email}</option>)}
+                                                        </select>
+                                                        <select value={c.primary_distributor || ''} onChange={(e) => assignPrimaryDistributor(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
+                                                            <option value="">No distributor</option>
+                                                            {users.filter((u) => u.account_type === 'distributor' && u.approval_status === 'approved').map((u) => (
+                                                                <option key={u.id} value={u.id}>{u.organisation || u.name || u.email}</option>
+                                                            ))}
                                                         </select>
                                                     </div>
                                                 </div>
