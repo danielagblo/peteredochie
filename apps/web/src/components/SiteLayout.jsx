@@ -7,7 +7,6 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { whatsappHref } from '@/lib/whatsapp';
-import FooterNewsletter from '@/components/FooterNewsletter';
 
 const OVERLAY_PATHS = new Set([
     '/',
@@ -211,8 +210,7 @@ const SiteLayout = ({ children }) => {
             <main>{children}</main>
             <WhatsAppButton />
 
-            <footer id="subscribe" className="border-t border-border bg-[hsl(var(--surface))]">
-                <FooterNewsletter />
+            <footer className="border-t border-border bg-[hsl(var(--surface))]">
                 <div className="mx-auto grid max-w-[90rem] gap-12 px-5 py-16 sm:grid-cols-2 lg:grid-cols-12 md:px-10">
                     <div className="sm:col-span-2 lg:col-span-4">
                         <p className="font-display text-2xl">Pete Edochie</p>
