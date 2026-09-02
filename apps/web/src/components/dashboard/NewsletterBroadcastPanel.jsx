@@ -647,9 +647,12 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                 </div>
 
                                 {/* Salutation */}
-                                <p className="text-xs sm:text-sm text-[#e4e4e7] select-none">
-                                    Dear {user?.name || 'Valued Subscriber'},
-                                </p>
+                                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#e4e4e7] select-none">
+                                    <span>Dear <span className="text-[hsl(var(--gold))] font-medium">[Subscriber Name]</span>,</span>
+                                    <span className="text-[9px] uppercase tracking-wider text-zinc-500 bg-zinc-900/80 border border-zinc-800 px-1.5 py-0.5">
+                                        Personalized per recipient
+                                    </span>
+                                </div>
 
                                 {/* The Word-Style Visual Editable Message Area */}
                                 <div className="relative">
