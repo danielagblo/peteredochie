@@ -2,13 +2,13 @@ import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { sendEmail, isEmailConfigured, EMAIL_FROM } from '../utils/email.js';
 import { renderNewsletterHtml, renderNewsletterText } from '../utils/emailTemplate.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
 
 const router = Router();
 
 // Check SMTP configuration status (admin only)
-router.get('/status', requireAuth, (req, res) => {
+router.get('/status', requireAuth, requireRole('super_admin'), (req, res) => {
 	const configured = isEmailConfigured();
 	res.json({
 		configured,
@@ -20,7 +20,7 @@ router.get('/status', requireAuth, (req, res) => {
 });
 
 // Broadcast or test-send a newsletter campaign (admin only)
-router.post('/send', requireAuth, async (req, res) => {
+router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) => {
 	try {
 		const {
 			subject,
@@ -188,7 +188,7 @@ router.post('/send', requireAuth, async (req, res) => {
 });
 
 // List sent campaigns history (admin only)
-router.get('/campaigns', requireAuth, async (req, res) => {
+router.get('/campaigns', requireAuth, requireRole('super_admin'), async (req, res) => {
 	try {
 		const campaigns = await prisma.newsletterCampaign.findMany({
 			orderBy: { createdAt: 'desc' },

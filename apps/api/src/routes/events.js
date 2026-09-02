@@ -5,13 +5,15 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const admin = requireRole('super_admin', 'inventory_manager', 'sales_manager', 'country_manager');
 
+const adminOnly = [requireAuth, requireRole('super_admin', 'inventory_manager', 'sales_manager', 'country_manager')];
+
 const controller = crudController(prisma.event, {
 	modelName: 'event',
 	publicList: true,
 	publicGet: true,
-	createGuard: requireAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	createGuard: adminOnly,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['title', 'city', 'venue', 'category'],
 	orderBy: { starts: 'asc' },
 });

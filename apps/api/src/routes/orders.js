@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
-import { requireAuth, optionalAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
 
 const isAdminRole = (role) =>
 	['super_admin', 'sales_manager', 'fulfillment_officer', 'inventory_manager'].includes(role);
+
+const adminOnly = [requireAuth, requireRole('super_admin', 'sales_manager', 'fulfillment_officer', 'inventory_manager')];
 
 const controller = crudController(prisma.order, {
 	modelName: 'order',
@@ -12,8 +14,8 @@ const controller = crudController(prisma.order, {
 	publicGet: false,
 	listGuard: requireAuth,
 	createGuard: optionalAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['email', 'paymentReference', 'orderStatus', 'paymentStatus'],
 	orderBy: { createdAt: 'desc' },
 	include: { items: true, distributor: { select: { id: true, name: true, email: true } } },

@@ -16,6 +16,8 @@ const STAFF_ROLES = [
 // Fields that only a super_admin may set (replaces admin-protection + account-guards).
 const PROTECTED_FIELDS = ['staffRole', 'accountType', 'approvalStatus'];
 
+const adminGuard = [requireAuth, requireRole('super_admin', 'inventory_manager', 'sales_manager', 'fulfillment_officer', 'country_manager', 'sponsorship_manager')];
+
 const controller = crudController(prisma.user, {
 	modelName: 'user',
 	filterVia: { assigned_country: { field: 'assignedCountry' } },
@@ -25,8 +27,8 @@ const controller = crudController(prisma.user, {
 	},
 	publicList: false,
 	publicGet: false,
-	listGuard: requireAuth,
-	createGuard: requireAuth,
+	listGuard: adminGuard,
+	createGuard: adminGuard,
 	updateGuard: requireAuth,
 	deleteGuard: requireRole('super_admin'),
 	searchable: ['email', 'name', 'organisation', 'country'],

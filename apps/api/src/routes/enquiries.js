@@ -1,17 +1,19 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+
+const adminOnly = [requireAuth, requireRole('super_admin')];
 
 // Enquiries are created publicly (contact form), listed/viewed by admins.
 const controller = crudController(prisma.enquiry, {
 	modelName: 'enquiry',
 	publicList: false,
 	publicGet: false,
-	listGuard: requireAuth,
+	listGuard: adminOnly,
 	createGuard: undefined,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	orderBy: { createdAt: 'desc' },
 });
 

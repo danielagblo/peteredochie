@@ -5,13 +5,15 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const manage = requireRole('super_admin', 'inventory_manager', 'sales_manager');
 
+const adminOnly = [requireAuth, requireRole('super_admin', 'inventory_manager', 'sales_manager')];
+
 const controller = crudController(prisma.product, {
 	modelName: 'product',
 	publicList: true,
 	publicGet: true,
-	createGuard: requireAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	createGuard: adminOnly,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['name', 'category', 'productType'],
 	orderBy: { createdAt: 'desc' },
 	include: { createdBy: { select: { id: true, name: true, email: true } } },

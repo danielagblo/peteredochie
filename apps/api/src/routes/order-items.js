@@ -13,6 +13,10 @@ const controller = crudController(prisma.orderItem, {
 	deleteGuard: requireAuth,
 	orderBy: { createdAt: 'asc' },
 	include: { product: { select: { id: true, name: true } } },
+	where: (req) => {
+		if (req.employeeRole === 'super_admin') return undefined;
+		return { order: { ownerId: req.user?.id } };
+	},
 });
 
 const router = Router();

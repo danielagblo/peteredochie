@@ -1,15 +1,17 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+
+const adminOnly = [requireAuth, requireRole('super_admin', 'country_manager')];
 
 const controller = crudController(prisma.country, {
 	modelName: 'country',
 	publicList: true,
 	publicGet: true,
-	createGuard: requireAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	createGuard: adminOnly,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['name', 'code'],
 	orderBy: { name: 'asc' },
 	include: {

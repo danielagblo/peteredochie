@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
-import { requireAuth, optionalAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
 
 // Registration-type rank used for tier gating (replaces mentorship-materials-access hook).
 const TIER_RANK = { scholarship: 0, standard: 1, patron: 2, legacy: 3 };
 
 const ADMIN_ROLES = ['super_admin', 'country_manager', 'inventory_manager', 'sales_manager'];
+
+const adminOnly = [requireAuth, requireRole(...ADMIN_ROLES)];
 
 // Public list only shows published materials up to the caller's tier; admins see all.
 const controller = crudController(prisma.mentorshipMaterial, {
@@ -14,9 +16,9 @@ const controller = crudController(prisma.mentorshipMaterial, {
 	publicList: false,
 	publicGet: false,
 	listGuard: optionalAuth,
-	createGuard: requireAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	createGuard: adminOnly,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['title', 'module', 'cohort'],
 	orderBy: [{ sort: 'asc' }, { createdAt: 'asc' }],
 	where: (req) => {

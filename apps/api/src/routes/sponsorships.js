@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
-import { requireAuth, optionalAuth } from '../middleware/auth.js';
+import { requireAuth, requireRole } from '../middleware/auth.js';
+
+const adminOnly = [requireAuth, requireRole('super_admin', 'sponsorship_manager')];
 
 // Create is authenticated (owner attached), list restricted to owners/admins.
 const controller = crudController(prisma.sponsorship, {
@@ -10,8 +12,8 @@ const controller = crudController(prisma.sponsorship, {
 	publicGet: false,
 	listGuard: requireAuth,
 	createGuard: requireAuth,
-	updateGuard: requireAuth,
-	deleteGuard: requireAuth,
+	updateGuard: adminOnly,
+	deleteGuard: adminOnly,
 	searchable: ['companyName', 'contactPerson', 'email'],
 	orderBy: { createdAt: 'desc' },
 	include: { package: true, owner: { select: { id: true, name: true, email: true } } },
