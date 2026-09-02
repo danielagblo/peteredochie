@@ -1,0 +1,419 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  name              String?
+  avatar            String?
+  verified          Boolean   @default(false)
+  tokenKey          String?   @map("token_key")
+  role              String?   // supporter | patron | legacy_circle | sponsor | media | admin
+  accountType       String?   @map("account_type") // subscriber | distributor | sponsor | admin
+  approvalStatus    String?   @map("approval_status") @default("not_required") // not_required | pending | approved | rejected
+  organisation      String?   @db.VarChar(160)
+  country           String?   @db.VarChar(100)
+  phone             String?   @db.VarChar(40)
+  territory         String?   @db.VarChar(200)
+  newsletter        Boolean?
+  interests         Json?
+  staffRole         String?   @map("staff_role") // super_admin | inventory_manager | sales_manager | fulfillment_officer | country_manager | sponsorship_manager
+  lastLogin         DateTime? @map("last_login")
+  loginHistory      Json?     @map("login_history")
+  mustChangePassword Boolean? @map("must_change_password")
+  staffStatus       String?   @map("staff_status") // active | inactive
+  countryAssignment String?   @map("country_assignment") @db.VarChar(100)
+  assignedCountryId String?   @map("assigned_country")
+  assignedCountry   Country?  @relation("CountryAssignedUsers", fields: [assignedCountryId], references: [id])
+  collectionAddress String?   @map("collection_address") @db.VarChar(500)
+  collectionHours   String?   @map("collection_hours") @db.VarChar(200)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  employeeRole           EmployeeRole?
+  assignedCountries      Country[]          @relation("CountryPrimaryDistributor")
+  managedCountries       Country[]          @relation("CountryRegionalCoordinator")
+  ownedOrders            Order[]            @relation("OrderOwner")
+  distributedOrders      Order[]            @relation("OrderDistributor")
+  ownedTickets           MeetAndGreetTicket[] @relation("TicketOwner")
+  assignedTickets        MeetAndGreetTicket[] @relation("TicketDistributor")
+  ownedSponsorships      Sponsorship[]
+  mentorshipApplications MentorshipApplication[]
+  products               Product[]
+  stockMovements         StockMovement[]
+  ownedEventRegistrations      EventRegistration[] @relation("EventRegOwner")
+  distributedEventRegistrations EventRegistration[] @relation("EventRegDistributor")
+
+  @@map("users")
+}
+
+// ─── Employee Roles ───────────────────────────────────────────────────────────
+
+model EmployeeRole {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String   // super_admin | inventory_manager | sales_manager | fulfillment_officer | country_manager | sponsorship_manager
+  permissions Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("employee_roles")
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+
+model Event {
+  id             String   @id @default(uuid())
+  title          String   @db.VarChar(200)
+  city           String?  @db.VarChar(120)
+  venue          String?  @db.VarChar(200)
+  starts         DateTime?
+  ends           DateTime?
+  summary        String?  @db.VarChar(500)
+  category       String?  @db.VarChar(60)
+  image          String?  @db.VarChar(500)
+  eventType      String?  @map("event_type") // ghana_launch | masterclass | meet_and_greet
+  invitationOnly Boolean? @map("invitation_only")
+  price          String?  @db.VarChar(60)
+  ticketTiers    Json?    @map("ticket_tiers")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  tickets          MeetAndGreetTicket[]
+  registrations    EventRegistration[]
+
+  @@map("events")
+}
+
+// ─── News ─────────────────────────────────────────────────────────────────────
+
+model News {
+  id        String   @id @default(uuid())
+  title     String   @db.VarChar(200)
+  excerpt   String?  @db.VarChar(600)
+  body      String?  @db.VarChar(5000)
+  category  String?  @db.VarChar(60)
+  image     String?  @db.VarChar(500)
+  published DateTime?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("news")
+}
+
+// ─── Enquiries ────────────────────────────────────────────────────────────────
+
+model Enquiry {
+  id           String   @id @default(uuid())
+  name         String   @db.VarChar(120)
+  email        String
+  organisation String?  @db.VarChar(160)
+  subject      String?  @db.VarChar(80)
+  message      String   @db.VarChar(3000)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("enquiries")
+}
+
+// ─── Subscribers ──────────────────────────────────────────────────────────────
+
+model Subscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?  @db.VarChar(120)
+  country   String?  @db.VarChar(100)
+  interests Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("subscribers")
+}
+
+// ─── Countries ────────────────────────────────────────────────────────────────
+
+model Country {
+  id                   String    @id @default(uuid())
+  name                 String    @db.VarChar(120)
+  code                 String    @unique @db.VarChar(3)
+  currency             String?   @db.VarChar(8)
+  status               String?   @default("active") // active | inactive | coming_soon
+  launchDate           DateTime? @map("launch_date")
+  regionalCoordinatorId String?  @map("regional_coordinator")
+  primaryDistributorId String?   @map("primary_distributor")
+  regionalCoordinator  User?     @relation("CountryRegionalCoordinator", fields: [regionalCoordinatorId], references: [id])
+  primaryDistributor   User?     @relation("CountryPrimaryDistributor", fields: [primaryDistributorId], references: [id])
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  assignedUsers User[] @relation("CountryAssignedUsers")
+  regions Region[]
+
+  @@map("countries")
+}
+
+// ─── Regions ──────────────────────────────────────────────────────────────────
+
+model Region {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(120)
+  countryId String   @map("country_id")
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  status    String?  @default("active") // active | inactive
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("regions")
+}
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+model Product {
+  id                String   @id @default(uuid())
+  name              String   @db.VarChar(200)
+  description       String?  @db.VarChar(2000)
+  format            String?  // hardcopy | digital
+  price             Float?
+  edition           String?  @db.VarChar(120)
+  productType       String?  @map("product_type") // book | merchandise | ticket
+  status            String?  // preorder | main_order | unavailable
+  inventoryLimit    Int?     @map("inventory_limit")
+  currentStock      Int?     @map("current_stock")
+  lowStockThreshold Int?     @map("low_stock_threshold")
+  enabled           Boolean?
+  mainOrderEnabled  Boolean? @map("main_order_enabled")
+  externalUrl       String?  @map("external_url")
+  image             String?  @db.VarChar(500)
+  createdById       String?  @map("created_by")
+  createdBy         User?    @relation(fields: [createdById], references: [id])
+  variants          Json?
+  category          String?  @db.VarChar(80)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  orderItems    OrderItem[]
+  stockMovements StockMovement[]
+
+  @@map("products")
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+model Order {
+  id                String   @id @default(uuid())
+  ownerId           String?  @map("owner_id")
+  owner             User?    @relation("OrderOwner", fields: [ownerId], references: [id])
+  email             String?
+  totalPrice        Float?   @map("total_price")
+  currency          String?  @db.VarChar(8)
+  shippingAddress   Json?    @map("shipping_address")
+  paymentStatus     String?  @map("payment_status") // pending | paid | failed | refunded
+  paymentReference  String?  @map("payment_reference") @db.VarChar(120)
+  paystackAccessCode String? @map("paystack_access_code") @db.VarChar(120)
+  orderStatus       String?  @map("order_status") // pending | processing | shipped | delivered | cancelled
+  itemsSummary      String?  @map("items_summary") @db.VarChar(1000)
+  estimatedDelivery DateTime? @map("estimated_delivery")
+  trackingNumber    String?  @map("tracking_number") @db.VarChar(120)
+  confirmationSent  Boolean? @map("confirmation_sent")
+  country           String?  @db.VarChar(100)
+  distributorId     String?  @map("distributor_id")
+  distributor       User?    @relation("OrderDistributor", fields: [distributorId], references: [id])
+  fulfillmentMethod String?  @map("fulfillment_method") // ship | distributor_collection
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+// ─── Order Items ──────────────────────────────────────────────────────────────
+
+model OrderItem {
+  id            String   @id @default(uuid())
+  orderId       String   @map("order_id")
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String?  @map("product_id")
+  product       Product? @relation(fields: [productId], references: [id])
+  productName   String?  @map("product_name") @db.VarChar(200)
+  productFormat String?  @map("product_format") @db.VarChar(40)
+  productEdition String? @map("product_edition") @db.VarChar(120)
+  quantity      Int?
+  unitPrice     Float?   @map("unit_price")
+  totalPrice    Float?   @map("total_price")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("order_items")
+}
+
+// ─── Meet & Greet Tickets ─────────────────────────────────────────────────────
+
+model MeetAndGreetTicket {
+  id                 String   @id @default(uuid())
+  ownerId            String   @map("owner_id")
+  owner              User     @relation("TicketOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  eventId            String   @map("event_id")
+  event              Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tier               String   // vip | standard
+  price              Float?
+  status             String?  @default("pending") // confirmed | checked_in | cancelled | pending
+  confirmationCode   String?  @map("confirmation_code") @db.VarChar(40)
+  photographer       Boolean?
+  paymentReference   String?  @map("payment_reference") @db.VarChar(120)
+  paymentStatus      String?  @map("payment_status") // pending | paid | failed
+  paystackAccessCode String?  @map("paystack_access_code") @db.VarChar(120)
+  country            String?  @db.VarChar(3)
+  distributorId      String?  @map("distributor_id")
+  distributor        User?    @relation("TicketDistributor", fields: [distributorId], references: [id])
+  fulfillmentMethod  String?  @map("fulfillment_method") // ship | distributor_collection
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("meet_and_greet_tickets")
+}
+
+// ─── Event Registrations ──────────────────────────────────────────────────────
+
+model EventRegistration {
+  id                String   @id @default(uuid())
+  ownerId           String   @map("owner_id")
+  owner             User     @relation("EventRegOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  eventId           String   @map("event_id")
+  event             Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  status            String?  @default("registered") // registered | checked_in | cancelled
+  confirmationCode  String?  @map("confirmation_code") @db.VarChar(40)
+  country           String?  @db.VarChar(3)
+  distributorId     String?  @map("distributor_id")
+  distributor       User?    @relation("EventRegDistributor", fields: [distributorId], references: [id])
+  fulfillmentMethod String?  @map("fulfillment_method") // ship | distributor_collection
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("event_registrations")
+}
+
+// ─── Sponsorship Packages ─────────────────────────────────────────────────────
+
+model SponsorshipPackage {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(120)
+  tier        String   // platinum | gold | silver | bronze
+  description String?  @db.VarChar(2000)
+  price       Float
+  currency    String?  @db.VarChar(8)
+  benefits    Json?
+  deliverables Json?
+  duration    String?  @db.VarChar(60)
+  image       String?  @db.VarChar(500)
+  enabled     Boolean?
+  sort        Int?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  sponsorships Sponsorship[]
+
+  @@map("sponsorship_packages")
+}
+
+// ─── Sponsorships ─────────────────────────────────────────────────────────────
+
+model Sponsorship {
+  id               String            @id @default(uuid())
+  ownerId          String            @map("owner_id")
+  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  companyName      String            @map("company_name") @db.VarChar(200)
+  industry         String?           @db.VarChar(120)
+  contactPerson    String            @map("contact_person") @db.VarChar(120)
+  email            String
+  phone            String?           @db.VarChar(40)
+  website          String?
+  packageTier      String?           @map("package_tier") // platinum | gold | silver | bronze
+  packageId        String?           @map("package_id")
+  package          SponsorshipPackage? @relation(fields: [packageId], references: [id])
+  investmentAmount Float?            @map("investment_amount")
+  currency         String?           @db.VarChar(8)
+  message          String?           @db.VarChar(3000)
+  status           String?           @default("pending") // pending | approved | rejected
+  paymentStatus    String?           @map("payment_status") // unpaid | paid | refunded
+  adminNotes       String?           @map("admin_notes") @db.VarChar(2000)
+  country          String?           @db.VarChar(100)
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+
+  @@map("sponsorships")
+}
+
+// ─── Mentorship Applications ──────────────────────────────────────────────────
+
+model MentorshipApplication {
+  id               String   @id @default(uuid())
+  name             String   @db.VarChar(120)
+  email            String
+  country          String?  @db.VarChar(100)
+  discipline       String?  @db.VarChar(100)
+  statement        String   @db.VarChar(2000)
+  ownerId          String?  @map("owner_id")
+  owner            User?    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  status           String?  @default("pending") // pending | accepted | rejected
+  cohort           String?  @db.VarChar(20)
+  requestedType    String?  @map("requested_type") // scholarship | standard | patron | legacy
+  registrationType String?  @map("registration_type") // scholarship | standard | patron | legacy
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("mentorship_applications")
+}
+
+// ─── Mentorship Materials ─────────────────────────────────────────────────────
+
+model MentorshipMaterial {
+  id               String   @id @default(uuid())
+  title            String   @db.VarChar(200)
+  description      String?  @db.VarChar(2000)
+  module           String?  @db.VarChar(80)
+  cohort           String?  @db.VarChar(20)
+  registrationType String   @map("registration_type") // scholarship | standard | patron | legacy
+  sort             Int?
+  published        Boolean?
+  url              String?
+  videoUrl         String?  @map("video_url")
+  file             String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("mentorship_materials")
+}
+
+// ─── Stock Movements ──────────────────────────────────────────────────────────
+
+model StockMovement {
+  id             String   @id @default(uuid())
+  productId      String   @map("product_id")
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantityChange Int?     @map("quantity_change")
+  previousStock  Int?     @map("previous_stock")
+  newStock       Int?     @map("new_stock")
+  reason         String?  @db.VarChar(240)
+  createdById    String?  @map("created_by")
+  createdBy      User?    @relation(fields: [createdById], references: [id])
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("stock_movements")
+}
