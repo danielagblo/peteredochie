@@ -29,16 +29,18 @@ const DistributorDashboard = () => {
         <DashboardShell
             title="Distributor dashboard | King Dawie Publishing"
             description="Distributor pricing, assigned territories, orders, performance metrics and downloadable trade resources from King Dawie Publishing."
-            nav={NAV}
+            nav={approved ? NAV : [{ key: 'overview', label: 'Overview', icon: Gauge }]}
         >
             {(tab) => (
                 <>
                     {!approved ? (
-                        <div className="border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-5 text-sm text-muted-foreground">
-                            Your distributor application is under review by {PUBLISHER.name}. Pricing and ordering unlock once approved.
+                        <div className="border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-6 text-sm text-muted-foreground">
+                            Your distributor application is under review by {PUBLISHER.name}. Pricing, resources, territories and ordering all unlock once your account is approved. Contact the publisher for updates.
                         </div>
                     ) : null}
 
+                    {approved ? (
+                        <>
                     {tab === 'overview' ? (
                         <div className="grid gap-4 sm:grid-cols-3">
                             <Stat label="Open orders" value="0" hint="Awaiting fulfilment" />
@@ -66,7 +68,7 @@ const DistributorDashboard = () => {
                             {user?.territory ? (
                                 <div className="border border-border px-6 py-5">
                                     <p className="font-display text-2xl">{user.territory}</p>
-                                    <p className="mt-2 text-xs text-muted-foreground">{approved ? 'Active' : 'Requested — pending approval'}</p>
+                                    <p className="mt-2 text-xs text-muted-foreground">Active</p>
                                 </div>
                             ) : (
                                 <EmptyState>No territory assigned yet. Request one from the publisher.</EmptyState>
@@ -96,9 +98,7 @@ const DistributorDashboard = () => {
                                 {['Trade sales sheet (PDF)', 'Cover artwork pack', 'Retail display guide', 'Order form template'].map((r) => (
                                     <li key={r} className="flex items-center justify-between gap-4 px-6 py-4 text-sm">
                                         <span>{r}</span>
-                                        <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">
-                                            {approved ? 'Available on request' : 'Locked until approval'}
-                                        </span>
+                                        <span className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">Available on request</span>
                                     </li>
                                 ))}
                             </ul>
@@ -111,6 +111,8 @@ const DistributorDashboard = () => {
                                 Open the enquiry form
                             </Link>
                         </Panel>
+                    ) : null}
+                        </>
                     ) : null}
                 </>
             )}

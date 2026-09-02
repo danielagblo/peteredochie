@@ -46,6 +46,10 @@ const SponsorDashboard = () => {
     const benefits = Array.isArray(pkg?.benefits) ? pkg.benefits : Array.isArray(sponsorship?.benefits) ? sponsorship.benefits : [];
     const deliverables = Array.isArray(pkg?.deliverables) ? pkg.deliverables : [];
 
+    // Fail-closed: unapproved sponsors only see status/package/contact — invoices,
+    // assets and invitations stay locked away until the partnership is approved.
+    const visibleNav = approved ? NAV : NAV.filter((n) => ['overview', 'package', 'contact'].includes(n.key));
+
     const downloadInvoice = () => {
         if (!sponsorship) return;
         const body = `KING DAWIE PUBLISHING\nSponsorship Invoice\n\nSponsor: ${sponsorship.company_name}\nContact: ${sponsorship.contact_person}\nEmail: ${sponsorship.email}\nCountry: ${countryName(sponsorship.country)}\n\nPackage: ${pkg?.name || TIER_LABEL[sponsorship.package_tier] || 'Sponsorship'}\nDuration: ${pkg?.duration || '12 months'}\n\nInvestment: ${formatUSD(sponsorship.investment_amount || pkg?.price)}\nPayment status: ${sponsorship.payment_status || 'unpaid'}\nApplication status: ${sponsorship.status || 'pending'}\n\nIssued: ${new Date().toLocaleDateString('en-GB')}\n`;
@@ -62,7 +66,7 @@ const SponsorDashboard = () => {
         <DashboardShell
             title="Sponsor dashboard | King Dawie Publishing"
             description="Sponsorship package details, benefits and deliverables, invoice history, brand assets and event invitations for corporate partners."
-            nav={NAV}
+            nav={visibleNav}
         >
             {(tab) => (
                 <>
