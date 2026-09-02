@@ -81,7 +81,6 @@
 				"plugins/visual-editor/vite-plugin-edit-mode.js",
 				"plugins/visual-editor/vite-plugin-react-inline-editor.js",
 				"plugins/vite-plugin-iframe-route-restoration.js",
-				"plugins/vite-plugin-pocketbase-auth.js",
 				"plugins/vite-plugin-site-pages.js",
 				"postcss.config.js",
 				"src/api/EcommerceApi.js",
