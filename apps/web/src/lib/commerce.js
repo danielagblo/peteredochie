@@ -39,11 +39,24 @@ export const paystackStatus = async () => {
     }
 };
 
+// Authenticated users must verify their email before purchasing. Throws a 403
+// so callers can surface the verification notice without hitting the API.
+const requireVerified = async () => {
+    const record = authStore.record;
+    if (record && !record.verified) {
+        const err = new Error('Please verify your email address before completing this purchase.');
+        err.status = 403;
+        err.verificationRequired = true;
+        throw err;
+    }
+};
+
 // Create a pending Meet & Greet ticket + start a Paystack transaction.
 // Returns { configured, authorization_url, reference, ticket_id, confirmation_code }
 // or { configured: false, ticket_id, reference, confirmation_code } when Paystack
 // is not set up yet.
 export const initializeTicket = async (payload) => {
+    await requireVerified();
     const res = await apiServerClient.fetch('/paystack/tickets/initialize', {
         method: 'POST',
         headers: authHeaders(),
@@ -63,6 +76,7 @@ export const initializeTicket = async (payload) => {
 // Returns { configured, authorization_url, reference, order_id } or
 // { configured: false, order_id, reference } when Paystack is not set up.
 export const initializeOrder = async (payload) => {
+    await requireVerified();
     const res = await apiServerClient.fetch('/paystack/initialize', {
         method: 'POST',
         headers: authHeaders(),

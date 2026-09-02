@@ -163,6 +163,14 @@ router.post("/initialize", async (req, res) => {
 	const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
 	const userId = token ? userIdFromToken(token) : null;
 
+	// Authenticated users must verify their email before ordering.
+	if (userId) {
+		const account = await prisma.user.findUnique({ where: { id: userId }, select: { verified: true, approvalStatus: true } });
+		if (account && !account.verified) {
+			return res.status(403).json({ error: "Please verify your email address before placing an order." });
+		}
+	}
+
 	const {
 		items,
 		shipping_address: shipping,
@@ -327,6 +335,11 @@ router.post("/tickets/initialize", async (req, res) => {
 		return res.status(401).json({ error: "Authentication required." });
 	}
 
+	// Must verify email before purchasing tickets.
+	const verifier = await prisma.user.findUnique({ where: { id: userId }, select: { verified: true } });
+	if (verifier && !verifier.verified) {
+		return res.status(403).json({ error: "Please verify your email address before purchasing tickets." });
+	}
 	const { event_id, tier, email, return_origin, country, fulfillment_method, distributor_id } = req.body || {};
 	if (!event_id || !tier) {
 		return res.status(422).json({ error: "Event and ticket tier are required." });
