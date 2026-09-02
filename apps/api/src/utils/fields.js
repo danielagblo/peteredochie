@@ -255,6 +255,12 @@ const INPUT = {
 	},
 };
 
+// Add PB-style timestamp aliases for every model on input (snake->camel).
+for (const map of Object.values(INPUT)) {
+	map.created = 'createdAt';
+	map.updated = 'updatedAt';
+}
+
 // camelCase (Prisma) -> snake_case (API) for READ output.
 // Also injects PB-style `created`/`updated` aliases.
 const OUTPUT = {};
@@ -264,7 +270,7 @@ for (const [model, map] of Object.entries(INPUT)) {
 		OUTPUT[model][camel] = snake;
 	}
 }
-// Add PB-style timestamps for every model.
+// Add PB-style timestamps for every model on output (camel->snake).
 for (const map of Object.values(OUTPUT)) {
 	map.createdAt = 'created';
 	map.updatedAt = 'updated';

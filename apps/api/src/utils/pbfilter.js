@@ -125,8 +125,13 @@ export function defaultTranslate(fieldMap, via = {}) {
 				.split('.');
 			return [[head, ...tail], predicate.value];
 		}
-		const camel = fieldMap[field] ?? field;
-		if (camel === undefined || camel === null) return null;
-		return [[camel], predicate.value];
+		let mapped = fieldMap?.[field];
+		if (!mapped) {
+			if (field === 'created') mapped = 'createdAt';
+			else if (field === 'updated') mapped = 'updatedAt';
+			else mapped = field;
+		}
+		if (mapped === undefined || mapped === null) return null;
+		return [[mapped], predicate.value];
 	};
 }

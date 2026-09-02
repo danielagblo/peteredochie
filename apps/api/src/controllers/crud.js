@@ -57,8 +57,13 @@ export function crudController(model, opts = {}) {
 			if (!part.trim()) continue;
 			const desc = part.startsWith('-');
 			const name = (desc ? part.slice(1) : part).trim();
-			const camel = fieldMap?.[name] ?? name;
-			order.push({ [camel]: desc ? 'desc' : 'asc' });
+			let mapped = fieldMap?.[name];
+			if (!mapped) {
+				if (name === 'created') mapped = 'createdAt';
+				else if (name === 'updated') mapped = 'updatedAt';
+				else mapped = name;
+			}
+			order.push({ [mapped]: desc ? 'desc' : 'asc' });
 		}
 		return order.length ? order : orderBy;
 	}
