@@ -57,43 +57,51 @@ const PACKAGES = [
 ];
 
 async function main() {
-	// Remove any previously-seeded records so re-running always produces
-	// clean data (e.g. non-ASCII chars like £ survive a utf8mb4 connection).
+	// Remove previously-seeded catalog/content so re-running keeps them fresh,
+	// but preserve users and employee roles so real accounts and passwords are not wiped.
 	await prisma.news.deleteMany({});
 	await prisma.product.deleteMany({});
 	await prisma.event.deleteMany({});
 	await prisma.sponsorshipPackage.deleteMany({});
 	await prisma.subscriber.deleteMany({});
-	await prisma.employeeRole.deleteMany({});
-	await prisma.user.deleteMany({});
 
 	const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@example.com';
 	const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@12345';
 
-	const adminHash = await bcrypt.hash(adminPassword, 10);
-
-	const admin = await prisma.user.upsert({
-		where: { email: adminEmail },
-		update: { staffRole: 'super_admin', accountType: 'admin', role: 'admin', staffStatus: 'active', verified: true },
-		create: {
-			email: adminEmail,
-			passwordHash: adminHash,
-			name: 'Administrator',
-			staffRole: 'super_admin',
-			accountType: 'admin',
-			role: 'admin',
-			staffStatus: 'active',
-			verified: true,
-			mustChangePassword: false,
+	// Check if an admin already exists (by email, staffRole, or role)
+	let admin = await prisma.user.findFirst({
+		where: {
+			OR: [
+				{ email: adminEmail },
+				{ staffRole: 'super_admin' },
+				{ role: 'admin' },
+			],
 		},
 	});
 
-	await prisma.employeeRole.upsert({
-		where: { userId: admin.id },
-		update: { role: 'super_admin' },
-		create: { userId: admin.id, role: 'super_admin' },
-	});
-	console.log(`  admin user: ${adminEmail} (role=super_admin)`);
+	if (admin) {
+		console.log(`  ℹ Admin already exists: ${admin.email} (skipping admin creation, password preserved)`);
+	} else {
+		const adminHash = await bcrypt.hash(adminPassword, 10);
+		admin = await prisma.user.create({
+			data: {
+				email: adminEmail,
+				passwordHash: adminHash,
+				name: 'Administrator',
+				staffRole: 'super_admin',
+				accountType: 'admin',
+				role: 'admin',
+				staffStatus: 'active',
+				verified: true,
+				mustChangePassword: false,
+			},
+		});
+
+		await prisma.employeeRole.create({
+			data: { userId: admin.id, role: 'super_admin' },
+		});
+		console.log(`  ✅ Created super admin: ${adminEmail} (role=super_admin)`);
+	}
 
 	for (const c of COUNTRIES) {
 		const country = await prisma.country.upsert({
