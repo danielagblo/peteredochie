@@ -134,6 +134,44 @@ export function parseMarkdownToEmailHtml(text = '') {
 	return rendered.filter(Boolean).join('\n');
 }
 
+export function formatContentForEmail(content = '') {
+	if (!content) return '';
+	const trimmed = String(content).trim();
+	if (!trimmed) return '';
+
+	// Check if content already contains HTML tags from the visual WYSIWYG editor
+	const hasHtml = /<(p|div|h[1-6]|ul|ol|li|blockquote|strong|b|em|i|a|span)[\s>]/i.test(trimmed);
+
+	if (hasHtml) {
+		let styled = trimmed;
+		// Inject or normalize inline styles on tags for bulletproof Gmail/Outlook rendering
+		styled = styled.replace(/<p(?:\s+style="[^"]*")?>/gi, '<p style="margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #d4d4d8 !important;">');
+		styled = styled.replace(/<h1(?:\s+style="[^"]*")?>/gi, '<h1 style="margin: 28px 0 14px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 24px; line-height: 1.3; font-weight: 700; color: #ffffff !important;">');
+		styled = styled.replace(/<h2(?:\s+style="[^"]*")?>/gi, '<h2 style="margin: 24px 0 12px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 21px; line-height: 1.35; font-weight: 600; color: #D4AF37 !important;">');
+		styled = styled.replace(/<h3(?:\s+style="[^"]*")?>/gi, '<h3 style="margin: 20px 0 10px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 18px; line-height: 1.4; font-weight: 600; color: #D4AF37 !important;">');
+		styled = styled.replace(/<strong(?:\s+style="[^"]*")?>/gi, '<strong style="color: #ffffff !important; font-weight: 700;">');
+		styled = styled.replace(/<b(?:\s+style="[^"]*")?>/gi, '<strong style="color: #ffffff !important; font-weight: 700;">');
+		styled = styled.replace(/<\/b>/gi, '</strong>');
+		styled = styled.replace(/<em(?:\s+style="[^"]*")?>/gi, '<em style="color: #f4f4f5 !important; font-style: italic;">');
+		styled = styled.replace(/<i(?:\s+style="[^"]*")?>/gi, '<em style="color: #f4f4f5 !important; font-style: italic;">');
+		styled = styled.replace(/<\/i>/gi, '</em>');
+		styled = styled.replace(/<u(?:\s+style="[^"]*")?>/gi, '<span style="text-decoration: underline; color: inherit;">');
+		styled = styled.replace(/<\/u>/gi, '</span>');
+		styled = styled.replace(/<ul(?:\s+style="[^"]*")?>/gi, '<ul style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">');
+		styled = styled.replace(/<ol(?:\s+style="[^"]*")?>/gi, '<ol style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">');
+		styled = styled.replace(/<li(?:\s+style="[^"]*")?>/gi, '<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">');
+		styled = styled.replace(/<blockquote(?:\s+style="[^"]*")?>/gi, '<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #D4AF37; background-color: #19191d; color: #f4f4f5 !important; font-style: italic; font-size: 15px; line-height: 1.7;">');
+		styled = styled.replace(/<a\s+([^>]*?)href="([^"]+)"([^>]*?)>/gi, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #D4AF37 !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #D4AF37 !important;">');
+		styled = styled.replace(/<\/a>/gi, '</span></a>');
+		// Clean up empty lines
+		styled = styled.replace(/<p[^>]*><br\s*\/?><\/p>/gi, '');
+		styled = styled.replace(/<p[^>]*>\s*<\/p>/gi, '');
+		return styled;
+	}
+
+	return parseMarkdownToEmailHtml(trimmed);
+}
+
 export function renderNewsletterHtml({
 	subject = 'The Pete Edochie Legacy Update',
 	previewText = '',
@@ -145,7 +183,7 @@ export function renderNewsletterHtml({
 	recipientEmail = '',
 }) {
 	const greeting = recipientName ? `Dear ${recipientName},` : 'Greetings,';
-	const formattedBody = parseMarkdownToEmailHtml(content);
+	const formattedBody = formatContentForEmail(content);
 
 	const buttonHtml = ctaText && ctaUrl
 		? `
@@ -270,6 +308,15 @@ export function renderNewsletterText({
 	recipientName = '',
 }) {
 	const greeting = recipientName ? `Dear ${recipientName},` : 'Greetings,';
+	const cleanContent = String(content || '')
+		.replace(/<br\s*\/?>/gi, '\n')
+		.replace(/<\/p>/gi, '\n\n')
+		.replace(/<\/h[1-6]>/gi, '\n\n')
+		.replace(/<li[^>]*>/gi, '- ')
+		.replace(/<\/li>/gi, '\n')
+		.replace(/<[^>]+>/g, '')
+		.trim();
+
 	const parts = [
 		'THE PETE EDOCHIE LEGACY',
 		'King Dawie Publishing - Official Dispatch',
@@ -278,7 +325,7 @@ export function renderNewsletterText({
 		headline ? `${headline}\n` : '',
 		greeting,
 		'',
-		content,
+		cleanContent,
 		'',
 		ctaText && ctaUrl ? `>>> ${ctaText.toUpperCase()}: ${ctaUrl}\n` : '',
 		'Warm regards,',
@@ -292,4 +339,4 @@ export function renderNewsletterText({
 	return parts.filter((p) => p !== undefined && p !== null).join('\n');
 }
 
-export default { parseMarkdownToEmailHtml, renderNewsletterHtml, renderNewsletterText };
+export default { formatContentForEmail, parseMarkdownToEmailHtml, renderNewsletterHtml, renderNewsletterText };

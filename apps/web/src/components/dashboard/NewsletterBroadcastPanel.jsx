@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
     Mail, Send, Users, Clock, Download, Trash2, CheckCircle2,
     AlertCircle, Smartphone, Monitor, Sparkles, RefreshCw,
-    ExternalLink, Bold, Italic, Heading, List, Quote, Link as LinkIcon
+    ExternalLink, Bold, Italic, Underline, Heading2, Heading3,
+    List, ListOrdered, Quote, Link as LinkIcon, Unlink, RotateCcw,
+    Plus, Filter, X, ChevronDown
 } from 'lucide-react';
 import { api, apiCrud } from '@/lib/api';
 import { INTEREST_OPTIONS } from '@/lib/accounts';
@@ -12,12 +14,11 @@ import { useAuth } from '@/contexts/AuthContext';
 const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
 const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
 
-const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshSubscribers }) => {
+const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) => {
     const { user } = useAuth();
     const [subView, setSubView] = useState('compose'); // 'compose' | 'subscribers' | 'campaigns'
     const [campaigns, setCampaigns] = useState([]);
     const [smtpStatus, setSmtpStatus] = useState(null);
-    const [loadingData, setLoadingData] = useState(false);
 
     // Compose form state
     const [form, setForm] = useState({
@@ -32,17 +33,28 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
         testEmail: user?.email || '',
     });
 
-    const [previewDevice, setPreviewDevice] = useState('desktop');
+    const [previewDevice, setPreviewDevice] = useState('desktop'); // 'desktop' | 'mobile'
     const [isSending, setIsSending] = useState(false);
     const [feedback, setFeedback] = useState(null); // { type: 'success'|'error', message: string }
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showAudienceSettings, setShowAudienceSettings] = useState(false);
+    const [showCtaSettings, setShowCtaSettings] = useState(false);
+
+    // Word-style contentEditable state
+    const editorRef = useRef(null);
+    const [isEditorFocused, setIsEditorFocused] = useState(false);
+    const [activeStates, setActiveStates] = useState({
+        bold: false,
+        italic: false,
+        underline: false,
+        unorderedList: false,
+        orderedList: false,
+    });
 
     // Subscribers tab search & filters
     const [subSearch, setSubSearch] = useState('');
     const [subInterestFilter, setSubInterestFilter] = useState('all');
     const [subCountryFilter, setSubCountryFilter] = useState('all');
-
-    const textareaRef = useRef(null);
 
     // Load campaigns & SMTP status
     const loadCampaigns = async () => {
@@ -116,6 +128,76 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
         return Array.from(set).sort();
     }, [subscribers]);
 
+    // Update active toolbar states based on cursor/selection
+    const updateActiveStates = useCallback(() => {
+        try {
+            setActiveStates({
+                bold: document.queryCommandState('bold'),
+                italic: document.queryCommandState('italic'),
+                underline: document.queryCommandState('underline'),
+                unorderedList: document.queryCommandState('insertUnorderedList'),
+                orderedList: document.queryCommandState('insertOrderedList'),
+            });
+        } catch (_) {
+            /* ignore */
+        }
+    }, []);
+
+    // Sync external value to editor if empty or changed outside
+    useEffect(() => {
+        const el = editorRef.current;
+        if (!el) return;
+        if (!isEditorFocused && form.content !== el.innerHTML) {
+            el.innerHTML = form.content || '';
+        }
+    }, [form.content, isEditorFocused]);
+
+    const handleEditorInput = () => {
+        if (!editorRef.current) return;
+        const html = editorRef.current.innerHTML;
+        const clean = html === '<p><br></p>' || html === '<br>' || html === '' ? '' : html;
+        setForm((prev) => ({ ...prev, content: clean }));
+        updateActiveStates();
+    };
+
+    const exec = (command, valueArg = null) => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
+        document.execCommand(command, false, valueArg);
+        handleEditorInput();
+        updateActiveStates();
+    };
+
+    const handleFormatBlock = (tag) => {
+        if (!editorRef.current) return;
+        editorRef.current.focus();
+        const current = document.queryCommandValue('formatBlock');
+        if (current && current.toLowerCase() === tag.toLowerCase()) {
+            document.execCommand('formatBlock', false, '<p>');
+        } else {
+            document.execCommand('formatBlock', false, `<${tag}>`);
+        }
+        handleEditorInput();
+    };
+
+    const handleLink = () => {
+        if (!editorRef.current) return;
+        const selection = window.getSelection();
+        const selectedText = selection.toString();
+        const url = window.prompt('Enter link URL (e.g. https://...):', 'https://');
+        if (url && url.trim() && url !== 'https://') {
+            if (!selectedText) {
+                exec('insertHTML', `<a href="${url.trim()}" target="_blank" rel="noopener noreferrer">${url.trim()}</a>`);
+            } else {
+                exec('createLink', url.trim());
+            }
+        }
+    };
+
+    const handleQuote = () => {
+        handleFormatBlock('blockquote');
+    };
+
     // Send test email
     const handleSendTest = async () => {
         if (!form.subject.trim() || !form.content.trim()) {
@@ -182,6 +264,9 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
                 ctaText: '',
                 ctaUrl: '',
             }));
+            if (editorRef.current) {
+                editorRef.current.innerHTML = '';
+            }
             loadCampaigns();
         } catch (err) {
             setFeedback({
@@ -227,130 +312,8 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
         URL.revokeObjectURL(url);
     };
 
-    // Client-side markdown renderer matching email output
-    const renderPreviewHtml = (text) => {
-        if (!text) return '';
-        const escapeHtml = (str) =>
-            str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
+    const inputClasses = 'w-full border border-border bg-card text-foreground px-4 py-2.5 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))] [&>option]:bg-card [&>option]:text-foreground';
 
-        const formatInline = (str) => {
-            let out = escapeHtml(str);
-            out = out.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
-            out = out.replace(/__(.*?)__/g, '<strong class="text-white font-bold">$1</strong>');
-            out = out.replace(/(^|[^*])\*(?!\*)(.*?)\*(?!\*)/g, '$1<em class="text-zinc-200 italic">$2</em>');
-            out = out.replace(/(^|[^_])_(?!_)(.*?)_(?!_)/g, '$1<em class="text-zinc-200 italic">$2</em>');
-            out = out.replace(
-                /\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g,
-                '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#D4AF37] underline font-semibold hover:opacity-80">$1</a>'
-            );
-            out = out.replace(
-                /(^|[\s(])(https?:\/\/[^\s)<]+)/g,
-                '$1<a href="$2" target="_blank" rel="noopener noreferrer" class="text-[#D4AF37] underline font-semibold hover:opacity-80">$2</a>'
-            );
-            out = out.replace(/\n/g, '<br />');
-            return out;
-        };
-
-        const blocks = String(text).replace(/\r\n/g, '\n').trim().split(/\n\s*\n+/);
-
-        return blocks.map((block) => {
-            const trimmed = block.trim();
-            if (!trimmed) return '';
-            if (trimmed.startsWith('### ')) {
-                return `<h4 class="mt-4 mb-1.5 font-serif text-base font-semibold text-[#D4AF37]">${formatInline(trimmed.slice(4))}</h4>`;
-            }
-            if (trimmed.startsWith('## ')) {
-                return `<h3 class="mt-5 mb-2 font-serif text-lg font-semibold text-[#D4AF37]">${formatInline(trimmed.slice(3))}</h3>`;
-            }
-            if (trimmed.startsWith('# ')) {
-                return `<h2 class="mt-6 mb-2.5 font-serif text-xl font-bold text-white">${formatInline(trimmed.slice(2))}</h2>`;
-            }
-            if (trimmed.startsWith('>') || trimmed.startsWith('&gt;')) {
-                const quoteLines = trimmed.split('\n').map((l) => l.replace(/^(?:>|&gt;)\s?/, '')).join('\n');
-                return `<blockquote class="my-3.5 border-l-2 border-[#D4AF37] bg-zinc-900/60 py-2 px-3 text-xs italic text-zinc-200">${formatInline(quoteLines)}</blockquote>`;
-            }
-            // Bullet list (handles mixed text + bullet lines)
-            const lines = trimmed.split('\n');
-            const hasBulletList = lines.some((l) => /^\s*[-*]\s+/.test(l));
-            if (hasBulletList) {
-                const outputParts = [];
-                let currentList = [];
-                for (const line of lines) {
-                    if (/^\s*[-*]\s+/.test(line)) {
-                        currentList.push(line.replace(/^\s*[-*]\s+/, '').trim());
-                    } else {
-                        if (currentList.length > 0) {
-                            outputParts.push(
-                                `<ul class="my-2.5 pl-5 text-[#D4AF37] space-y-0.5">${currentList.map((item) => `<li class="mb-1 list-disc text-zinc-300">${formatInline(item)}</li>`).join('')}</ul>`,
-                            );
-                            currentList = [];
-                        }
-                        if (line.trim()) {
-                            outputParts.push(`<p class="mb-2 text-xs sm:text-sm leading-relaxed text-zinc-300">${formatInline(line.trim())}</p>`);
-                        }
-                    }
-                }
-                if (currentList.length > 0) {
-                    outputParts.push(
-                        `<ul class="my-2.5 pl-5 text-[#D4AF37] space-y-0.5">${currentList.map((item) => `<li class="mb-1 list-disc text-zinc-300">${formatInline(item)}</li>`).join('')}</ul>`,
-                    );
-                }
-                return outputParts.join('');
-            }
-
-            // Numbered list (handles mixed text + numbered lines)
-            const hasNumberList = lines.some((l) => /^\s*\d+\.\s+/.test(l));
-            if (hasNumberList) {
-                const outputParts = [];
-                let currentList = [];
-                for (const line of lines) {
-                    if (/^\s*\d+\.\s+/.test(line)) {
-                        currentList.push(line.replace(/^\s*\d+\.\s+/, '').trim());
-                    } else {
-                        if (currentList.length > 0) {
-                            outputParts.push(
-                                `<ol class="my-2.5 pl-5 text-[#D4AF37] space-y-0.5">${currentList.map((item) => `<li class="mb-1 list-decimal text-zinc-300">${formatInline(item)}</li>`).join('')}</ol>`,
-                            );
-                            currentList = [];
-                        }
-                        if (line.trim()) {
-                            outputParts.push(`<p class="mb-2 text-xs sm:text-sm leading-relaxed text-zinc-300">${formatInline(line.trim())}</p>`);
-                        }
-                    }
-                }
-                if (currentList.length > 0) {
-                    outputParts.push(
-                        `<ol class="my-2.5 pl-5 text-[#D4AF37] space-y-0.5">${currentList.map((item) => `<li class="mb-1 list-decimal text-zinc-300">${formatInline(item)}</li>`).join('')}</ol>`,
-                    );
-                }
-                return outputParts.join('');
-            }
-            return `<p class="mb-2.5 text-xs sm:text-sm leading-relaxed text-zinc-300">${formatInline(trimmed)}</p>`;
-        }).filter(Boolean).join('');
-    };
-
-    // Formatting insertion helper for composer textarea
-    const insertFormat = (prefix, suffix = '') => {
-        const el = textareaRef.current;
-        if (!el) return;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const text = el.value;
-        const selected = text.substring(start, end);
-        const replacement = prefix + (selected || 'text') + suffix;
-        const nextVal = text.substring(0, start) + replacement + text.substring(end);
-        setForm((prev) => ({ ...prev, content: nextVal }));
-        setTimeout(() => {
-            el.focus();
-            el.setSelectionRange(start + prefix.length, start + replacement.length - suffix.length);
-        }, 10);
-    };
-
-    const inputClasses = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
     const subNavBtn = (key, label, Icon) => (
         <button
             type="button"
@@ -364,6 +327,23 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
             <Icon size={14} /> {label}
         </button>
     );
+
+    const ribbonBtn = (onClick, title, Icon, isActive = false) => (
+        <button
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+            title={title}
+            className={`p-1.5 transition-colors rounded-sm ${
+                isActive
+                    ? 'bg-[hsl(var(--gold))] text-black font-bold'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
+            }`}
+        >
+            <Icon size={14} />
+        </button>
+    );
+
+    const isContentEmpty = !form.content || form.content === '<p><br></p>' || form.content === '<br>' || form.content.trim() === '';
 
     return (
         <div className="space-y-8">
@@ -389,17 +369,15 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
                             )}
                         </div>
                     </div>
-                    <p className="mt-3 text-[0.68rem] text-muted-foreground">
-                        {smtpStatus?.configured
-                            ? `Connected to ${smtpStatus.host}:${smtpStatus.port}`
-                            : 'Emails preview in server logs. Add SMTP to .env for live dispatch.'}
+                    <p className="mt-2 text-[0.58rem] text-muted-foreground">
+                        {smtpStatus?.configured ? `Host: ${smtpStatus.host}:${smtpStatus.port}` : 'Console logging mode (safe dev fallback)'}
                     </p>
                 </div>
             </div>
 
             {/* Sub View Switcher */}
             <div className="border-b border-border flex items-center gap-2 overflow-x-auto">
-                {subNavBtn('compose', 'Compose & Broadcast', Send)}
+                {subNavBtn('compose', 'Word-Style Visual Composer', Send)}
                 {subNavBtn('subscribers', `Subscribers Directory (${subscribers.length})`, Users)}
                 {subNavBtn('campaigns', `Broadcast History (${campaigns.length})`, Clock)}
             </div>
@@ -419,329 +397,322 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
                 </div>
             )}
 
-            {/* ─── 1. COMPOSE & BROADCAST VIEW ─── */}
+            {/* ─── 1. VISUAL WORD-STYLE COMPOSE & BROADCAST VIEW ─── */}
             {subView === 'compose' && (
-                <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-                    {/* Left: Composer Form */}
-                    <div className="space-y-6">
-                        <Panel title="Newsletter Composer" lead="Craft branded email dispatches delivered directly to subscriber inboxes.">
-                            <div className="space-y-5">
-                                {/* Audience Targeting Card */}
-                                <div className="border border-border bg-[hsl(var(--surface))]/40 p-5">
-                                    <p className="text-[0.6rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] font-semibold">Target Audience</p>
-                                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                                        <div>
-                                            <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1">By Interest</label>
-                                            <select
-                                                value={form.targetInterest}
-                                                onChange={(e) => setForm({ ...form, targetInterest: e.target.value })}
-                                                className={inputClasses}
-                                            >
-                                                <option value="all">All Interests ({subscribers.length})</option>
-                                                {INTEREST_OPTIONS.map((opt) => (
-                                                    <option key={opt} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1">By Country</label>
-                                            <select
-                                                value={form.targetCountry}
-                                                onChange={(e) => setForm({ ...form, targetCountry: e.target.value })}
-                                                className={inputClasses}
-                                            >
-                                                <option value="all">All Countries</option>
-                                                {distinctCountries.map((c) => (
-                                                    <option key={c} value={c}>{c}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                                        <span>Matched recipients:</span>
-                                        <span className="font-semibold text-[hsl(var(--gold))]">
-                                            {targetSubscribers.length} subscriber{targetSubscribers.length === 1 ? '' : 's'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Subject Line */}
-                                <div>
-                                    <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1.5">
-                                        Email Subject <span className="text-[hsl(var(--gold))]">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Special Announcement: The Pete Edochie Continental Tour"
-                                        value={form.subject}
-                                        onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                                        className={inputClasses}
-                                    />
-                                </div>
-
-                                {/* Preview / Preheader Text */}
-                                <div>
-                                    <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1.5">
-                                        Inbox Preheader Text <span className="text-xs text-muted-foreground font-normal">(displayed next to subject in inbox)</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. Dates, ticket access and meet-and-greet reservations are now live."
-                                        value={form.previewText}
-                                        onChange={(e) => setForm({ ...form, previewText: e.target.value })}
-                                        className={inputClasses}
-                                    />
-                                </div>
-
-                                {/* Section Headline */}
-                                <div>
-                                    <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1.5">
-                                        Email Headline <span className="text-xs text-muted-foreground font-normal">(prominent heading inside the letter)</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. A Personal Word on Legacy and Leadership"
-                                        value={form.headline}
-                                        onChange={(e) => setForm({ ...form, headline: e.target.value })}
-                                        className={inputClasses}
-                                    />
-                                </div>
-
-                                {/* Formatting Toolbar & Message Body */}
-                                <div>
-                                    <div className="flex items-center justify-between mb-1.5">
-                                        <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground">
-                                            Message Content <span className="text-[hsl(var(--gold))]">*</span>
-                                        </label>
-                                        {/* Helper toolbar buttons */}
-                                        <div className="flex items-center gap-1 border border-border px-1 py-0.5 bg-[hsl(var(--surface))]">
-                                            <button
-                                                type="button"
-                                                onClick={() => insertFormat('**', '**')}
-                                                title="Bold"
-                                                className="p-1 text-muted-foreground hover:text-[hsl(var(--gold))]"
-                                            >
-                                                <Bold size={13} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => insertFormat('*', '*')}
-                                                title="Italic"
-                                                className="p-1 text-muted-foreground hover:text-[hsl(var(--gold))]"
-                                            >
-                                                <Italic size={13} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => insertFormat('\n\n## ', '\n')}
-                                                title="Heading"
-                                                className="p-1 text-muted-foreground hover:text-[hsl(var(--gold))]"
-                                            >
-                                                <Heading size={13} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => insertFormat('\n- Bullet item 1\n- Bullet item 2\n')}
-                                                title="Bullet list"
-                                                className="p-1 text-muted-foreground hover:text-[hsl(var(--gold))]"
-                                            >
-                                                <List size={13} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => insertFormat('\n> ')}
-                                                title="Quote"
-                                                className="p-1 text-muted-foreground hover:text-[hsl(var(--gold))]"
-                                            >
-                                                <Quote size={13} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <textarea
-                                        ref={textareaRef}
-                                        rows={10}
-                                        placeholder="Write your newsletter message here... Separate paragraphs with a blank line."
-                                        value={form.content}
-                                        onChange={(e) => setForm({ ...form, content: e.target.value })}
-                                        className={`${inputClasses} font-sans leading-relaxed`}
-                                    />
-                                    <p className="mt-1.5 text-[0.65rem] text-muted-foreground">
-                                        Tip: Press Enter twice between paragraphs for clean spacing in the email.
-                                    </p>
-                                </div>
-
-                                {/* Call to Action Button (Optional) */}
-                                <div className="border border-border p-4 bg-[hsl(var(--surface))]/20 space-y-3">
-                                    <p className="text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
-                                        Call-to-Action Button (Optional)
-                                    </p>
-                                    <div className="grid gap-3 sm:grid-cols-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Button Label (e.g. Reserve Your Seat)"
-                                            value={form.ctaText}
-                                            onChange={(e) => setForm({ ...form, ctaText: e.target.value })}
-                                            className={inputClasses}
-                                        />
-                                        <input
-                                            type="url"
-                                            placeholder="Target Link (https://...)"
-                                            value={form.ctaUrl}
-                                            onChange={(e) => setForm({ ...form, ctaUrl: e.target.value })}
-                                            className={inputClasses}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Send Actions */}
-                                <div className="pt-4 border-t border-border space-y-4">
-                                    {/* Test Send Row */}
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <input
-                                            type="email"
-                                            placeholder="Test email address"
-                                            value={form.testEmail}
-                                            onChange={(e) => setForm({ ...form, testEmail: e.target.value })}
-                                            className={`${inputClasses} max-w-xs text-xs py-2`}
-                                        />
-                                        <button
-                                            type="button"
-                                            disabled={isSending || !form.subject || !form.content}
-                                            onClick={handleSendTest}
-                                            className="border border-border px-4 py-2.5 text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))] disabled:opacity-40"
-                                        >
-                                            Send Test Email
-                                        </button>
-                                    </div>
-
-                                    {/* Broadcast Primary Button */}
-                                    <div className="flex items-center justify-between gap-4 pt-2">
-                                        <span className="text-xs text-muted-foreground">
-                                            Will be delivered to <strong className="text-foreground">{targetSubscribers.length}</strong> recipient{targetSubscribers.length === 1 ? '' : 's'}.
-                                        </span>
-                                        <button
-                                            type="button"
-                                            disabled={isSending || targetSubscribers.length === 0 || !form.subject.trim() || !form.content.trim()}
-                                            onClick={() => setShowConfirmModal(true)}
-                                            className="flex items-center gap-2 bg-[hsl(var(--gold))] px-6 py-3 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[hsl(var(--background))] transition-opacity hover:opacity-90 disabled:opacity-40"
-                                        >
-                                            <Send size={14} /> Broadcast Campaign
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Panel>
-                    </div>
-
-                    {/* Right: Live Interactive Email Preview */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <p className="text-[0.65rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] font-semibold flex items-center gap-2">
-                                <Sparkles size={14} /> Live Email Preview
-                            </p>
-                            <div className="flex items-center border border-border">
-                                <button
-                                    type="button"
-                                    onClick={() => setPreviewDevice('desktop')}
-                                    className={`p-1.5 transition-colors ${previewDevice === 'desktop' ? 'bg-[hsl(var(--gold))] text-black' : 'text-muted-foreground hover:text-foreground'}`}
-                                    title="Desktop view"
-                                >
-                                    <Monitor size={14} />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setPreviewDevice('mobile')}
-                                    className={`p-1.5 transition-colors ${previewDevice === 'mobile' ? 'bg-[hsl(var(--gold))] text-black' : 'text-muted-foreground hover:text-foreground'}`}
-                                    title="Mobile view"
-                                >
-                                    <Smartphone size={14} />
-                                </button>
-                            </div>
+                <div className="space-y-6">
+                    {/* Top Action Ribbon: Audience & Dispatch Controls */}
+                    <div className="border border-border bg-card p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+                        {/* Left: Audience Selector Pill */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowAudienceSettings(!showAudienceSettings)}
+                                className="flex items-center gap-2 border border-border bg-secondary/30 px-3 py-1.5 text-xs text-foreground hover:border-[hsl(var(--gold))] transition-colors"
+                            >
+                                <Users size={14} className="text-[hsl(var(--gold))]" />
+                                <span>Audience:</span>
+                                <span className="font-semibold text-[hsl(var(--gold))]">
+                                    {form.targetInterest === 'all' && form.targetCountry === 'all'
+                                        ? `All Subscribers (${targetSubscribers.length})`
+                                        : `Filtered (${targetSubscribers.length})`}
+                                </span>
+                                <ChevronDown size={13} className="text-muted-foreground" />
+                            </button>
                         </div>
 
-                        {/* Simulated Email Client Shell */}
-                        <div className={`border border-border bg-[#09090b] shadow-2xl transition-all duration-300 mx-auto ${
-                            previewDevice === 'mobile' ? 'max-w-[360px]' : 'w-full'
-                        }`}>
-                            {/* Browser / Inbox Header Bar */}
-                            <div className="border-b border-[#222226] bg-[#111114] px-4 py-3 text-xs">
-                                <div className="flex items-center gap-2 text-[#71717a] text-[0.62rem]">
-                                    <span className="font-semibold text-[#a1a1aa]">From:</span>
-                                    <span>The Pete Edochie Legacy &lt;newsletter@peteredochie.com&gt;</span>
-                                </div>
-                                <div className="mt-1 flex items-center gap-2 text-[0.68rem] font-medium text-white truncate">
-                                    <span className="text-[#a1a1aa] font-normal">Subject:</span>
-                                    <span>{form.subject || 'Subject will appear here...'}</span>
-                                </div>
-                                {form.previewText && (
-                                    <p className="mt-0.5 text-[0.62rem] text-[#71717a] truncate">
-                                        {form.previewText}
-                                    </p>
-                                )}
+                        {/* Center: Device View Mode Switch */}
+                        <div className="flex items-center border border-border">
+                            <button
+                                type="button"
+                                onClick={() => setPreviewDevice('desktop')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+                                    previewDevice === 'desktop'
+                                        ? 'bg-[hsl(var(--gold))] text-black font-semibold'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                                title="Desktop Letterhead View"
+                            >
+                                <Monitor size={14} /> Desktop
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPreviewDevice('mobile')}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+                                    previewDevice === 'mobile'
+                                        ? 'bg-[hsl(var(--gold))] text-black font-semibold'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                                title="Mobile Phone Mockup View"
+                            >
+                                <Smartphone size={14} /> Mobile
+                            </button>
+                        </div>
+
+                        {/* Right: Test & Broadcast Actions */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={handleSendTest}
+                                disabled={isSending}
+                                className="flex items-center gap-1.5 border border-border bg-secondary/40 px-3.5 py-2 text-[0.68rem] uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-[hsl(var(--gold))] transition-colors disabled:opacity-40"
+                            >
+                                <Mail size={13} /> Send Test to Me
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmModal(true)}
+                                disabled={isSending || targetSubscribers.length === 0}
+                                className="flex items-center gap-1.5 bg-[hsl(var(--gold))] px-5 py-2 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[hsl(var(--background))] transition-opacity hover:opacity-90 disabled:opacity-40"
+                            >
+                                <Send size={13} /> Broadcast ({targetSubscribers.length})
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Collapsible Audience Filter Drawer */}
+                    {showAudienceSettings && (
+                        <div className="border border-border bg-secondary/20 p-4 grid gap-4 sm:grid-cols-2 animate-in fade-in duration-200">
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1">
+                                    Filter Audience By Interest
+                                </label>
+                                <select
+                                    value={form.targetInterest}
+                                    onChange={(e) => setForm({ ...form, targetInterest: e.target.value })}
+                                    className={inputClasses}
+                                >
+                                    <option value="all">All Interests ({subscribers.length})</option>
+                                    {INTEREST_OPTIONS.map((opt) => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1">
+                                    Filter Audience By Country
+                                </label>
+                                <select
+                                    value={form.targetCountry}
+                                    onChange={(e) => setForm({ ...form, targetCountry: e.target.value })}
+                                    className={inputClasses}
+                                >
+                                    <option value="all">All Countries</option>
+                                    {distinctCountries.map((c) => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Email Subject & Preheader Bar (The "Envelope") */}
+                    <div className="border border-border bg-card p-5 space-y-4">
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1.5 font-medium">
+                                    Email Subject Line <span className="text-[hsl(var(--gold))]">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Special Announcement: The Pete Edochie Continental Tour"
+                                    value={form.subject}
+                                    onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                                    className={inputClasses}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-muted-foreground block mb-1.5 font-medium">
+                                    Inbox Preheader <span className="text-xs text-muted-foreground font-normal">(snippet previewed next to subject)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Tour dates, VIP access, and mentorship reservations are now live."
+                                    value={form.previewText}
+                                    onChange={(e) => setForm({ ...form, previewText: e.target.value })}
+                                    className={inputClasses}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Sticky Word-Style Formatting Ribbon */}
+                    <div className="sticky top-16 z-20 border border-border bg-card/95 backdrop-blur-md px-3 py-2 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+                        {/* Text Styling Buttons */}
+                        <div className="flex flex-wrap items-center gap-1">
+                            {ribbonBtn(() => exec('bold'), 'Bold (Ctrl+B)', Bold, activeStates.bold)}
+                            {ribbonBtn(() => exec('italic'), 'Italic (Ctrl+I)', Italic, activeStates.italic)}
+                            {ribbonBtn(() => exec('underline'), 'Underline (Ctrl+U)', Underline, activeStates.underline)}
+
+                            <span className="h-4 w-px bg-border mx-1.5" />
+
+                            {ribbonBtn(() => handleFormatBlock('h2'), 'Heading 2 (Gold Serif)', Heading2)}
+                            {ribbonBtn(() => handleFormatBlock('h3'), 'Heading 3 (Gold Serif)', Heading3)}
+
+                            <span className="h-4 w-px bg-border mx-1.5" />
+
+                            {ribbonBtn(() => exec('insertUnorderedList'), 'Bullet List', List, activeStates.unorderedList)}
+                            {ribbonBtn(() => exec('insertOrderedList'), 'Numbered List', ListOrdered, activeStates.orderedList)}
+                            {ribbonBtn(handleQuote, 'Quote (Gold Border)', Quote)}
+
+                            <span className="h-4 w-px bg-border mx-1.5" />
+
+                            {ribbonBtn(handleLink, 'Insert Clickable Link', LinkIcon)}
+                            {ribbonBtn(() => exec('unlink'), 'Remove Link', Unlink)}
+                            {ribbonBtn(() => exec('removeFormat'), 'Clear Formatting', RotateCcw)}
+                        </div>
+
+                        {/* Toggle Gold Call-to-Action Button */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowCtaSettings(!showCtaSettings);
+                                    if (!form.ctaText && !showCtaSettings) {
+                                        setForm((prev) => ({ ...prev, ctaText: 'Reserve Your Seat', ctaUrl: 'https://' }));
+                                    }
+                                }}
+                                className={`flex items-center gap-1.5 border px-2.5 py-1 text-xs transition-colors ${
+                                    form.ctaText || showCtaSettings
+                                        ? 'border-[hsl(var(--gold))] text-[hsl(var(--gold))] bg-[hsl(var(--gold))]/10 font-semibold'
+                                        : 'border-border text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                <Plus size={13} /> {form.ctaText ? 'CTA Button Active' : 'Add CTA Button'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Optional CTA Button Setting Inline Bar */}
+                    {showCtaSettings && (
+                        <div className="border border-[hsl(var(--gold))]/30 bg-[hsl(var(--gold))]/5 p-4 grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-[hsl(var(--gold))] block mb-1">
+                                    Button Text
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Reserve Your Seat"
+                                    value={form.ctaText}
+                                    onChange={(e) => setForm({ ...form, ctaText: e.target.value })}
+                                    className={inputClasses}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-[0.62rem] uppercase tracking-wider text-[hsl(var(--gold))] block mb-1">
+                                    Button Destination URL
+                                </label>
+                                <input
+                                    type="url"
+                                    placeholder="https://peteredochie.com/..."
+                                    value={form.ctaUrl}
+                                    onChange={(e) => setForm({ ...form, ctaUrl: e.target.value })}
+                                    className={inputClasses}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ─── THE WORD-STYLE LETTERHEAD DOCUMENT SHEET ─── */}
+                    {/* What you see and type here IS the document itself! */}
+                    <div className="py-6 flex justify-center bg-zinc-950/60 border border-border min-h-[600px]">
+                        <div
+                            className={`transition-all duration-300 w-full shadow-2xl bg-[#141416] border border-[#27272a] ${
+                                previewDevice === 'mobile' ? 'max-w-[360px]' : 'max-w-[620px]'
+                            }`}
+                        >
+                            {/* Top Gold Accent Strip */}
+                            <div className="h-1.5 w-full bg-[#D4AF37]" />
+
+                            {/* Letterhead Header / Crest */}
+                            <div className="border-b border-[#222226] px-6 py-6 text-center select-none">
+                                <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                                    THE PETE EDOCHIE LEGACY
+                                </p>
+                                <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-[#71717a]">
+                                    King Dawie Publishing &bull; Official Dispatch
+                                </p>
                             </div>
 
-                            {/* Inner Email Body Canvas */}
-                            <div className="p-4 sm:p-6 bg-[#09090b]">
-                                <div className="border border-[#27272a] bg-[#141416] overflow-hidden">
-                                    {/* Gold Accent Strip */}
-                                    <div className="h-1 w-full bg-[#D4AF37]" />
-
-                                    {/* Email Header */}
-                                    <div className="border-b border-[#222226] px-6 py-6 text-center">
-                                        <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
-                                            THE PETE EDOCHIE LEGACY
-                                        </p>
-                                        <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-[#71717a]">
-                                            King Dawie Publishing &bull; Official Dispatch
-                                        </p>
-                                    </div>
-
-                                    {/* Email Content */}
-                                    <div className="px-6 py-8 space-y-4">
-                                        {form.headline && (
-                                            <h3 className="font-serif text-xl sm:text-2xl font-normal leading-tight text-white">
-                                                {form.headline}
-                                            </h3>
-                                        )}
-
-                                        <p className="text-xs sm:text-sm text-[#e4e4e7]">
-                                            Dear {user?.name || 'Valued Subscriber'},
-                                        </p>
-
-                                        {form.content ? (
-                                            <div
-                                                className="space-y-1 text-xs sm:text-sm leading-relaxed text-[#d4d4d8]"
-                                                dangerouslySetInnerHTML={{ __html: renderPreviewHtml(form.content) }}
-                                            />
-                                        ) : (
-                                            <p className="italic text-xs text-[#71717a]">
-                                                Start typing your message to see a live render of your official newsletter here...
-                                            </p>
-                                        )}
-
-                                        {/* CTA Button */}
-                                        {form.ctaText && (
-                                            <div className="pt-4 pb-2 text-center">
-                                                <span className="inline-block bg-[#D4AF37] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#09090b]">
-                                                    {form.ctaText}
-                                                </span>
-                                            </div>
-                                        )}
-
-                                        {/* Sign-off */}
-                                        <div className="pt-6 border-t border-[#222226] text-xs text-[#a1a1aa] leading-normal">
-                                            Warm regards,<br />
-                                            <strong className="text-white">The Pete Edochie Legacy Team</strong><br />
-                                            <span className="text-[11px] text-[#71717a]">King Dawie Publishing</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Email Footer */}
-                                    <div className="border-t border-[#222226] bg-[#0c0c0e] px-6 py-5 text-center text-[10px] text-[#71717a] leading-relaxed">
-                                        <p>You received this email because you subscribed to updates from the Pete Edochie Legacy platform.</p>
-                                        <p className="mt-1 text-[#52525b]">&copy; {new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.</p>
-                                    </div>
+                            {/* Editable Letter Canvas */}
+                            <div className="px-6 py-8 space-y-4">
+                                {/* Inline Editable Headline */}
+                                <div>
+                                    <input
+                                        type="text"
+                                        placeholder="Click here to type a letter headline (e.g. A Word on Legacy)..."
+                                        value={form.headline}
+                                        onChange={(e) => setForm({ ...form, headline: e.target.value })}
+                                        className="w-full font-serif text-xl sm:text-2xl font-normal text-white bg-transparent outline-none border-b border-transparent focus:border-[#D4AF37] placeholder:text-zinc-600 transition-colors pb-1"
+                                    />
                                 </div>
+
+                                {/* Salutation */}
+                                <p className="text-xs sm:text-sm text-[#e4e4e7] select-none">
+                                    Dear {user?.name || 'Valued Subscriber'},
+                                </p>
+
+                                {/* The Word-Style Visual Editable Message Area */}
+                                <div className="relative">
+                                    <div
+                                        ref={editorRef}
+                                        contentEditable
+                                        onInput={handleEditorInput}
+                                        onFocus={() => { setIsEditorFocused(true); updateActiveStates(); }}
+                                        onBlur={() => { setIsEditorFocused(false); handleEditorInput(); }}
+                                        onKeyUp={updateActiveStates}
+                                        onMouseUp={updateActiveStates}
+                                        className="min-h-[260px] text-xs sm:text-sm leading-relaxed outline-none text-[#d4d4d8] font-sans
+                                            [&_h1]:text-xl [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-white [&_h1]:my-3
+                                            [&_h2]:text-lg [&_h2]:font-serif [&_h2]:font-semibold [&_h2]:text-[#D4AF37] [&_h2]:my-3
+                                            [&_h3]:text-base [&_h3]:font-serif [&_h3]:font-semibold [&_h3]:text-[#D4AF37] [&_h3]:my-2
+                                            [&_p]:mb-2.5 [&_p]:leading-relaxed
+                                            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2.5 [&_ul]:text-[#D4AF37] [&_ul_li]:text-[#d4d4d8] [&_ul_li]:mb-1
+                                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2.5 [&_ol]:text-[#D4AF37] [&_ol_li]:text-[#d4d4d8] [&_ol_li]:mb-1
+                                            [&_blockquote]:border-l-2 [&_blockquote]:border-[#D4AF37] [&_blockquote]:bg-zinc-900/60 [&_blockquote]:py-2 [&_blockquote]:px-3.5 [&_blockquote]:my-3 [&_blockquote]:italic [&_blockquote]:text-zinc-200
+                                            [&_a]:text-[#D4AF37] [&_a]:underline [&_a]:font-semibold
+                                            [&_strong]:text-white [&_strong]:font-bold
+                                            [&_b]:text-white [&_b]:font-bold
+                                            [&_em]:italic [&_em]:text-zinc-200"
+                                    />
+
+                                    {/* Placeholder when document is empty */}
+                                    {isContentEmpty && !isEditorFocused && (
+                                        <div
+                                            onClick={() => editorRef.current?.focus()}
+                                            className="pointer-events-none absolute left-0 top-0 text-xs sm:text-sm text-zinc-600 italic select-none"
+                                        >
+                                            Click here to begin typing your official dispatch... Highlight text and use the toolbar above to make words bold, italic, or headings visually.
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Call to Action Button directly on the document */}
+                                {form.ctaText && (
+                                    <div className="pt-4 pb-2 text-center">
+                                        <a
+                                            href={form.ctaUrl || '#'}
+                                            onClick={(e) => e.preventDefault()}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-block bg-[#D4AF37] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#09090b] shadow-md hover:opacity-95"
+                                        >
+                                            {form.ctaText}
+                                        </a>
+                                    </div>
+                                )}
+
+                                {/* Signoff */}
+                                <div className="pt-6 border-t border-[#222226] text-xs text-[#a1a1aa] leading-normal select-none">
+                                    Warm regards,<br />
+                                    <strong className="text-white">The Pete Edochie Legacy Team</strong><br />
+                                    <span className="text-[11px] text-[#71717a]">King Dawie Publishing</span>
+                                </div>
+                            </div>
+
+                            {/* Letterhead Footer */}
+                            <div className="border-t border-[#222226] bg-[#0c0c0e] px-6 py-5 text-center text-[10px] text-[#71717a] leading-relaxed select-none">
+                                <p>You received this email because you subscribed to updates from the Pete Edochie Legacy platform.</p>
+                                <p className="mt-1 text-[#52525b]">&copy; {new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.</p>
                             </div>
                         </div>
                     </div>
@@ -759,245 +730,216 @@ const NewsletterBroadcastPanel = ({ subscribers = [], countries = [], onRefreshS
                             onClick={exportCSV}
                             className="flex items-center gap-2 border border-border px-4 py-2 text-[0.62rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
                         >
-                            <Download size={14} /> Export CSV ({filteredSubscribers.length})
+                            <Download size={13} /> Export CSV ({filteredSubscribers.length})
                         </button>
                     }
                 >
-                    <div className="space-y-4">
-                        {/* Search & Filters */}
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            <input
-                                type="text"
-                                placeholder="Search by name, email, or country..."
-                                value={subSearch}
-                                onChange={(e) => setSubSearch(e.target.value)}
-                                className={inputClasses}
-                            />
-                            <select
-                                value={subInterestFilter}
-                                onChange={(e) => setSubInterestFilter(e.target.value)}
-                                className={inputClasses}
-                            >
-                                <option value="all">All Interests</option>
-                                {INTEREST_OPTIONS.map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                            </select>
-                            <select
-                                value={subCountryFilter}
-                                onChange={(e) => setSubCountryFilter(e.target.value)}
-                                className={inputClasses}
-                            >
-                                <option value="all">All Countries</option>
-                                {distinctCountries.map((c) => (
-                                    <option key={c} value={c}>{c}</option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* Search & Filter Toolbar */}
+                    <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                        <input
+                            type="text"
+                            placeholder="Search by name, email, or country..."
+                            value={subSearch}
+                            onChange={(e) => setSubSearch(e.target.value)}
+                            className={inputClasses}
+                        />
+                        <select
+                            value={subInterestFilter}
+                            onChange={(e) => setSubInterestFilter(e.target.value)}
+                            className={inputClasses}
+                        >
+                            <option value="all">All Interests</option>
+                            {INTEREST_OPTIONS.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                        </select>
+                        <select
+                            value={subCountryFilter}
+                            onChange={(e) => setSubCountryFilter(e.target.value)}
+                            className={inputClasses}
+                        >
+                            <option value="all">All Countries</option>
+                            {distinctCountries.map((c) => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
+                        </select>
+                    </div>
 
-                        {/* Subscribers Table */}
-                        <div className="overflow-x-auto border border-border">
+                    {/* Subscribers Table */}
+                    {filteredSubscribers.length === 0 ? (
+                        <div className="border border-border p-12 text-center text-xs text-muted-foreground">
+                            No subscribers match your search criteria.
+                        </div>
+                    ) : (
+                        <div className="border border-border overflow-x-auto">
                             <table className="w-full text-left text-xs">
-                                <thead className="border-b border-border bg-[hsl(var(--surface))] uppercase tracking-[0.18em] text-[0.6rem] text-muted-foreground">
+                                <thead className="border-b border-border bg-[hsl(var(--surface))] uppercase tracking-wider text-[0.62rem] text-muted-foreground">
                                     <tr>
-                                        <th className="p-4">Subscriber</th>
-                                        <th className="p-4">Country</th>
-                                        <th className="p-4">Interests</th>
-                                        <th className="p-4">Subscribed</th>
-                                        <th className="p-4 text-right">Actions</th>
+                                        <th className="px-4 py-3">Subscriber</th>
+                                        <th className="px-4 py-3">Country</th>
+                                        <th className="px-4 py-3">Interests</th>
+                                        <th className="px-4 py-3">Subscribed</th>
+                                        <th className="px-4 py-3 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border">
-                                    {filteredSubscribers.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                                                No subscribers match your search criteria.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        filteredSubscribers.map((sub) => {
-                                            const interestsList = Array.isArray(sub.interests)
-                                                ? sub.interests
-                                                : typeof sub.interests === 'string'
-                                                    ? (() => { try { return JSON.parse(sub.interests); } catch { return [sub.interests]; } })()
-                                                    : [];
-
-                                            return (
-                                                <tr key={sub.id} className="hover:bg-[hsl(var(--surface))]/40 transition-colors">
-                                                    <td className="p-4">
-                                                        <p className="font-semibold text-foreground">{sub.name || 'Unnamed'}</p>
-                                                        <p className="text-muted-foreground">{sub.email}</p>
-                                                    </td>
-                                                    <td className="p-4 text-muted-foreground">
-                                                        {sub.country || '—'}
-                                                    </td>
-                                                    <td className="p-4">
-                                                        <div className="flex flex-wrap gap-1 max-w-xs">
-                                                            {interestsList.length > 0 ? (
-                                                                interestsList.map((interest, i) => (
-                                                                    <span
-                                                                        key={i}
-                                                                        className="inline-block border border-border px-2 py-0.5 text-[0.55rem] uppercase tracking-wider text-muted-foreground"
-                                                                    >
-                                                                        {interest}
-                                                                    </span>
-                                                                ))
-                                                            ) : (
-                                                                <span className="text-muted-foreground">—</span>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-4 text-muted-foreground whitespace-nowrap">
-                                                        {fmtDate(sub.created || sub.createdAt)}
-                                                    </td>
-                                                    <td className="p-4 text-right">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleDeleteSubscriber(sub.id, sub.email)}
-                                                            className="p-1.5 text-muted-foreground hover:text-[hsl(var(--destructive))] transition-colors"
-                                                            title="Unsubscribe"
-                                                        >
-                                                            <Trash2 size={15} />
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
+                                    {filteredSubscribers.map((s) => {
+                                        const interests = Array.isArray(s.interests)
+                                            ? s.interests
+                                            : typeof s.interests === 'string'
+                                                ? (() => { try { return JSON.parse(s.interests); } catch { return [s.interests]; } })()
+                                                : [];
+                                        return (
+                                            <tr key={s.id} className="hover:bg-[hsl(var(--surface))]/40">
+                                                <td className="px-4 py-3">
+                                                    <p className="font-semibold text-foreground">{s.name || 'Anonymous'}</p>
+                                                    <p className="text-muted-foreground text-[0.7rem]">{s.email}</p>
+                                                </td>
+                                                <td className="px-4 py-3 text-muted-foreground">
+                                                    {s.country || '—'}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {interests.length > 0 ? (
+                                                            interests.map((it, i) => (
+                                                                <span key={i} className="border border-border px-1.5 py-0.5 text-[0.6rem] text-muted-foreground">
+                                                                    {it}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-muted-foreground text-[0.68rem] italic">All updates</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                    {fmtDate(s.created || s.createdAt)}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteSubscriber(s.id, s.email)}
+                                                        className="text-muted-foreground hover:text-[hsl(var(--destructive))] p-1"
+                                                        title="Unsubscribe"
+                                                    >
+                                                        <Trash2 size={13} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    )}
                 </Panel>
             )}
 
-            {/* ─── 3. BROADCAST HISTORY VIEW ─── */}
+            {/* ─── 3. CAMPAIGNS BROADCAST HISTORY VIEW ─── */}
             {subView === 'campaigns' && (
                 <Panel
                     title="Broadcast History"
-                    lead="Record of all previous newsletter campaigns and dispatches."
+                    lead="Archive of sent newsletters with delivery counts and timestamps."
                     actions={
                         <button
                             type="button"
                             onClick={loadCampaigns}
-                            className="flex items-center gap-1.5 border border-border px-3 py-1.5 text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                            className="flex items-center gap-1.5 border border-border px-3 py-1.5 text-[0.62rem] uppercase tracking-wider text-muted-foreground hover:text-foreground"
                         >
-                            <RefreshCw size={13} /> Refresh Log
+                            <RefreshCw size={12} /> Refresh
                         </button>
                     }
                 >
-                    <div className="overflow-x-auto border border-border">
-                        <table className="w-full text-left text-xs">
-                            <thead className="border-b border-border bg-[hsl(var(--surface))] uppercase tracking-[0.18em] text-[0.6rem] text-muted-foreground">
-                                <tr>
-                                    <th className="p-4">Date Sent</th>
-                                    <th className="p-4">Subject</th>
-                                    <th className="p-4">Audience Target</th>
-                                    <th className="p-4">Recipients</th>
-                                    <th className="p-4">Status</th>
-                                    <th className="p-4">Sent By</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {campaigns.length === 0 ? (
+                    {campaigns.length === 0 ? (
+                        <div className="border border-border p-12 text-center text-xs text-muted-foreground">
+                            No newsletter broadcasts sent yet. Use the composer tab to launch your first dispatch.
+                        </div>
+                    ) : (
+                        <div className="border border-border overflow-x-auto">
+                            <table className="w-full text-left text-xs">
+                                <thead className="border-b border-border bg-[hsl(var(--surface))] uppercase tracking-wider text-[0.62rem] text-muted-foreground">
                                     <tr>
-                                        <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                                            No campaigns sent yet. Use the composer tab to launch your first dispatch.
-                                        </td>
+                                        <th className="px-4 py-3">Subject & Headline</th>
+                                        <th className="px-4 py-3">Audience Filter</th>
+                                        <th className="px-4 py-3">Recipients</th>
+                                        <th className="px-4 py-3">Status</th>
+                                        <th className="px-4 py-3">Date Dispatched</th>
+                                        <th className="px-4 py-3">Sent By</th>
                                     </tr>
-                                ) : (
-                                    campaigns.map((camp) => (
-                                        <tr key={camp.id} className="hover:bg-[hsl(var(--surface))]/40 transition-colors">
-                                            <td className="p-4 whitespace-nowrap text-muted-foreground">
-                                                {fmtDateTime(camp.sent_at || camp.created)}
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {campaigns.map((c) => (
+                                        <tr key={c.id} className="hover:bg-[hsl(var(--surface))]/40">
+                                            <td className="px-4 py-3">
+                                                <p className="font-semibold text-foreground">{c.subject}</p>
+                                                {c.headline && <p className="text-[0.68rem] text-[hsl(var(--gold))]">{c.headline}</p>}
+                                                {c.previewText && <p className="text-[0.68rem] text-muted-foreground truncate max-w-xs">{c.previewText}</p>}
                                             </td>
-                                            <td className="p-4">
-                                                <p className="font-semibold text-foreground">{camp.subject}</p>
-                                                {camp.preview_text && (
-                                                    <p className="text-[0.65rem] text-muted-foreground truncate max-w-xs">{camp.preview_text}</p>
-                                                )}
+                                            <td className="px-4 py-3 text-muted-foreground">
+                                                {c.targetInterest === 'all' && c.targetCountry === 'all'
+                                                    ? 'All Subscribers'
+                                                    : `${c.targetInterest !== 'all' ? c.targetInterest : 'Any Interest'}${c.targetCountry !== 'all' ? ` (${c.targetCountry})` : ''}`}
                                             </td>
-                                            <td className="p-4 text-muted-foreground">
-                                                {camp.target_interest ? (
-                                                    <span className="border border-border px-2 py-0.5 text-[0.58rem] uppercase tracking-wider">
-                                                        {camp.target_interest}
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-[0.65rem] text-muted-foreground">All Interests</span>
-                                                )}
-                                                {camp.target_country && (
-                                                    <span className="ml-1.5 border border-border px-2 py-0.5 text-[0.58rem] uppercase tracking-wider">
-                                                        {camp.target_country}
-                                                    </span>
-                                                )}
+                                            <td className="px-4 py-3 font-semibold text-foreground">
+                                                {c.recipientCount || 0}
                                             </td>
-                                            <td className="p-4 font-semibold text-[hsl(var(--gold))]">
-                                                {camp.recipient_count}
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="inline-flex items-center gap-1 border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.58rem] uppercase tracking-wider text-emerald-400">
-                                                    <CheckCircle2 size={11} /> Sent
+                                            <td className="px-4 py-3">
+                                                <span className="inline-block border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] uppercase tracking-wider text-emerald-400">
+                                                    {c.status || 'SENT'}
                                                 </span>
                                             </td>
-                                            <td className="p-4 text-muted-foreground">
-                                                {camp.sent_by?.name || camp.sent_by?.email || 'Admin'}
+                                            <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                {fmtDateTime(c.sentAt || c.createdAt)}
+                                            </td>
+                                            <td className="px-4 py-3 text-muted-foreground">
+                                                {c.sender?.name || c.sender?.email || 'Admin'}
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </Panel>
             )}
 
-            {/* Confirmation Modal */}
+            {/* ─── Confirmation Modal Before Mass Broadcast ─── */}
             {showConfirmModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-                    <div className="w-full max-w-lg border border-[hsl(var(--gold))] bg-[hsl(var(--background))] p-7 shadow-2xl">
-                        <div className="flex items-center gap-3 text-[hsl(var(--gold))]">
-                            <Send size={20} />
-                            <h3 className="font-display text-2xl text-foreground">Confirm Broadcast Dispatch</h3>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="border border-border bg-card max-w-md w-full p-6 space-y-4 shadow-2xl">
+                        <div className="flex items-center justify-between">
+                            <h4 className="font-serif text-lg font-semibold text-foreground">Confirm Broadcast</h4>
+                            <button type="button" onClick={() => setShowConfirmModal(false)} className="text-muted-foreground hover:text-foreground">
+                                <X size={16} />
+                            </button>
                         </div>
-                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                            You are about to broadcast the newsletter <strong className="text-foreground">"{form.subject}"</strong> to:
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            You are about to broadcast the following newsletter campaign:
                         </p>
-                        <div className="mt-4 border border-border bg-[hsl(var(--surface))] p-4 space-y-2 text-xs">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Total Recipients:</span>
-                                <strong className="text-[hsl(var(--gold))] text-sm">{targetSubscribers.length} subscribers</strong>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Interest Filter:</span>
-                                <span>{form.targetInterest === 'all' ? 'All Interests' : form.targetInterest}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Country Filter:</span>
-                                <span>{form.targetCountry === 'all' ? 'All Countries' : form.targetCountry}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Email Dispatch Mode:</span>
-                                <span className={smtpStatus?.configured ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'}>
-                                    {smtpStatus?.configured ? 'Live SMTP' : 'Dev Simulation Mode'}
-                                </span>
-                            </div>
+                        <div className="border border-border bg-secondary/30 p-3 space-y-1.5 text-xs">
+                            <p><strong className="text-foreground">Subject:</strong> {form.subject}</p>
+                            {form.headline && <p><strong className="text-foreground">Headline:</strong> {form.headline}</p>}
+                            <p><strong className="text-foreground">Recipients:</strong> {targetSubscribers.length} subscriber(s)</p>
+                            <p><strong className="text-foreground">Target:</strong> {form.targetInterest === 'all' ? 'All interests' : form.targetInterest}, {form.targetCountry === 'all' ? 'All countries' : form.targetCountry}</p>
+                            <p><strong className="text-foreground">Delivery Mode:</strong> {smtpStatus?.configured ? 'Live SMTP' : 'Console Simulation'}</p>
                         </div>
-
-                        <div className="mt-6 flex items-center justify-end gap-3">
+                        <p className="text-[0.68rem] text-muted-foreground italic">
+                            This action will immediately transmit this email to all matching subscribers.
+                        </p>
+                        <div className="flex items-center justify-end gap-3 pt-2">
                             <button
                                 type="button"
                                 onClick={() => setShowConfirmModal(false)}
-                                className="border border-border px-5 py-2.5 text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground hover:text-foreground"
+                                className="border border-border px-4 py-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="button"
-                                disabled={isSending}
                                 onClick={handleBroadcast}
-                                className="bg-[hsl(var(--gold))] px-6 py-2.5 text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[hsl(var(--background))] transition-opacity hover:opacity-90 disabled:opacity-50"
+                                disabled={isSending}
+                                className="bg-[hsl(var(--gold))] px-5 py-2 text-xs font-bold uppercase tracking-wider text-black transition-opacity hover:opacity-90 disabled:opacity-40"
                             >
-                                {isSending ? 'Broadcasting...' : 'Yes, Send Broadcast Now'}
+                                {isSending ? 'Transmitting...' : 'Confirm & Send Now'}
                             </button>
                         </div>
                     </div>
