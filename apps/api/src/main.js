@@ -43,18 +43,7 @@ const configuredOrigins = (process.env.CORS_ORIGIN || '')
 	.filter(Boolean);
 
 app.use(cors({
-	origin: (origin, callback) => {
-		if (!origin) return callback(null, true);
-		// In development or local testing, allow any localhost/127.0.0.1 port
-		if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-			return callback(null, true);
-		}
-		if (configuredOrigins.includes(origin)) {
-			return callback(null, true);
-		}
-		callback(new Error(`Not allowed by CORS: ${origin}`));
-	},
-	credentials: true,
+	origin: process.env.CORS_ORIGIN || false, // deny cors when unset (on purpose)
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY'],
 	allowedHeaders: ['Authorization', 'Content-Type'],
 }));
