@@ -84,10 +84,12 @@ const AdminPortalPage = () => {
     const { adminUser, role, isSuperAdmin, adminLogout, mustChangePassword, clearMustChangePassword } =
         useAdminAuth();
 
+    const authorizedRole = role in ROLE_TAB_SCOPE;
+
     const allowedTabs = useMemo(() => {
-        const scope = ROLE_TAB_SCOPE[role] || TABS.map((t) => t.key);
+        const scope = authorizedRole ? ROLE_TAB_SCOPE[role] : [];
         return TABS.filter((t) => scope.includes(t.key));
-    }, [role]);
+    }, [role, authorizedRole]);
 
     const [tab, setTab] = useState(allowedTabs[0]?.key || 'overview');
 
@@ -109,6 +111,7 @@ const AdminPortalPage = () => {
     });
 
     const load = useCallback(async () => {
+        if (!authorizedRole) return;
         setError('');
         try {
             const fetchers = {
@@ -133,7 +136,7 @@ const AdminPortalPage = () => {
         } catch (_) {
             setError('Some administration data could not be loaded.');
         }
-    }, []);
+    }, [authorizedRole]);
 
     useEffect(() => {
         load();
@@ -417,6 +420,23 @@ const AdminPortalPage = () => {
     const pendingMentorship = applications.filter((a) => (a.status || 'pending') === 'pending').length;
 
     const locked = mustChangePassword && tab !== 'password';
+
+    // Fail-closed: an unrecognized staff role must not see the admin portal.
+    if (!authorizedRole) {
+        return (
+            <div className="min-h-screen bg-background text-foreground">
+                <Helmet>
+                    <title>Admin Portal | King Dawie Publishing</title>
+                </Helmet>
+                <div className="mx-auto flex min-h-screen max-w-xl flex-col items-start justify-center px-5">
+                    <h1 className="font-display text-3xl">Access restricted</h1>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                        This account is not authorized to view the administrator portal. Please contact the platform operator.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground">

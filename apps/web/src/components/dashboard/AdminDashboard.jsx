@@ -64,6 +64,7 @@ const emptyProductForm = {
 
 const AdminDashboard = ({ role = 'super_admin' }) => {
     const allowedTabs = ROLE_TABS[role];
+    const authorized = role in ROLE_TABS;
     const nav = useMemo(
         () => (allowedTabs ? ALL_NAV.filter((n) => allowedTabs.includes(n.key)) : ALL_NAV),
         [allowedTabs],
@@ -97,25 +98,55 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     });
 
     const load = useCallback(async () => {
+        if (!authorized) return;
+        const fetchAll = (allowedTabs == null);
+        const tabSet = new Set(allowedTabs || []);
+        const has = (key) => fetchAll || tabSet.has(key);
+
+        const fetchers = {
+            users: () => apiCrud.list('users', { sort: '-created' }).catch(() => []),
+            events: () => apiCrud.list('events', { sort: 'starts' }).catch(() => []),
+            news: () => apiCrud.list('news', { sort: '-created' }).catch(() => []),
+            products: () => apiCrud.list('products', { sort: '-created' }).catch(() => []),
+            orders: () => apiCrud.list('orders', { sort: '-created' }).catch(() => []),
+            movements: () => apiCrud.list('stock-movements', { sort: '-created' }).catch(() => []),
+            employees: () => apiCrud.list('employee-roles', { sort: '-created' }).catch(() => []),
+            subscribers: () => apiCrud.list('subscribers', { sort: '-created' }).catch(() => []),
+            applications: () => apiCrud.list('mentorship-applications', { sort: '-created' }).catch(() => []),
+            materials: () => apiCrud.list('mentorship-materials', { sort: 'sort,title' }).catch(() => []),
+            sponsorships: () => apiCrud.list('sponsorships', { sort: '-created' }).catch(() => []),
+            countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
+            regions: () => apiCrud.list('regions', { sort: 'name' }).catch(() => []),
+        };
+
+        const want = {
+            users: () => has('users') || has('distributors') || has('countries'),
+            events: () => has('analytics') || has('events') || has('countries'),
+            news: () => has('analytics') || has('cms'),
+            products: () => has('analytics') || has('books') || has('inventory') || has('tracking') || has('orders') || has('reports'),
+            orders: () => has('analytics') || has('orders') || has('reports'),
+            movements: () => has('tracking'),
+            employees: () => has('employees'),
+            subscribers: () => has('analytics') || has('newsletter') || has('reports'),
+            applications: () => has('mentorship'),
+            materials: () => has('mentorship'),
+            sponsorships: () => has('analytics') || has('sponsors') || has('sponsorships'),
+            countries: () => has('analytics') || has('countries') || has('distributors') || has('newsletter'),
+            regions: () => has('countries'),
+        };
+
         try {
-            const fetchers = {
-                users: () => apiCrud.list('users', { sort: '-created' }),
-                events: () => apiCrud.list('events', { sort: 'starts' }),
-                news: () => apiCrud.list('news', { sort: '-created' }),
-                products: () => apiCrud.list('products', { sort: '-created' }),
-                orders: () => apiCrud.list('orders', { sort: '-created' }),
-                movements: () => apiCrud.list('stock-movements', { sort: '-created' }).catch(() => []),
-                employees: () => apiCrud.list('employee-roles', { sort: '-created' }).catch(() => []),
-                subscribers: () => apiCrud.list('subscribers', { sort: '-created' }).catch(() => []),
-                applications: () => apiCrud.list('mentorship-applications', { sort: '-created' }).catch(() => []),
-                materials: () => apiCrud.list('mentorship-materials', { sort: 'sort,title' }).catch(() => []),
-                sponsorships: () => apiCrud.list('sponsorships', { sort: '-created' }).catch(() => []),
-                countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
-                regions: () => apiCrud.list('regions', { sort: 'name' }).catch(() => []),
-            };
-            const keys = Object.keys(fetchers);
-            const results = await Promise.all(keys.map((k) => fetchers[k]()));
-            const map = Object.fromEntries(keys.map((k, i) => [k, results[i]]));
+            const results = await Promise.all(
+                Object.keys(fetchers).map(async (k) => {
+                    if (!want[k]()) return [];
+                    try {
+                        return await fetchers[k]();
+                    } catch (_) {
+                        return [];
+                    }
+                }),
+            );
+            const map = Object.fromEntries(Object.keys(fetchers).map((k, i) => [k, results[i]]));
             setUsers(map.users);
             setEvents(map.events);
             setNews(map.news);
@@ -132,7 +163,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         } catch (_) {
             setError('Some administration data could not be loaded.');
         }
-    }, []);
+    }, [allowedTabs, authorized]);
 
     useEffect(() => {
         load();
@@ -425,6 +456,24 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             </div>
         </li>
     );
+
+    // Fail-closed: this component is only ever rendered for a known staff role
+    // by its callers, but guard here too so an unrecognized role shows nothing.
+    if (!authorized) {
+        return (
+            <DashboardShell
+                title="Access restricted | King Dawie Publishing"
+                description="This account is not authorized to view the administrator area."
+                nav={[]}
+            >
+                {() => (
+                    <EmptyState>
+                        You do not have permission to view this administrator area. Please contact the platform operator.
+                    </EmptyState>
+                )}
+            </DashboardShell>
+        );
+    }
 
     return (
         <DashboardShell
