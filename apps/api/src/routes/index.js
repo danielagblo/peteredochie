@@ -1,13 +1,50 @@
 import { Router } from 'express';
 import healthCheck from './health-check.js';
 import paystack from './paystack.js';
+import auth from './auth/index.js';
+import users from './users.js';
+import employeeRoles from './employee-roles.js';
+import events from './events.js';
+import news from './news.js';
+import enquiries from './enquiries.js';
+import subscribers from './subscribers.js';
+import countries from './countries.js';
+import regions from './regions.js';
+import products from './products.js';
+import orders from './orders.js';
+import orderItems from './order-items.js';
+import meetAndGreetTickets from './meet-and-greet-tickets.js';
+import eventRegistrations from './event-registrations.js';
+import sponsorshipPackages from './sponsorship-packages.js';
+import sponsorships from './sponsorships.js';
+import mentorshipApplications from './mentorship-applications.js';
+import mentorshipMaterials from './mentorship-materials.js';
+import stockMovements from './stock-movements.js';
 
 const router = Router();
 
 export default () => {
-    router.get('/health', healthCheck);
-    router.use('/paystack', paystack);
+	router.get('/health', healthCheck);
+	router.use('/auth', auth);
+	router.use('/users', users);
+	router.use('/employee-roles', employeeRoles);
+	router.use('/events', events);
+	router.use('/news', news);
+	router.use('/enquiries', enquiries);
+	router.use('/subscribers', subscribers);
+	router.use('/countries', countries);
+	router.use('/regions', regions);
+	router.use('/products', products);
+	router.use('/orders', orders);
+	router.use('/order-items', orderItems);
+	router.use('/meet-and-greet-tickets', meetAndGreetTickets);
+	router.use('/event-registrations', eventRegistrations);
+	router.use('/sponsorship-packages', sponsorshipPackages);
+	router.use('/sponsorships', sponsorships);
+	router.use('/mentorship-applications', mentorshipApplications);
+	router.use('/mentorship-materials', mentorshipMaterials);
+	router.use('/stock-movements', stockMovements);
+	router.use('/paystack', paystack);
 
-    return router;
+	return router;
 };
-
