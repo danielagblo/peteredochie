@@ -66,7 +66,8 @@ export async function optionalAuth(req, res, next) {
 	try {
 		const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
 		req.user = await loadUser(token);
-		req.employeeRole = req.user?.staffRole || null;
+		const user = req.user;
+		req.employeeRole = user?.staffRole || null;
 		next();
 	} catch (err) {
 		next(err);
