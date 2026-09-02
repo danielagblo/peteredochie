@@ -34,8 +34,8 @@ const PortalLayout = ({ children }) => {
 
     return (
         <div className="grain min-h-screen bg-background text-foreground">
-            <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/92 backdrop-blur-md">
-                <div className="mx-auto flex max-w-[92rem] items-center justify-between gap-4 px-5 py-3.5 md:px-10">
+            <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-border bg-background/95 backdrop-blur-md">
+                <div className="flex h-full w-full items-center justify-between px-5 md:px-8">
                     <Link to="/" className="group flex items-baseline gap-3">
                         <span className="font-display text-xl tracking-wide text-foreground md:text-2xl">Pete Edochie</span>
                         <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] xl:block">Official Legacy Platform</span>

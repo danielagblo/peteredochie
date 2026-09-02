@@ -52,6 +52,7 @@ model User {
   stockMovements         StockMovement[]
   ownedEventRegistrations      EventRegistration[] @relation("EventRegOwner")
   distributedEventRegistrations EventRegistration[] @relation("EventRegDistributor")
+  sentCampaigns          NewsletterCampaign[]
 
   @@map("users")
 }
@@ -416,4 +417,24 @@ model StockMovement {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("stock_movements")
+}
+
+// ─── Newsletter Campaigns ─────────────────────────────────────────────────────
+
+model NewsletterCampaign {
+  id             String    @id @default(uuid())
+  subject        String    @db.VarChar(255)
+  previewText    String?   @map("preview_text") @db.VarChar(255)
+  content        String    @db.Text
+  targetInterest String?   @map("target_interest") @db.VarChar(100)
+  targetCountry  String?   @map("target_country") @db.VarChar(100)
+  recipientCount Int       @default(0) @map("recipient_count")
+  status         String    @default("sent") // sent | draft | failed
+  sentAt         DateTime  @default(now()) @map("sent_at")
+  sentById       String?   @map("sent_by_id")
+  sentBy         User?     @relation(fields: [sentById], references: [id])
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("newsletter_campaigns")
 }

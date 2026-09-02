@@ -20,6 +20,7 @@ import sponsorships from './sponsorships.js';
 import mentorshipApplications from './mentorship-applications.js';
 import mentorshipMaterials from './mentorship-materials.js';
 import stockMovements from './stock-movements.js';
+import newsletter from './newsletter.js';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ export default () => {
 	router.use('/news', news);
 	router.use('/enquiries', enquiries);
 	router.use('/subscribers', subscribers);
+	router.use('/newsletter', newsletter);
 	router.use('/countries', countries);
 	router.use('/regions', regions);
 	router.use('/products', products);

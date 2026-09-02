@@ -67,6 +67,10 @@ body {
   * {
     border-color: hsl(var(--border));
   }
+  select, option {
+    background-color: hsl(var(--card));
+    color: hsl(var(--foreground));
+  }
   ::selection {
     background: hsl(var(--primary));
     color: #fff;

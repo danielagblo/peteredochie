@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import ProductQrPanel from '@/components/ProductQrPanel';
+import NewsletterBroadcastPanel from '@/components/dashboard/NewsletterBroadcastPanel';
 import { apiCrud } from '@/lib/api';
 
 const ALL_NAV = [
@@ -22,6 +23,7 @@ const ALL_NAV = [
     { key: 'employees', label: 'Employees', icon: UserCog },
     { key: 'countries', label: 'Countries', icon: Globe },
     { key: 'cms', label: 'CMS', icon: FileText },
+    { key: 'newsletter', label: 'Newsletter & Broadcasts', icon: Mail },
     { key: 'payments', label: 'Payments', icon: CreditCard },
     { key: 'reports', label: 'Reports', icon: BarChart3 },
 ];
@@ -35,7 +37,7 @@ const ROLE_TABS = {
     sponsorship_manager: ['sponsorships'],
 };
 
-const input = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none focus:border-[hsl(var(--gold))]';
+const input = 'w-full border border-border bg-card text-foreground px-4 py-3 text-sm outline-none focus:border-[hsl(var(--gold))]';
 const smallBtn = 'border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]';
 const dangerBtn = 'border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]';
 
@@ -996,6 +998,14 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 </ul>
                             </Panel>
                         </>
+                    ) : null}
+
+                    {tab === 'newsletter' ? (
+                        <NewsletterBroadcastPanel
+                            subscribers={subscribers}
+                            countries={countries}
+                            onRefreshSubscribers={load}
+                        />
                     ) : null}
 
                     {tab === 'reports' ? (
