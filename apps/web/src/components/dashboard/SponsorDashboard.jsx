@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PUBLISHER } from '@/lib/content';
 import { formatUSD } from '@/lib/commerce';
 import { countryName } from '@/lib/countries';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const NAV = [
     { key: 'overview', label: 'Overview', icon: Gauge },
@@ -28,11 +28,12 @@ const SponsorDashboard = () => {
 
     useEffect(() => {
         if (!user?.id) return;
-        pb.collection('sponsorships')
-            .getFirstListItem(`owner = "${user.id}"`, { expand: 'package', requestKey: `sponsor-dash-${user.id}` })
-            .then((rec) => {
+        apiCrud
+            .list('sponsorships', { filter: `owner = "${user.id}"` })
+            .then((recs) => {
+                const rec = recs[0] || null;
                 setSponsorship(rec);
-                setPkg(rec.expand?.package || null);
+                setPkg(rec?.package || null);
             })
             .catch(() => {
                 setSponsorship(null);

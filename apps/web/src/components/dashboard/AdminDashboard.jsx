@@ -5,7 +5,7 @@ import { ACCOUNT_LABEL } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import ProductQrPanel from '@/components/ProductQrPanel';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const ALL_NAV = [
     { key: 'analytics', label: 'Analytics', icon: Gauge },
@@ -97,19 +97,19 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const load = useCallback(async () => {
         try {
             const fetchers = {
-                users: () => pb.collection('users').getFullList({ sort: '-created', requestKey: 'adm-users' }),
-                events: () => pb.collection('events').getFullList({ sort: 'starts', requestKey: 'adm-events' }),
-                news: () => pb.collection('news').getFullList({ sort: '-created', requestKey: 'adm-news' }),
-                products: () => pb.collection('products').getFullList({ sort: '-created', requestKey: 'adm-prods' }),
-                orders: () => pb.collection('orders').getFullList({ sort: '-created', requestKey: 'adm-orders' }),
-                movements: () => pb.collection('stock_movements').getFullList({ sort: '-created', requestKey: 'adm-mov' }).catch(() => []),
-                employees: () => pb.collection('employee_roles').getFullList({ sort: '-created', expand: 'user', requestKey: 'adm-emp' }).catch(() => []),
-                subscribers: () => pb.collection('subscribers').getFullList({ sort: '-created', requestKey: 'adm-subs' }).catch(() => []),
-                applications: () => pb.collection('mentorship_applications').getFullList({ sort: '-created', requestKey: 'adm-apps' }).catch(() => []),
-                materials: () => pb.collection('mentorship_materials').getFullList({ sort: 'sort,title', requestKey: 'adm-materials' }).catch(() => []),
-                sponsorships: () => pb.collection('sponsorships').getFullList({ sort: '-created', expand: 'package,owner', requestKey: 'adm-sponsorships' }).catch(() => []),
-                countries: () => pb.collection('countries').getFullList({ sort: 'name', requestKey: 'adm-countries' }).catch(() => []),
-                regions: () => pb.collection('regions').getFullList({ sort: 'name', expand: 'country', requestKey: 'adm-regions' }).catch(() => []),
+                users: () => apiCrud.list('users', { sort: '-created' }),
+                events: () => apiCrud.list('events', { sort: 'starts' }),
+                news: () => apiCrud.list('news', { sort: '-created' }),
+                products: () => apiCrud.list('products', { sort: '-created' }),
+                orders: () => apiCrud.list('orders', { sort: '-created' }),
+                movements: () => apiCrud.list('stock-movements', { sort: '-created' }).catch(() => []),
+                employees: () => apiCrud.list('employee-roles', { sort: '-created' }).catch(() => []),
+                subscribers: () => apiCrud.list('subscribers', { sort: '-created' }).catch(() => []),
+                applications: () => apiCrud.list('mentorship-applications', { sort: '-created' }).catch(() => []),
+                materials: () => apiCrud.list('mentorship-materials', { sort: 'sort,title' }).catch(() => []),
+                sponsorships: () => apiCrud.list('sponsorships', { sort: '-created' }).catch(() => []),
+                countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
+                regions: () => apiCrud.list('regions', { sort: 'name' }).catch(() => []),
             };
             const keys = Object.keys(fetchers);
             const results = await Promise.all(keys.map((k) => fetchers[k]()));
@@ -142,7 +142,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         let active = true;
         Promise.all(
             orders.map((o) =>
-                pb.collection('order_items').getFullList({ filter: `order = "${o.id}"`, requestKey: `adm-items-${o.id}` }).then((its) => [o.id, its]).catch(() => [o.id, []]),
+                apiCrud.list('order-items', { filter: `order = "${o.id}"` }).then((its) => [o.id, its]).catch(() => [o.id, []]),
             ),
         ).then((pairs) => {
             if (active) setOrderItems(Object.fromEntries(pairs));
@@ -151,7 +151,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     }, [orders]);
 
     const setApproval = async (id, status) => {
-        try { await pb.collection('users').update(id, { approval_status: status }); load(); }
+        try { await apiCrud.update('users', id, { approval_status: status }); load(); }
         catch (_) { setError('Could not update that account.'); }
     };
 
@@ -162,14 +162,14 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             if (status === 'accepted') {
                 payload.registration_type = registrationType || app?.registration_type || app?.requested_type || 'standard';
             }
-            await pb.collection('mentorship_applications').update(id, payload);
+            await apiCrud.update('mentorship-applications', id, payload);
             load();
         } catch (_) { setError('Could not update that application.'); }
     };
 
     const setMentorshipRegistrationType = async (id, registrationType) => {
         try {
-            await pb.collection('mentorship_applications').update(id, { registration_type: registrationType });
+            await apiCrud.update('mentorship-applications', id, { registration_type: registrationType });
             load();
         } catch (_) { setError('Could not update registration type.'); }
     };
@@ -177,7 +177,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const createMaterial = async (e) => {
         e.preventDefault();
         try {
-            await pb.collection('mentorship_materials').create({
+            await apiCrud.create('mentorship-materials', {
                 ...materialForm,
                 sort: materialForm.sort === '' ? 0 : Number(materialForm.sort),
                 published: !!materialForm.published,
@@ -190,28 +190,28 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     };
 
     const deleteMaterial = async (id) => {
-        try { await pb.collection('mentorship_materials').delete(id); load(); }
+        try { await apiCrud.remove('mentorship-materials', id); load(); }
         catch (_) { setError('Could not delete that material.'); }
     };
 
     const createEvent = async (e) => {
         e.preventDefault();
         try {
-            await pb.collection('events').create({ ...eventForm, starts: eventForm.starts || null });
+            await apiCrud.create('events', { ...eventForm, starts: eventForm.starts || null });
             setEventForm({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass' });
             load();
         } catch (_) { setError('Could not create that event.'); }
     };
 
     const deleteEvent = async (id) => {
-        try { await pb.collection('events').delete(id); load(); }
+        try { await apiCrud.remove('events', id); load(); }
         catch (_) { setError('Could not delete that event.'); }
     };
 
     const createNews = async (e) => {
         e.preventDefault();
         try {
-            await pb.collection('news').create({ ...newsForm, published: new Date().toISOString() });
+            await apiCrud.create('news', { ...newsForm, published: new Date().toISOString() });
             setNewsForm({ title: '', excerpt: '', category: '' });
             load();
         } catch (_) { setError('Could not publish that entry.'); }
@@ -230,9 +230,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                 image: productForm.image || '',
             };
             if (editingId) {
-                await pb.collection('products').update(editingId, payload);
+                await apiCrud.update('products', editingId, payload);
             } else {
-                await pb.collection('products').create(payload);
+                await apiCrud.create('products', payload);
             }
             setProductForm(emptyProductForm);
             setEditingId(null);
@@ -253,22 +253,22 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     };
 
     const deleteProduct = async (id) => {
-        try { await pb.collection('products').delete(id); if (editingId === id) { setEditingId(null); setProductForm(emptyProductForm); } load(); }
+        try { await apiCrud.remove('products', id); if (editingId === id) { setEditingId(null); setProductForm(emptyProductForm); } load(); }
         catch (_) { setError('Could not delete that product.'); }
     };
 
     const quickToggle = async (p, field) => {
-        try { await pb.collection('products').update(p.id, { [field]: !p[field] }); load(); }
+        try { await apiCrud.update('products', p.id, { [field]: !p[field] }); load(); }
         catch (_) { setError('Could not toggle that product.'); }
     };
 
     const updateOrderStatus = async (id, order_status) => {
-        try { await pb.collection('orders').update(id, { order_status }); load(); }
+        try { await apiCrud.update('orders', id, { order_status }); load(); }
         catch (_) { setError('Could not update that order.'); }
     };
 
     const updateOrderMeta = async (id, patch) => {
-        try { await pb.collection('orders').update(id, patch); load(); }
+        try { await apiCrud.update('orders', id, patch); load(); }
         catch (_) { setError('Could not update that order.'); }
     };
 
@@ -281,10 +281,10 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         const prev = Number(product.current_stock) || 0;
         const next = Math.max(0, prev + delta);
         try {
-            await pb.collection('products').update(product.id, { current_stock: next });
-            await pb.collection('stock_movements').create({
+            await apiCrud.update('products', product.id, { current_stock: next });
+            await apiCrud.create('stock-movements', {
                 product: product.id, quantity_change: delta, previous_stock: prev, new_stock: next,
-                reason: adjustForm.reason || 'Manual adjustment', created_by: '',
+                reason: adjustForm.reason || 'Manual adjustment',
             });
             setAdjustForm({ product: '', delta: '', reason: '' });
             load();
@@ -296,13 +296,13 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         if (!empForm.user) { setError('Select a user to assign a role.'); return; }
         try {
             // Mirror the role onto the user's staff_role for rule enforcement.
-            await pb.collection('users').update(empForm.user, { staff_role: empForm.role });
+            await apiCrud.update('users', empForm.user, { staff_role: empForm.role });
             // Upsert the employee_roles record.
-            try {
-                const existing = await pb.collection('employee_roles').getFirstListItem(`user = "${empForm.user}"`, { requestKey: `emp-find-${empForm.user}` });
-                await pb.collection('employee_roles').update(existing.id, { role: empForm.role });
-            } catch (_) {
-                await pb.collection('employee_roles').create({ user: empForm.user, role: empForm.role, permissions: {} });
+            const existing = employees.find((e) => String(e.user?.id || e.user) === empForm.user);
+            if (existing) {
+                await apiCrud.update('employee-roles', existing.id, { role: empForm.role });
+            } else {
+                await apiCrud.create('employee-roles', { user: empForm.user, role: empForm.role, permissions: {} });
             }
             setEmpForm({ user: '', role: 'inventory_manager' });
             load();
@@ -311,19 +311,19 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
 
     const revokeEmployee = async (emp) => {
         try {
-            await pb.collection('users').update(emp.user, { staff_role: '' });
-            await pb.collection('employee_roles').delete(emp.id);
+            await apiCrud.update('users', emp.user?.id || emp.user, { staff_role: '' });
+            await apiCrud.remove('employee-roles', emp.id);
             load();
         } catch (_) { setError('Could not revoke that role.'); }
     };
 
     const setSponsorshipStatus = async (id, status) => {
-        try { await pb.collection('sponsorships').update(id, { status }); load(); }
+        try { await apiCrud.update('sponsorships', id, { status }); load(); }
         catch (_) { setError('Could not update that sponsorship.'); }
     };
 
     const setSponsorshipPayment = async (id, payment_status) => {
-        try { await pb.collection('sponsorships').update(id, { payment_status }); load(); }
+        try { await apiCrud.update('sponsorships', id, { payment_status }); load(); }
         catch (_) { setError('Could not update that payment.'); }
     };
 
@@ -331,7 +331,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         e.preventDefault();
         if (!countryForm.name || !countryForm.code) { setError('Country name and code are required.'); return; }
         try {
-            await pb.collection('countries').create({
+            await apiCrud.create('countries', {
                 name: countryForm.name,
                 code: countryForm.code.toUpperCase(),
                 currency: countryForm.currency || 'USD',
@@ -346,17 +346,17 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     };
 
     const updateCountryStatus = async (id, status) => {
-        try { await pb.collection('countries').update(id, { status }); load(); }
+        try { await apiCrud.update('countries', id, { status }); load(); }
         catch (_) { setError('Could not update that country.'); }
     };
 
     const assignCoordinator = async (id, userId) => {
-        try { await pb.collection('countries').update(id, { regional_coordinator: userId || '' }); load(); }
+        try { await apiCrud.update('countries', id, { regional_coordinator: userId || '' }); load(); }
         catch (_) { setError('Could not assign that coordinator.'); }
     };
 
     const assignPrimaryDistributor = async (id, userId) => {
-        try { await pb.collection('countries').update(id, { primary_distributor: userId || '' }); load(); }
+        try { await apiCrud.update('countries', id, { primary_distributor: userId || '' }); load(); }
         catch (_) { setError('Could not assign that distributor.'); }
     };
 
@@ -365,7 +365,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         filteredOrders.forEach((o) => {
             rows.push([
                 o.payment_reference || o.id,
-                o.expand?.owner?.name || o.expand?.owner?.email || o.email || '',
+                o.owner?.name || o.owner?.email || o.email || '',
                 o.email || '',
                 o.items_summary || '',
                 String(o.total_price ?? ''),
@@ -628,7 +628,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     {movements.length === 0 ? <EmptyState>No stock movements recorded yet.</EmptyState> : (
                                         <ul className="divide-y divide-border">
                                             {movements.slice(0, 50).map((m) => {
-                                                const p = products.find((pp) => pp.id === m.product);
+                                                const p = m.product;
                                                 return (
                                                     <li key={m.id} className="flex flex-wrap items-center justify-between gap-4 py-3 text-sm">
                                                         <span className="text-muted-foreground">{p?.name || m.product}</span>
@@ -665,7 +665,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 {employees.map((emp) => (
                                     <li key={emp.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                                         <div>
-                                            <p className="font-display text-lg">{emp.expand?.user?.name || emp.expand?.user?.email || 'Employee'}</p>
+                                            <p className="font-display text-lg">{emp.user?.name || emp.user?.email || 'Employee'}</p>
                                             <p className="mt-1 text-xs text-[hsl(var(--gold))]">{EMPLOYEE_ROLES.find((r) => r.value === emp.role)?.label || emp.role}</p>
                                         </div>
                                         <button type="button" onClick={() => revokeEmployee(emp)} className={dangerBtn}>Revoke</button>
@@ -890,8 +890,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                             {sponsorships.length === 0 ? <EmptyState>No sponsorship applications yet.</EmptyState> : (
                                 <ul className="divide-y divide-border">
                                     {sponsorships.map((s) => {
-                                        const pkg = s.expand?.package;
-                                        const owner = s.expand?.owner;
+                                        const pkg = s.package;
                                         return (
                                             <li key={s.id} className="py-6">
                                                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -954,9 +953,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <ul className="mt-8 divide-y divide-border">
                                     {countries.length === 0 ? <EmptyState>No countries configured.</EmptyState> : null}
                                     {countries.map((c) => {
-                                        const countryRegions = regions.filter((r) => r.country === c.id);
-                                        const coord = users.find((u) => u.id === c.regional_coordinator);
-                                        const dist = users.find((u) => u.id === c.primary_distributor);
+                                        const countryRegions = regions.filter((r) => r.country?.id === c.id);
+                                        const coord = c.regional_coordinator;
+                                        const dist = c.primary_distributor;
                                         return (
                                             <li key={c.id} className="py-5">
                                                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -979,11 +978,11 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                             <option value="inactive">Inactive</option>
                                                             <option value="coming_soon">Coming soon</option>
                                                         </select>
-                                                        <select value={c.regional_coordinator || ''} onChange={(e) => assignCoordinator(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
+                                                        <select value={c.regional_coordinator?.id || ''} onChange={(e) => assignCoordinator(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
                                                             <option value="">No coordinator</option>
                                                             {users.map((u) => <option key={u.id} value={u.id}>{u.name || u.email}</option>)}
                                                         </select>
-                                                        <select value={c.primary_distributor || ''} onChange={(e) => assignPrimaryDistributor(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
+                                                        <select value={c.primary_distributor?.id || ''} onChange={(e) => assignPrimaryDistributor(c.id, e.target.value)} className={`${input} max-w-[14rem]`}>
                                                             <option value="">No distributor</option>
                                                             {users.filter((u) => u.account_type === 'distributor' && u.approval_status === 'approved').map((u) => (
                                                                 <option key={u.id} value={u.id}>{u.organisation || u.name || u.email}</option>

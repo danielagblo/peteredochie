@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Reveal from '@/components/Reveal';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 import { INTEREST_OPTIONS } from '@/lib/accounts';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 
@@ -29,7 +29,7 @@ const SubscribeSection = () => {
             }),
         );
         try {
-            await pb.collection('subscribers').create({ email, name, country, interests });
+            await apiCrud.create('subscribers', { email, name, country, interests });
         } catch (_) {
             /* WhatsApp is the primary channel */
         }

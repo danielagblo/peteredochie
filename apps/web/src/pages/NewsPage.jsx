@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section } from '@/components/Section';
 import { IMG } from '@/lib/content';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const NewsPage = () => {
     const [items, setItems] = useState([]);
     const [status, setStatus] = useState('loading');
 
     useEffect(() => {
-        pb.collection('news')
-            .getFullList({ sort: '-published' })
+        apiCrud
+            .list('news', { sort: '-published' })
             .then((res) => {
                 setItems(res);
                 setStatus('ready');

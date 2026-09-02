@@ -6,7 +6,7 @@ import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section'
 import { IMG, PUBLISHER } from '@/lib/content';
 import { useCart } from '@/contexts/CartContext';
 import { formatUSD, isRedirectOnly, isPurchasable } from '@/lib/commerce';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const BookPage = () => {
     const { items, add } = useCart();
@@ -15,11 +15,10 @@ const BookPage = () => {
     const [added, setAdded] = useState(null);
 
     useEffect(() => {
-        pb.collection('products')
-            .getFullList({
+        apiCrud
+            .list('products', {
                 filter: `product_type = "book" && enabled = true`,
                 sort: 'price',
-                requestKey: 'book-catalog',
             })
             .then(setProducts)
             .catch(() => setProducts([]))

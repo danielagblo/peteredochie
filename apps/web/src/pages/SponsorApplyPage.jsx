@@ -5,7 +5,7 @@ import { PageHead, Section, SectionTitle } from '@/components/Section';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatUSD } from '@/lib/commerce';
 import { COUNTRIES } from '@/lib/countries';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 
 const field = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
@@ -32,8 +32,8 @@ const SponsorApplyPage = () => {
     });
 
     useEffect(() => {
-        pb.collection('sponsorship_packages')
-            .getFullList({ filter: `enabled = true`, sort: 'sort', requestKey: 'sponsor-pkgs' })
+        apiCrud
+            .list('sponsorship-packages', { filter: `enabled = true`, sort: 'sort' })
             .then(setPackages)
             .catch(() => setPackages([]))
             .finally(() => setLoading(false));
@@ -41,9 +41,9 @@ const SponsorApplyPage = () => {
 
     useEffect(() => {
         if (!user?.id) return;
-        pb.collection('sponsorships')
-            .getFirstListItem(`owner = "${user.id}"`, { requestKey: `sponsor-mine-${user.id}` })
-            .then(setExisting)
+        apiCrud
+            .list('sponsorships', { filter: `owner = "${user.id}"` })
+            .then((items) => setExisting(items[0] || null))
             .catch(() => setExisting(null));
     }, [user]);
 
@@ -72,7 +72,7 @@ const SponsorApplyPage = () => {
             }),
         );
         try {
-            await pb.collection('sponsorships').create({
+            await apiCrud.create('sponsorships', {
                 owner: user.id,
                 company_name: form.company_name,
                 industry: form.industry,

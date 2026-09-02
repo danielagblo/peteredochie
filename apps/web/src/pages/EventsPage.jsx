@@ -4,8 +4,8 @@ import { CalendarDays, Camera, Clock, Gift, Lock, Mail, MapPin, Mic, QrCode, Use
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
 import { IMG } from '@/lib/content';
-import pb from '@/lib/pocketbaseClient';
 import { verifyOrder } from '@/lib/commerce';
+import { apiCrud } from '@/lib/api';
 import EventParticipateDialog from '@/components/EventParticipateDialog';
 
 const fmtDate = (iso) =>
@@ -141,8 +141,8 @@ const EventsPage = () => {
     const [params, setParams] = useSearchParams();
 
     useEffect(() => {
-        pb.collection('events')
-            .getFullList({ sort: 'starts' })
+        apiCrud
+            .list('events', { sort: 'starts' })
             .then((items) => {
                 setEvents(items);
                 setStatus('ready');
@@ -177,11 +177,12 @@ const EventsPage = () => {
                 /* still try to load the ticket record */
             }
             try {
-                const ticket = await pb.collection('meet_and_greet_tickets').getFirstListItem(
-                    `payment_reference = "${ticketRef}"`,
-                    { requestKey: `paid-ticket-${ticketRef}` },
-                );
-                const ev = await pb.collection('events').getOne(ticket.event, { requestKey: `paid-event-${ticket.event}` });
+                const tickets = await apiCrud.list('meet-and-greet-tickets', {
+                    filter: `payment_reference = "${ticketRef}"`,
+                });
+                const ticket = tickets?.[0];
+                if (!ticket) return;
+                const ev = await apiCrud.getOne('events', ticket.event_id);
                 if (!active) return;
                 setPaidTicket({ ...ticket, kind: 'ticket' });
                 setActive(ev);

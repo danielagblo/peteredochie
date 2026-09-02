@@ -6,7 +6,7 @@ import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section'
 import { IMG, SPONSORS } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatUSD } from '@/lib/commerce';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const SponsorsPage = () => {
     const { isAuthed } = useAuth();
@@ -14,8 +14,8 @@ const SponsorsPage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        pb.collection('sponsorship_packages')
-            .getFullList({ filter: `enabled = true`, sort: 'sort', requestKey: 'sponsors-pkgs' })
+        apiCrud
+            .list('sponsorship-packages', { filter: `enabled = true`, sort: 'sort' })
             .then(setPackages)
             .catch(() => setPackages([]))
             .finally(() => setLoading(false));

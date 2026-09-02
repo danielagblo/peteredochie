@@ -1,10 +1,10 @@
 import apiServerClient from '@/lib/apiServerClient';
-import pb from '@/lib/pocketbaseClient';
+import { authStore } from '@/lib/api';
 
 const authHeaders = () => {
     const headers = { 'Content-Type': 'application/json' };
-    if (pb.authStore.token) {
-        headers.Authorization = pb.authStore.token;
+    if (authStore.token) {
+        headers.Authorization = authStore.token;
     }
     return headers;
 };

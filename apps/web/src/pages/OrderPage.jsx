@@ -7,7 +7,7 @@ import { verifyOrder, formatUSD } from '@/lib/commerce';
 import { countryName } from '@/lib/countries';
 import { distributorDetails, fulfillmentLabel } from '@/lib/distributors';
 import { DistributorPanel } from '@/components/CountryCollectionFields';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const fmtDate = (iso) =>
     iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
@@ -49,17 +49,15 @@ const OrderPage = () => {
 
     useEffect(() => {
         if (!user?.id) return;
-        pb.collection('orders')
-            .getFirstListItem(`payment_reference = "${reference}"`, {
-                requestKey: `order-page-${reference}`,
-                expand: 'distributor',
-            })
-            .then(async (o) => {
+        apiCrud
+            .list('orders', { filter: `payment_reference = "${reference}"` })
+            .then(async (oList) => {
+                const o = oList?.[0];
+                if (!o) return;
                 setOrder(o);
                 try {
-                    const its = await pb.collection('order_items').getFullList({
+                    const its = await apiCrud.list('order-items', {
                         filter: `order = "${o.id}"`,
-                        requestKey: `order-page-items-${o.id}`,
                     });
                     setItems(its);
                 } catch (_) {
@@ -69,8 +67,8 @@ const OrderPage = () => {
             .catch(() => {});
     }, [user, reference]);
 
-    const collectionDetails = order?.expand?.distributor
-        ? distributorDetails(order.expand.distributor)
+    const collectionDetails = order?.distributor
+        ? distributorDetails(order.distributor)
         : null;
 
     const meta = {

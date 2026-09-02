@@ -1,4 +1,4 @@
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 import { countryName } from '@/lib/countries';
 
 export const FULFILLMENT_METHODS = [
@@ -13,11 +13,11 @@ export async function fetchCountryDistributor(countryCode) {
     if (!countryCode || countryCode === 'OTHER') return null;
 
     try {
-        const country = await pb.collection('countries').getFirstListItem(
-            `code = "${countryCode}" && (status = "active" || status = "coming_soon")`,
-            { expand: 'primary_distributor', requestKey: `dist-country-${countryCode}` },
-        );
-        const dist = country.expand?.primary_distributor;
+        const items = await apiCrud.list('countries', {
+            filter: `code = "${countryCode}" && (status = "active" || status = "coming_soon")`,
+        });
+        const country = items?.[0];
+        const dist = country?.primary_distributor;
         if (dist?.account_type === 'distributor' && dist.approval_status === 'approved') {
             return { country, distributor: dist };
         }
@@ -26,12 +26,12 @@ export async function fetchCountryDistributor(countryCode) {
     }
 
     try {
-        const distributor = await pb.collection('users').getFirstListItem(
-            `account_type = "distributor" && approval_status = "approved" && assigned_country.code = "${countryCode}"`,
-            { expand: 'assigned_country', requestKey: `dist-user-${countryCode}` },
-        );
+        const distItems = await apiCrud.list('users', {
+            filter: `account_type = "distributor" && approval_status = "approved" && assigned_country.code = "${countryCode}"`,
+        });
+        const distributor = distItems?.[0];
         return {
-            country: distributor.expand?.assigned_country || { code: countryCode, name: countryName(countryCode) },
+            country: distributor?.assigned_country || { code: countryCode, name: countryName(countryCode) },
             distributor,
         };
     } catch (_) {

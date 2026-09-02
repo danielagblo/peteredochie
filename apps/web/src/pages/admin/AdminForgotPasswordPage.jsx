@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import pb from '@/lib/pocketbaseClient';
+import { api } from '@/lib/api';
 
 const field =
     'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
@@ -17,7 +17,7 @@ const AdminForgotPasswordPage = () => {
         setBusy(true);
         setError('');
         try {
-            await pb.collection('users').requestPasswordReset(email);
+            await api.post('/auth/request-password-reset', { email });
             setSent(true);
         } catch (_) {
             setError('We could not send a reset link. Please try again.');

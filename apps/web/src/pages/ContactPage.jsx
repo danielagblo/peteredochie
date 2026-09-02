@@ -3,7 +3,7 @@ import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section'
 import { IMG, PUBLISHER } from '@/lib/content';
 import { useToast } from '@/hooks/use-toast';
 import { composeWhatsApp, openWhatsApp, whatsappHref } from '@/lib/whatsapp';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const SUBJECTS = ['General enquiry', 'Media & press', 'Booking & appearances', 'Partnership', 'Book orders', 'Publishing & rights'];
 
@@ -25,7 +25,7 @@ const ContactPage = () => {
         });
         openWhatsApp(text);
         try {
-            await pb.collection('enquiries').create(form);
+            await apiCrud.create('enquiries', form);
         } catch (_) {
             /* WhatsApp is the primary channel */
         }

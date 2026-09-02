@@ -6,7 +6,7 @@ import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section'
 import { IMG } from '@/lib/content';
 import { useCart } from '@/contexts/CartContext';
 import { formatUSD, isPurchasable } from '@/lib/commerce';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const ShopPage = () => {
     const { items, add } = useCart();
@@ -16,11 +16,10 @@ const ShopPage = () => {
     const [selections, setSelections] = useState({});
 
     useEffect(() => {
-        pb.collection('products')
-            .getFullList({
+        apiCrud
+            .list('products', {
                 filter: `product_type = "merchandise" && enabled = true`,
                 sort: 'price',
-                requestKey: 'shop-catalog',
             })
             .then(setProducts)
             .catch(() => setProducts([]))

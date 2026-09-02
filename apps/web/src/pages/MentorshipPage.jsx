@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 import { REGISTRATION_TYPES } from '@/lib/mentorship';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const PILLARS = [
     ['Craft', 'Voice, stillness, text and the discipline of preparation, taught through live critique.'],
@@ -37,8 +37,8 @@ const MentorshipPage = () => {
             setLoadingExisting(false);
             return;
         }
-        pb.collection('mentorship_applications')
-            .getFullList({ filter: `owner = "${user.id}"`, sort: '-created' })
+        apiCrud
+            .list('mentorship-applications', { filter: `owner = "${user.id}"`, sort: '-created' })
             .then((items) => setExisting(items[0] || null))
             .catch(() => setExisting(null))
             .finally(() => setLoadingExisting(false));
@@ -58,14 +58,14 @@ const MentorshipPage = () => {
             }),
         );
         try {
-            await pb.collection('mentorship_applications').create({
+            await apiCrud.create('mentorship-applications', {
                 ...form,
                 owner: user.id,
                 status: 'pending',
                 cohort: '2027',
             });
-            pb.collection('mentorship_applications')
-                .getFullList({ filter: `owner = "${user.id}"`, sort: '-created' })
+            apiCrud
+                .list('mentorship-applications', { filter: `owner = "${user.id}"`, sort: '-created' })
                 .then((items) => setExisting(items[0] || null))
                 .catch(() => {});
         } catch (_) {

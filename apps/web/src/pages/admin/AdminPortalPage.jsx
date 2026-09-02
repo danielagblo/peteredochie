@@ -11,10 +11,10 @@ import {
     ShieldCheck,
     Users,
 } from 'lucide-react';
-import pb from '@/lib/pocketbaseClient';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Panel, Stat, EmptyState } from '@/components/dashboard/DashboardShell';
+import { api, apiCrud } from '@/lib/api';
 import { formatUSD } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { PUBLISHER } from '@/lib/content';
@@ -112,30 +112,12 @@ const AdminPortalPage = () => {
         setError('');
         try {
             const fetchers = {
-                orders: () =>
-                    pb.collection('orders').getFullList({ sort: '-created', requestKey: 'adm-p-orders' }),
-                sponsorships: () =>
-                    pb
-                        .collection('sponsorships')
-                        .getFullList({ sort: '-created', expand: 'package,owner', requestKey: 'adm-p-spon' })
-                        .catch(() => []),
-                applications: () =>
-                    pb
-                        .collection('mentorship_applications')
-                        .getFullList({ sort: '-created', requestKey: 'adm-p-apps' })
-                        .catch(() => []),
-                materials: () =>
-                    pb
-                        .collection('mentorship_materials')
-                        .getFullList({ sort: 'sort,title', requestKey: 'adm-p-materials' })
-                        .catch(() => []),
-                employees: () =>
-                    pb
-                        .collection('users')
-                        .getFullList({ sort: '-created', requestKey: 'adm-p-emps' })
-                        .catch(() => []),
-                countries: () =>
-                    pb.collection('countries').getFullList({ sort: 'name', requestKey: 'adm-p-ctry' }).catch(() => []),
+                orders: () => apiCrud.list('orders', { sort: '-created' }),
+                sponsorships: () => apiCrud.list('sponsorships', { sort: '-created' }).catch(() => []),
+                applications: () => apiCrud.list('mentorship-applications', { sort: '-created' }).catch(() => []),
+                materials: () => apiCrud.list('mentorship-materials', { sort: 'sort,title' }).catch(() => []),
+                employees: () => apiCrud.list('users', { sort: '-created' }).catch(() => []),
+                countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
             };
             const keys = Object.keys(fetchers);
             const results = await Promise.all(keys.map((k) => fetchers[k]()));
@@ -184,7 +166,7 @@ const AdminPortalPage = () => {
         }
         const tempPw = genTempPassword();
         try {
-            await pb.collection('users').create({
+            await apiCrud.create('users', {
                 email: empForm.email,
                 password: tempPw,
                 passwordConfirm: tempPw,
@@ -198,7 +180,7 @@ const AdminPortalPage = () => {
             });
             if (empForm.sendWelcome) {
                 try {
-                    await pb.collection('users').requestPasswordReset(empForm.email);
+                    await api.post('/auth/request-password-reset', { email: empForm.email });
                 } catch (_) {
                     /* best effort */
                 }
@@ -208,7 +190,7 @@ const AdminPortalPage = () => {
             await load();
             setNotice('Employee created. Share the temporary password below.');
         } catch (err) {
-            const data = err?.response?.data || {};
+            const data = err?.payload || {};
             const firstField = Object.keys(data)[0];
             setError(
                 firstField
@@ -243,7 +225,7 @@ const AdminPortalPage = () => {
         setError('');
         if (!editingEmp) return;
         try {
-            await pb.collection('users').update(editingEmp.id, {
+            await apiCrud.update('users', editingEmp.id, {
                 name: empForm.name,
                 staff_role: empForm.role,
                 staff_status: empForm.staff_status,
@@ -254,7 +236,7 @@ const AdminPortalPage = () => {
             await load();
             setNotice('Employee updated.');
         } catch (err) {
-            const data = err?.response?.data || {};
+            const data = err?.payload || {};
             const field = Object.keys(data)[0];
             setError(
                 field
@@ -275,7 +257,7 @@ const AdminPortalPage = () => {
             return;
         }
         try {
-            await pb.collection('users').update(u.id, { staff_status: next });
+            await apiCrud.update('users', u.id, { staff_status: next });
             await load();
             setNotice(`${u.name || u.email} ${next === 'inactive' ? 'deactivated' : 'reactivated'}.`);
         } catch (err) {
@@ -288,7 +270,7 @@ const AdminPortalPage = () => {
         setNotice('');
         if (!window.confirm(`Permanently remove ${u.name || u.email}? This cannot be undone.`)) return;
         try {
-            await pb.collection('users').delete(u.id);
+            await apiCrud.remove('users', u.id);
             load();
             setNotice(`${u.name || u.email} removed.`);
         } catch (_) {
@@ -302,9 +284,10 @@ const AdminPortalPage = () => {
         if (!window.confirm(`Reset the password for ${u.name || u.email}?`)) return;
         const tempPw = genTempPassword();
         try {
-            await pb.send('/api/admin/set-password', {
-                method: 'POST',
-                body: { userId: u.id, password: tempPw, mustChange: true },
+            await api.post('/auth/admin/set-password', {
+                user_id: u.id,
+                password: tempPw,
+                mustChange: true,
             });
             setCreatedCreds({ email: u.email, tempPw, welcomeSent: false, reset: true });
             setNotice('Password reset. Share the temporary password below.');
@@ -317,7 +300,7 @@ const AdminPortalPage = () => {
     // ---- Orders ----
     const updateOrderStatus = async (id, order_status) => {
         try {
-            await pb.collection('orders').update(id, { order_status });
+            await apiCrud.update('orders', id, { order_status });
             load();
         } catch (_) {
             setError('Could not update that order.');
@@ -327,7 +310,7 @@ const AdminPortalPage = () => {
     // ---- Sponsorships ----
     const setSponsorshipStatus = async (id, status) => {
         try {
-            await pb.collection('sponsorships').update(id, { status });
+            await apiCrud.update('sponsorships', id, { status });
             load();
         } catch (_) {
             setError('Could not update that sponsorship.');
@@ -342,7 +325,7 @@ const AdminPortalPage = () => {
             if (status === 'accepted') {
                 payload.registration_type = registrationType || app?.registration_type || app?.requested_type || 'standard';
             }
-            await pb.collection('mentorship_applications').update(id, payload);
+            await apiCrud.update('mentorship-applications', id, payload);
             load();
         } catch (_) {
             setError('Could not update that application.');
@@ -351,7 +334,7 @@ const AdminPortalPage = () => {
 
     const setMentorshipRegistrationType = async (id, registrationType) => {
         try {
-            await pb.collection('mentorship_applications').update(id, { registration_type: registrationType });
+            await apiCrud.update('mentorship-applications', id, { registration_type: registrationType });
             load();
         } catch (_) {
             setError('Could not update registration type.');
@@ -361,7 +344,7 @@ const AdminPortalPage = () => {
     const createMaterial = async (e) => {
         e.preventDefault();
         try {
-            await pb.collection('mentorship_materials').create({
+            await apiCrud.create('mentorship-materials', {
                 ...materialForm,
                 sort: materialForm.sort === '' ? 0 : Number(materialForm.sort),
                 published: !!materialForm.published,
@@ -377,7 +360,7 @@ const AdminPortalPage = () => {
 
     const deleteMaterial = async (id) => {
         try {
-            await pb.collection('mentorship_materials').delete(id);
+            await apiCrud.remove('mentorship-materials', id);
             load();
         } catch (_) {
             setError('Could not delete that material.');
@@ -404,14 +387,11 @@ const AdminPortalPage = () => {
         }
         setPwBusy(true);
         try {
-            // Verify the current password first.
-            await pb.collection('users').authWithPassword(adminUser.email, pwForm.current);
-            await pb.send('/api/admin/set-password', {
-                method: 'POST',
-                body: { userId: adminUser.id, password: pwForm.next, mustChange: false },
+            await api.post('/auth/change-password', {
+                current_password: pwForm.current,
+                password: pwForm.next,
+                password_confirm: pwForm.confirm,
             });
-            // The password change invalidates the current token — re-authenticate.
-            await pb.collection('users').authWithPassword(adminUser.email, pwForm.next);
             setPwForm({ current: '', next: '', confirm: '' });
             setPwMsg({ kind: 'ok', text: 'Your password has been changed.' });
             clearMustChangePassword();
@@ -815,8 +795,8 @@ const AdminPortalPage = () => {
                                                         {s.contact_person} · {s.email} · {s.country || 'Country not set'}
                                                     </p>
                                                     <p className="mt-2 text-sm text-[hsl(var(--gold))]">
-                                                        {s.expand?.package?.name || s.package_tier || 'Package'} ·{' '}
-                                                        {formatUSD(s.investment_amount || s.expand?.package?.price)}
+                                                        {s.package?.name || s.package_tier || 'Package'} ·{' '}
+                                                        {formatUSD(s.investment_amount || s.package?.price)}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">

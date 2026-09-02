@@ -5,7 +5,7 @@ import { PageHead, Section } from '@/components/Section';
 import { IMG } from '@/lib/content';
 import { useCart } from '@/contexts/CartContext';
 import { formatUSD, isPurchasable, isRedirectOnly } from '@/lib/commerce';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const BookProductPage = () => {
     const { productId } = useParams();
@@ -18,8 +18,8 @@ const BookProductPage = () => {
     useEffect(() => {
         setLoading(true);
         setMissing(false);
-        pb.collection('products')
-            .getOne(productId, { requestKey: `book-item-${productId}` })
+        apiCrud
+            .getOne('products', productId)
             .then((p) => {
                 if (p.product_type !== 'book') {
                     setMissing(true);

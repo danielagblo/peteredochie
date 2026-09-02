@@ -8,7 +8,7 @@ import { formatUSD, initializeOrder, paystackStatus } from '@/lib/commerce';
 import { zipRequired } from '@/lib/countries';
 import { fetchCountryDistributor } from '@/lib/distributors';
 import CountryCollectionFields, { collectionInput } from '@/components/CountryCollectionFields';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const input = collectionInput;
 
@@ -53,8 +53,8 @@ const CheckoutPage = () => {
             return;
         }
         const filter = items.map((i) => `id = "${i.product_id}"`).join(' || ');
-        pb.collection('products')
-            .getFullList({ filter, requestKey: 'checkout-prods' })
+        apiCrud
+            .list('products', { filter })
             .then(setProducts)
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));

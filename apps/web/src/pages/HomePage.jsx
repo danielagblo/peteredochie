@@ -8,13 +8,11 @@ import Seo from '@/components/Seo';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import SubscribeSection from '@/components/SubscribeSection';
 import { IMG, MILESTONES, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 const HomePage = () => {
   const [events, setEvents] = useState([]);
   useEffect(() => {
-    pb.collection('events').getList(1, 3, {
-      sort: 'starts'
-    }).then(res => setEvents(res.items)).catch(() => setEvents([]));
+    apiCrud.list('events', { sort: 'starts', page: 1, perPage: 3 }).then(setEvents).catch(() => setEvents([]));
   }, []);
   return <div>
             <PageHead title="Pete Edochie — The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, published by King Dawie Publishing: biography, legacy archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative." />

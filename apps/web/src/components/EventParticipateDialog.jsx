@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { initializeTicket } from '@/lib/commerce';
 import { fetchCountryDistributor } from '@/lib/distributors';
 import CountryCollectionFields from '@/components/CountryCollectionFields';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
 
 const fmtDate = (iso) =>
     iso
@@ -125,7 +125,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
             }
             const collection = await resolveCollection();
             const confirm = code('MC');
-            const rec = await pb.collection('event_registrations').create({
+            const rec = await apiCrud.create('event-registrations', {
                 owner: user.id,
                 event: event.id,
                 status: 'registered',

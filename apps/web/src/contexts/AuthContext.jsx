@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useCallback, useEffect, useMemo, useState } from 'react';
-import pb from '@/lib/pocketbaseClient';
+import { api, authStore } from '@/lib/api';
 import { accountTypeOf } from '@/lib/accounts';
 import { claimGuestOrders } from '@/lib/commerce';
 
@@ -17,38 +17,38 @@ const claimOrdersQuietly = async () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(pb.authStore.record);
+    const [user, setUser] = useState(authStore.record);
     const [employeeRole, setEmployeeRole] = useState(null);
 
     useEffect(() => {
         try {
             if (window.localStorage.getItem(EPHEMERAL_KEY) === '1' && window.sessionStorage.getItem(TAB_KEY) !== '1') {
                 window.localStorage.removeItem(EPHEMERAL_KEY);
-                pb.authStore.clear();
+                authStore.clear();
             }
         } catch (_) {
             /* storage unavailable */
         }
     }, []);
 
-    useEffect(() => pb.authStore.onChange((_token, record) => setUser(record)), []);
+    useEffect(() => authStore.onChange((_token, record) => setUser(record)), []);
 
     // Load the signed-in user's staff role (if any) from employee_roles.
     useEffect(() => {
-        const id = pb.authStore.record?.id;
+        const id = authStore.record?.id;
         if (!id) {
             setEmployeeRole(null);
             return;
         }
-        pb.collection('employee_roles')
-            .getFirstListItem(`user = "${id}"`, { requestKey: `emp-role-${id}` })
-            .then((r) => setEmployeeRole(r.role))
+        api.get(`/employee-roles?userId=${encodeURIComponent(id)}`)
+            .then((r) => setEmployeeRole(r?.items?.[0]?.role || null))
             .catch(() => setEmployeeRole(null));
         claimOrdersQuietly();
     }, [user]);
 
     const login = useCallback(async (email, password, remember = true) => {
-        const result = await pb.collection('users').authWithPassword(email, password);
+        const data = await api.post('/auth/login', { email, password });
+        authStore.set(data.token, data.user);
         try {
             if (remember) {
                 window.localStorage.removeItem(EPHEMERAL_KEY);
@@ -60,27 +60,22 @@ export const AuthProvider = ({ children }) => {
             /* storage unavailable */
         }
         await claimOrdersQuietly();
-        return result;
+        return { record: data.user, token: data.token };
     }, []);
 
     const signup = useCallback(
         async (email, password, extraFields = {}) => {
-            await pb.collection('users').create({ email, password, passwordConfirm: password, ...extraFields });
+            await api.post('/auth/register', { email, password, ...extraFields });
             const result = await login(email, password, true);
-            try {
-                await pb.collection('users').requestVerification(email);
-            } catch (_) {
-                /* verification email is best-effort */
-            }
             return result;
         },
         [login],
     );
 
     const refresh = useCallback(async () => {
-        if (!pb.authStore.isValid) return null;
+        if (!authStore.isValid) return null;
         try {
-            return await pb.collection('users').authRefresh();
+            return await api.get('/auth/me');
         } catch (_) {
             return null;
         }
@@ -89,7 +84,7 @@ export const AuthProvider = ({ children }) => {
     const value = useMemo(
         () => ({
             user,
-            isAuthed: pb.authStore.isValid,
+            isAuthed: authStore.isValid,
             accountType: accountTypeOf(user),
             isVerified: !!user?.verified,
             employeeRole,
@@ -97,15 +92,15 @@ export const AuthProvider = ({ children }) => {
             login,
             signup,
             refresh,
-            requestVerification: (email) => pb.collection('users').requestVerification(email),
-            resetPassword: (email) => pb.collection('users').requestPasswordReset(email),
+            requestVerification: () => Promise.resolve(),
+            resetPassword: (email) => api.post('/auth/request-password-reset', { email }),
             logout: () => {
                 try {
                     window.localStorage.removeItem(EPHEMERAL_KEY);
                 } catch (_) {
                     /* storage unavailable */
                 }
-                pb.authStore.clear();
+                authStore.clear();
             },
         }),
         [user, employeeRole, login, signup, refresh],

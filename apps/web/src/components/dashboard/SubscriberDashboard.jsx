@@ -7,7 +7,8 @@ import { INTEREST_OPTIONS } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
 import { useAuth } from '@/contexts/AuthContext';
 import { effectiveRegistrationType, registrationTypeLabel } from '@/lib/mentorship';
-import pb from '@/lib/pocketbaseClient';
+import { apiCrud } from '@/lib/api';
+import { fileUrl } from '@/lib/files';
 
 const NAV = [
     { key: 'overview', label: 'Overview', icon: Gauge },
@@ -61,11 +62,11 @@ const SubscriberDashboard = () => {
         const ownerId = user?.id;
         if (!ownerId) return;
         Promise.all([
-            pb.collection('events').getFullList({ sort: 'starts', requestKey: 'sub-events' }),
-            pb.collection('meet_and_greet_tickets').getFullList({ filter: `owner = "${ownerId}"`, sort: '-created', expand: 'event', requestKey: 'sub-tickets' }).catch(() => []),
-            pb.collection('event_registrations').getFullList({ filter: `owner = "${ownerId}"`, sort: '-created', expand: 'event', requestKey: 'sub-regs' }).catch(() => []),
-            pb.collection('mentorship_applications').getFullList({ filter: `owner = "${ownerId}"`, sort: '-created', requestKey: 'sub-mentor' }).catch(() => []),
-            pb.collection('orders').getFullList({ filter: `owner = "${ownerId}"`, sort: '-created', requestKey: 'sub-orders' }).catch(() => []),
+            apiCrud.list('events', { sort: 'starts' }),
+            apiCrud.list('meet-and-greet-tickets', { filter: `owner = "${ownerId}"`, sort: '-created' }).catch(() => []),
+            apiCrud.list('event-registrations', { filter: `owner = "${ownerId}"`, sort: '-created' }).catch(() => []),
+            apiCrud.list('mentorship-applications', { filter: `owner = "${ownerId}"`, sort: '-created' }).catch(() => []),
+            apiCrud.list('orders', { filter: `owner = "${ownerId}"`, sort: '-created' }).catch(() => []),
         ])
             .then(([e, t, r, m, o]) => {
                 setEvents(e);
@@ -84,7 +85,7 @@ const SubscriberDashboard = () => {
         let active = true;
         Promise.all(
             orders.map((ord) =>
-                pb.collection('order_items').getFullList({ filter: `order = "${ord.id}"`, requestKey: `sub-items-${ord.id}` }).then((its) => [ord.id, its]).catch(() => [ord.id, []]),
+                apiCrud.list('order-items', { filter: `order = "${ord.id}"` }).then((its) => [ord.id, its]).catch(() => [ord.id, []]),
             ),
         ).then((pairs) => { if (active) setOrderItems(Object.fromEntries(pairs)); });
         return () => { active = false; };
@@ -97,8 +98,8 @@ const SubscriberDashboard = () => {
         }
         let active = true;
         setMaterialsLoading(true);
-        pb.collection('mentorship_materials')
-            .getFullList({ sort: 'sort,title', requestKey: 'sub-materials' })
+        apiCrud
+            .list('mentorship-materials', { sort: 'sort,title' })
             .then((items) => { if (active) setMaterials(items); })
             .catch(() => { if (active) setMaterials([]); })
             .finally(() => { if (active) setMaterialsLoading(false); });
@@ -108,7 +109,7 @@ const SubscriberDashboard = () => {
     const saveProfile = async (e) => {
         e.preventDefault();
         try {
-            await pb.collection('users').update(user.id, { ...profile, interests });
+            await apiCrud.update('users', user.id, { ...profile, interests });
             setSaved('Saved.');
         } catch (_) {
             setSaved('We could not save your changes.');
@@ -142,7 +143,7 @@ const SubscriberDashboard = () => {
     const mentorMeta = mentorship ? STATUS_META[mentorship.status || 'pending'] : null;
     const mentorAccessType = effectiveRegistrationType(mentorship);
     const materialUrl = (item) => {
-        if (item.file) return pb.files.getUrl(item, item.file);
+        if (item.file) return fileUrl(item.file);
         return item.url || item.video_url || '';
     };
 
@@ -253,7 +254,7 @@ const SubscriberDashboard = () => {
                             ) : (
                                 <ul className="divide-y divide-border">
                                     {tickets.map((t) => {
-                                        const ev = t.expand?.event;
+                                        const ev = t.event;
                                         const isVip = t.tier === 'vip';
                                         const qrData = JSON.stringify({ code: t.confirmation_code, event: ev?.title, tier: t.tier, type: 'meet_and_greet' });
                                         return (
@@ -298,7 +299,7 @@ const SubscriberDashboard = () => {
                             ) : (
                                 <ul className="divide-y divide-border">
                                     {registrations.map((r) => {
-                                        const ev = r.expand?.event;
+                                        const ev = r.event;
                                         const qrData = JSON.stringify({ code: r.confirmation_code, event: ev?.title, type: 'masterclass' });
                                         return (
                                             <li key={r.id} className="flex flex-col gap-5 py-6 md:flex-row md:items-center md:justify-between">
