@@ -36,8 +36,25 @@ process.on('SIGTERM', async () => {
 });
 
 app.use(helmet());
+
+const configuredOrigins = (process.env.CORS_ORIGIN || '')
+	.split(',')
+	.map((o) => o.trim())
+	.filter(Boolean);
+
 app.use(cors({
-	origin: process.env.CORS_ORIGIN || false, // deny cors when unset (on purpose)
+	origin: (origin, callback) => {
+		if (!origin) return callback(null, true);
+		// In development or local testing, allow any localhost/127.0.0.1 port
+		if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+			return callback(null, true);
+		}
+		if (configuredOrigins.includes(origin)) {
+			return callback(null, true);
+		}
+		callback(new Error(`Not allowed by CORS: ${origin}`));
+	},
+	credentials: true,
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'QUERY'],
 	allowedHeaders: ['Authorization', 'Content-Type'],
 }));
@@ -51,7 +68,9 @@ app.use(express.urlencoded({
 	limit: BodyLimit,
 }));
 
-app.use('/', routes());
+const apiRoutes = routes();
+app.use('/hcgi/api', apiRoutes);
+app.use('/', apiRoutes);
 
 app.use(errorMiddleware);
 
