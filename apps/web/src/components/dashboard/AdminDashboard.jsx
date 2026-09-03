@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog } from 'lucide-react';
+import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog, Smartphone } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
@@ -8,6 +8,7 @@ import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { emptyBookForm, emptyCategoryForm } from '@/lib/books';
 import ProductQrPanel from '@/components/ProductQrPanel';
 import NewsletterBroadcastPanel from '@/components/dashboard/NewsletterBroadcastPanel';
+import SmsBroadcastPanel from '@/components/dashboard/SmsBroadcastPanel';
 import { apiCrud } from '@/lib/api';
 
 const ALL_NAV = [
@@ -25,7 +26,8 @@ const ALL_NAV = [
     { key: 'employees', label: 'Employees', icon: UserCog },
     { key: 'countries', label: 'Countries', icon: Globe },
     { key: 'cms', label: 'CMS', icon: FileText },
-    { key: 'newsletter', label: 'Newsletter & Broadcasts', icon: Mail },
+    { key: 'newsletter', label: 'Newsletter Campaigns', icon: Mail },
+    { key: 'sms', label: 'SMS Broadcasts', icon: Smartphone },
     { key: 'payments', label: 'Payments', icon: CreditCard },
     { key: 'reports', label: 'Reports', icon: BarChart3 },
 ];
