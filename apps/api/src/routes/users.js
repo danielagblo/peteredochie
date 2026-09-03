@@ -89,11 +89,22 @@ const controller = crudController(prisma.user, {
 			if (userRecord.phone) {
 				logger.info(`[approval] Dispatching SMS to ${userRecord.phone} for user ${userRecord.id}`);
 				try {
+					const smsText = `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at peteredochie.com/dashboard to access your wholesale portal and trade tools.`;
 					const smsRes = await sendSms({
 						to: userRecord.phone,
-						message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at peteredochie.com/dashboard to access your wholesale portal and trade tools.`,
+						message: smsText,
 					});
 					logger.info('[approval sms result]', JSON.stringify(smsRes));
+					
+					prisma.smsLog.create({
+						data: {
+							recipientPhone: userRecord.phone,
+							message: smsText,
+							senderId: 'PeteEdochie',
+							status: 'sent',
+							context: 'user_approval',
+						},
+					}).catch(() => {});
 				} catch (err) {
 					logger.error('[approval sms failed]', err.message);
 				}
