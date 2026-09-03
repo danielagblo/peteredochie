@@ -33,6 +33,7 @@ const EventCard = ({ event, onParticipate }) => {
     const meta = TYPE_META[event.event_type] || TYPE_META.masterclass;
     const Icon = meta.icon;
     const tiers = Array.isArray(event.ticket_tiers) ? event.ticket_tiers : [];
+    const badge = event.invitation_only ? 'By invitation only' : meta.badge;
 
     return (
         <Reveal>
@@ -44,7 +45,7 @@ const EventCard = ({ event, onParticipate }) => {
                         <span className="text-[0.66rem] uppercase tracking-[0.22em]">{meta.label}</span>
                     </div>
                     <span className="mt-3 inline-block border border-[hsl(var(--gold))]/40 px-3 py-1 text-[0.58rem] uppercase tracking-[0.18em] text-[hsl(var(--gold))]">
-                        {meta.badge}
+                        {badge}
                     </span>
                 </div>
 
@@ -99,7 +100,7 @@ const EventCard = ({ event, onParticipate }) => {
                     ) : null}
 
                     <div className="mt-8 flex flex-wrap items-center gap-4">
-                        {event.event_type === 'ghana_launch' ? (
+                        {event.invitation_only ? (
                             <span className="flex items-center gap-2 border border-border px-6 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground">
                                 <Lock size={14} strokeWidth={1.4} /> Invitation only — no public registration
                             </span>
@@ -166,7 +167,7 @@ const EventsPage = () => {
         const joinId = params.get('join');
         if (!joinId) return;
         const target = events.find((e) => e.id === joinId);
-        if (target && target.event_type !== 'ghana_launch') setActive(target);
+        if (target && !target.invitation_only) setActive(target);
     }, [status, events, params]);
 
     // Handle the Paystack redirect back after a Meet & Greet ticket payment:

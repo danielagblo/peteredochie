@@ -198,8 +198,8 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
 
     return (
         <Dialog open={open} onOpenChange={(o) => !o && close()}>
-            <DialogContent className="max-w-lg border-border bg-card p-0 md:max-w-xl">
-                <DialogHeader className="border-b border-border px-7 py-6">
+            <DialogContent className="flex max-h-[90vh] w-full max-w-lg flex-col border-border bg-card p-0 md:max-w-xl">
+                <DialogHeader className="shrink-0 border-b border-border px-7 py-6">
                     <DialogTitle className="font-display text-3xl">{event.title}</DialogTitle>
                     <DialogDescription className="mt-2 text-sm text-muted-foreground">
                         {fmtDate(event.starts)} · {event.venue} · {fmtTime(event.starts)}
@@ -207,7 +207,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="px-7 py-7">
+                <div className="min-h-0 flex-1 overflow-y-auto px-7 py-7">
                     {!isAuthed ? (
                         <div className="text-center">
                             <p className="eyebrow">Sign in required</p>

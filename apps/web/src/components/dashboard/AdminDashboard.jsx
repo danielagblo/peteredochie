@@ -92,7 +92,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [employees, setEmployees] = useState([]);
     const [orderItems, setOrderItems] = useState({});
     const [error, setError] = useState('');
-    const [eventForm, setEventForm] = useState({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass' });
+    const [eventForm, setEventForm] = useState({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass', invitation_only: false });
     const [newsForm, setNewsForm] = useState({ title: '', excerpt: '', category: '' });
     const [sponsorPackages, setSponsorPackages] = useState([]);
     const [distTiers, setDistTiers] = useState([]);
@@ -271,7 +271,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         e.preventDefault();
         try {
             await apiCrud.create('events', { ...eventForm, starts: eventForm.starts || null });
-            setEventForm({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass' });
+            setEventForm({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass', invitation_only: false });
             load();
         } catch (_) { setError('Could not create that event.'); }
     };
@@ -1082,6 +1082,10 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <input placeholder="Venue" value={eventForm.venue} onChange={(e) => setEventForm({ ...eventForm, venue: e.target.value })} className={input} />
                                 <input type="datetime-local" value={eventForm.starts} onChange={(e) => setEventForm({ ...eventForm, starts: e.target.value })} className={input} />
                                 <input placeholder="Summary" value={eventForm.summary} onChange={(e) => setEventForm({ ...eventForm, summary: e.target.value })} className={input} />
+                                <label className="flex items-center gap-3 md:col-span-2 border border-border px-4 py-3">
+                                    <input type="checkbox" checked={eventForm.invitation_only} onChange={(e) => setEventForm({ ...eventForm, invitation_only: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--gold))]" />
+                                    <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Invitation only — no public registration</span>
+                                </label>
                                 <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Publish event</button>
                             </form>
                             <ul className="mt-8 divide-y divide-border">
