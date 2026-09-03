@@ -15,8 +15,8 @@ const getPaystackSecretKey = () => process.env.PAYSTACK_SECRET_KEY;
 // (PAYSTACK_CURRENCY, e.g. GHS). Prices are stored/displayed in USD; Paystack
 // only supports charging in the merchant's enabled currency, so we convert at
 // a live rate to avoid Paystack's "unsupported_currency" rejection.
-async function buildCharge(priceUsd, explicitCurrency) {
-	const currency = explicitCurrency || process.env.PAYSTACK_CURRENCY || "USD";
+async function buildCharge(priceUsd) {
+	const currency = process.env.PAYSTACK_CURRENCY || "USD";
 	let amountInCents = Math.round(Number(priceUsd) * 100);
 	if (currency !== "USD") {
 		const rate = await getUsdRate(currency);
