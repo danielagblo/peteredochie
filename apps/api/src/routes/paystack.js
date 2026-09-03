@@ -5,10 +5,25 @@ import { decodeToken, verifyToken } from "../utils/token.js";
 import logger from "../utils/logger.js";
 import { sendEmail } from "../utils/email.js";
 import { sendSms } from "../utils/sms.js";
+import { getUsdRate } from "../services/rateService.js";
 
 const router = Router();
 
 const getPaystackSecretKey = () => process.env.PAYSTACK_SECRET_KEY;
+
+// Convert a USD-major amount into the merchant's local Paystack currency
+// (PAYSTACK_CURRENCY, e.g. GHS). Prices are stored/displayed in USD; Paystack
+// only supports charging in the merchant's enabled currency, so we convert at
+// a live rate to avoid Paystack's "unsupported_currency" rejection.
+async function buildCharge(priceUsd, explicitCurrency) {
+	const currency = explicitCurrency || process.env.PAYSTACK_CURRENCY || "USD";
+	let amountInCents = Math.round(Number(priceUsd) * 100);
+	if (currency !== "USD") {
+		const rate = await getUsdRate(currency);
+		amountInCents = Math.round(amountInCents * rate);
+	}
+	return { amountInCents, currency };
+}
 
 // Meet & Greet tier prices in USD major units.
 const TIER_PRICES = { vip: 1000, standard: 500 };
@@ -355,7 +370,7 @@ router.post("/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(total * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(total);
 	const callbackUrl = `${return_origin || ""}/order/${reference}`;
 
 	let paystackRes;
@@ -369,7 +384,7 @@ router.post("/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
@@ -497,7 +512,7 @@ router.post("/tickets/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(price * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(price);
 	const callbackUrl = `${return_origin || ""}/events?ticket=${reference}`;
 
 	let paystackRes;
@@ -511,7 +526,7 @@ router.post("/tickets/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
@@ -681,7 +696,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(price * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(price, currency);
 	const callbackUrl = `${return_origin || ""}/dashboard?sponsor_payment=${reference}`;
 
 	let paystackRes;
@@ -695,7 +710,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email: sponsorship.email || email,
 				amount: amountInCents,
-				currency,
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
@@ -838,7 +853,7 @@ router.post("/distributors/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(total * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(total);
 	const callbackUrl = `${return_origin || ""}/dashboard?distributor_order=${reference}`;
 
 	let paystackRes;
@@ -852,7 +867,7 @@ router.post("/distributors/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
