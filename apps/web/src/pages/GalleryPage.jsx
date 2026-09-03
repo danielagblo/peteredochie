@@ -5,15 +5,15 @@ import { PageHead, PageHero, Section } from '@/components/Section';
 import { IMG } from '@/lib/content';
 
 const ITEMS = [
-    { src: IMG.portrait, cat: 'Portraits', caption: 'Studio portrait, Lagos' },
-    { src: IMG.stage, cat: 'Stage', caption: 'Under a single light, Enugu' },
-    { src: IMG.set, cat: 'On set', caption: 'Behind the scenes, Nollywood' },
-    { src: IMG.award, cat: 'Honours', caption: 'Lifetime achievement, Lagos' },
-    { src: IMG.youth, cat: 'Mentorship', caption: 'Workshop cohort, Abuja' },
-    { src: IMG.podium, cat: 'Speaking', caption: 'Convocation address, Nsukka' },
-    { src: IMG.family, cat: 'Family', caption: 'Courtyard gathering, Anambra' },
-    { src: IMG.artifact, cat: 'Artifacts', caption: 'Mask and coral beads' },
-    { src: IMG.theatre, cat: 'Stage', caption: 'The house before doors open' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'The Elder — official portrait' },
+    { src: IMG.stage, cat: 'Events', caption: 'Nigeria Launch, Lagos' },
+    { src: IMG.set, cat: 'On screen', caption: 'Documentary premiere, Enugu' },
+    { src: IMG.award, cat: 'Honours', caption: 'Continental screen awards' },
+    { src: IMG.youth, cat: 'Mentorship', caption: 'African Youth Mentorship Masterclass, Abuja' },
+    { src: IMG.podium, cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
+    { src: IMG.family, cat: 'Legacy', caption: 'Okonkwo — limited edition art print' },
+    { src: IMG.artifact, cat: 'Merchandise', caption: 'Legacy T-shirt collection' },
+    { src: IMG.theatre, cat: 'Events', caption: 'An evening of legacy' },
 ];
 
 const GalleryPage = () => {
@@ -25,7 +25,7 @@ const GalleryPage = () => {
     return (
         <div>
             <PageHead
-                title="Gallery — The Pete Edochie Photographic Archive"
+                title="Gallery — The Peter Edochie Photographic Archive"
                 description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
             />
             <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images from six decades, held and captioned like a collection." image={IMG.family} />

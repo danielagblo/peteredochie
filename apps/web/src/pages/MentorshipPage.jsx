@@ -33,6 +33,16 @@ const MentorshipPage = () => {
     const [loadingExisting, setLoadingExisting] = useState(true);
 
     useEffect(() => {
+        if (!user) return;
+        setForm((prev) => ({
+            ...prev,
+            name: prev.name || user.name || '',
+            email: prev.email || user.email || '',
+            country: prev.country || user.country || '',
+        }));
+    }, [user]);
+
+    useEffect(() => {
         if (!isAuthed) {
             setLoadingExisting(false);
             return;
@@ -84,7 +94,7 @@ const MentorshipPage = () => {
     return (
         <div>
             <PageHead
-                title="African Youth Mentorship Initiative — 2027 Cohort | Pete Edochie"
+                title="African Youth Mentorship Initiative — 2027 Cohort | Peter Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
             <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.youth} />

@@ -27,8 +27,8 @@ const AccountTypePage = () => {
     return (
         <div className="pt-32 pb-28">
             <PageHead
-                title="Choose your account type | The Pete Edochie Legacy"
-                description="Select an account type — General Subscriber, Distributor or Sponsor — before creating your account on the Pete Edochie Legacy platform."
+                title="Choose your account type | The Peter Edochie Legacy"
+                description="Select an account type — General Subscriber, Distributor or Sponsor — before creating your account on the Peter Edochie Legacy platform."
             />
             <Section width="max-w-[84rem]">
                 <Link to="/" className="group mb-8 inline-flex items-center gap-2 text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">

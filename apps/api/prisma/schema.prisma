@@ -131,13 +131,17 @@ model Enquiry {
 // ─── Subscribers ──────────────────────────────────────────────────────────────
 
 model Subscriber {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?  @db.VarChar(120)
-  country   String?  @db.VarChar(100)
-  interests Json?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?   @db.VarChar(120)
+  country        String?   @db.VarChar(100)
+  phone          String?   @db.VarChar(40)
+  referralSource String?   @map("referral_source") @db.VarChar(120)
+  consentGiven   Boolean?  @map("consent_given")
+  consentAt      DateTime? @map("consent_at")
+  interests      Json?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
 
   @@map("subscribers")
 }
@@ -179,6 +183,44 @@ model Region {
   @@map("regions")
 }
 
+// ─── Book Categories ──────────────────────────────────────────────────────────
+
+model BookCategory {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(120)
+  slug        String?  @unique @db.VarChar(120)
+  description String?  @db.VarChar(1000)
+  sort        Int?
+  enabled     Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  products Product[]
+
+  @@map("book_categories")
+}
+
+// ─── Book Pre-registrations ───────────────────────────────────────────────────
+
+model BookPreregistration {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fullName  String   @map("full_name") @db.VarChar(120)
+  email     String
+  phone     String?  @db.VarChar(40)
+  country   String?  @db.VarChar(100)
+  city      String?  @db.VarChar(120)
+  quantity  Int      @default(1)
+  notes     String?  @db.VarChar(2000)
+  status    String?  @default("pending") // pending | contacted | confirmed | cancelled
+  edition   String?  @db.VarChar(120)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("book_preregistrations")
+}
+
 // ─── Products ─────────────────────────────────────────────────────────────────
 
 model Product {
@@ -201,12 +243,21 @@ model Product {
   createdBy         User?    @relation(fields: [createdById], references: [id])
   variants          Json?
   category          String?  @db.VarChar(80)
+  bookCategoryId    String?  @map("book_category")
+  bookCategory      BookCategory? @relation(fields: [bookCategoryId], references: [id])
+  author            String?  @db.VarChar(160)
+  isbn              String?  @db.VarChar(32)
+  pages             Int?
+  language          String?  @db.VarChar(60)
+  excerpt           String?  @db.VarChar(3000)
+  publishedYear     String?  @map("published_year") @db.VarChar(8)
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
 
   // Relations
-  orderItems    OrderItem[]
-  stockMovements StockMovement[]
+  orderItems           OrderItem[]
+  stockMovements       StockMovement[]
+  bookPreregistrations BookPreregistration[]
 
   @@map("products")
 }

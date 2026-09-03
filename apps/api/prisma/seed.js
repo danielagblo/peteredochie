@@ -69,7 +69,9 @@ async function main() {
 	// Remove previously-seeded catalog/content so re-running keeps them fresh,
 	// but preserve users and employee roles so real accounts and passwords are not wiped.
 	await prisma.news.deleteMany({});
+	await prisma.bookPreregistration.deleteMany({});
 	await prisma.product.deleteMany({});
+	await prisma.bookCategory.deleteMany({});
 	await prisma.event.deleteMany({});
 	await prisma.sponsorshipPackage.deleteMany({});
 	await prisma.subscriber.deleteMany({});
@@ -151,14 +153,111 @@ async function main() {
 	}
 	console.log(`  sponsorship packages: ${PACKAGES.length}`);
 
+	const CATEGORY_SEEDS = [
+		{ name: 'Hardcover Editions', slug: 'hardcover-editions', description: 'Cloth-bound and standard hardcover books from the Peter Edochie Legacy imprint.', sort: 1, enabled: true },
+		{ name: 'Digital Editions', slug: 'digital-editions', description: 'Audiobook and e-book formats fulfilled digitally or via partner retailers.', sort: 2, enabled: true },
+		{ name: 'Signed & Collector', slug: 'signed-collector', description: 'Personally signed, numbered and limited collector editions.', sort: 3, enabled: true },
+		{ name: 'Legacy Collection', slug: 'legacy-collection', description: 'Future titles, companion volumes and archive publications.', sort: 4, enabled: true },
+	];
+	const catBySlug = {};
+	for (const seed of CATEGORY_SEEDS) {
+		const cat = await prisma.bookCategory.upsert({
+			where: { slug: seed.slug },
+			update: seed,
+			create: seed,
+		});
+		catBySlug[seed.slug] = cat;
+	}
+	console.log(`  book categories: ${CATEGORY_SEEDS.length}`);
+
+	const BOOK_IMAGE = 'https://images.hostinger.com/3283c1af-6e58-4eca-a80a-6d5dc5464e9d.png';
 	const products = [
-		{ name: 'The Journey Continues (Hardcover)', format: 'hardcopy', price: 30, edition: '1st Edition', productType: 'book', status: 'main_order', currentStock: 500, lowStockThreshold: 20, enabled: true, mainOrderEnabled: true, category: 'book', createdById: admin.id },
-		{ name: 'The Journey Continues (Paperback)', format: 'hardcopy', price: 18, edition: '1st Edition', productType: 'book', status: 'main_order', currentStock: 900, lowStockThreshold: 30, enabled: true, mainOrderEnabled: true, category: 'book', createdById: admin.id },
-		{ name: 'The Journey Continues (Digital eBook)', format: 'digital', price: 9.99, edition: 'Digital', productType: 'book', status: 'main_order', currentStock: 9999, lowStockThreshold: 50, enabled: true, mainOrderEnabled: true, category: 'book', createdById: admin.id },
+		{
+			name: 'The Peter Edochie Autobiography',
+			edition: 'Signed copy',
+			format: 'hardcopy',
+			price: 85,
+			productType: 'book',
+			status: 'preorder',
+			currentStock: 200,
+			lowStockThreshold: 20,
+			enabled: true,
+			mainOrderEnabled: false,
+			bookCategoryId: catBySlug['signed-collector'].id,
+			author: 'Peter Edochie',
+			isbn: '978-0000000001',
+			pages: 412,
+			language: 'English',
+			publishedYear: '2026',
+			excerpt: 'A personally signed hardcover of the official autobiography — cloth bound, 412 pages, 32 archive photographs.',
+			image: BOOK_IMAGE,
+			createdById: admin.id,
+		},
+		{
+			name: 'The Peter Edochie Autobiography',
+			edition: 'Standard copy',
+			format: 'hardcopy',
+			price: 45,
+			productType: 'book',
+			status: 'preorder',
+			currentStock: 500,
+			lowStockThreshold: 30,
+			enabled: true,
+			mainOrderEnabled: false,
+			bookCategoryId: catBySlug['hardcover-editions'].id,
+			author: 'Peter Edochie',
+			isbn: '978-0000000002',
+			pages: 412,
+			language: 'English',
+			publishedYear: '2026',
+			excerpt: 'The standard hardcover edition of the official autobiography — 412 pages, 32 archive photographs.',
+			image: BOOK_IMAGE,
+			createdById: admin.id,
+		},
+		{
+			name: 'The Peter Edochie Autobiography',
+			edition: 'Audiobook',
+			format: 'digital',
+			price: 24.99,
+			productType: 'book',
+			status: 'preorder',
+			currentStock: 9999,
+			lowStockThreshold: 50,
+			enabled: true,
+			mainOrderEnabled: false,
+			bookCategoryId: catBySlug['digital-editions'].id,
+			author: 'Peter Edochie',
+			isbn: '978-0000000003',
+			language: 'English',
+			publishedYear: '2026',
+			excerpt: 'Narrated by Peter Edochie with extended audio extracts from the archive recordings.',
+			createdById: admin.id,
+		},
+		{
+			name: 'The Peter Edochie Autobiography',
+			edition: 'E-book',
+			format: 'digital',
+			price: 14.99,
+			productType: 'book',
+			status: 'preorder',
+			currentStock: 9999,
+			lowStockThreshold: 50,
+			enabled: true,
+			mainOrderEnabled: false,
+			bookCategoryId: catBySlug['digital-editions'].id,
+			author: 'Peter Edochie',
+			isbn: '978-0000000004',
+			language: 'English',
+			publishedYear: '2026',
+			excerpt: 'The digital edition for Kindle and compatible e-readers.',
+			createdById: admin.id,
+		},
 		{ name: 'Signature Journal ', format: 'hardcopy', price: 25, productType: 'merchandise', status: 'main_order', currentStock: 200, lowStockThreshold: 10, enabled: true, mainOrderEnabled: true, category: 'merchandise', createdById: admin.id },
 	];
 	for (const pd of products) {
-		const existing = await prisma.product.findFirst({ where: { name: pd.name } });
+		const existing = await prisma.product.findFirst({
+			where: { name: pd.name, edition: pd.edition || undefined },
+		});
 		if (!existing) {
 			await prisma.product.create({ data: pd });
 		}

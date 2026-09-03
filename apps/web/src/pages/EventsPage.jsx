@@ -208,13 +208,13 @@ const EventsPage = () => {
     return (
         <div>
             <PageHead
-                title="Events, Meet & Greet & Mentorship | The Pete Edochie Legacy"
+                title="Events, Meet & Greet & Mentorship | The Peter Edochie Legacy"
                 description="The Ghana Launch (by invitation), an open MasterClass & Lecture, a ticketed Meet & Greet with VIP and Standard tiers, and the African Youth Mentorship Initiative — 2027 cohort."
             />
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="The Ghana Launch, an open masterclass, a ticketed Meet & Greet with Pete Edochie, and the African Youth Mentorship Initiative. Every registration and ticket carries a QR pass in your dashboard."
+                lead="The Ghana Launch, an open masterclass, a ticketed Meet & Greet with Peter Edochie, and the African Youth Mentorship Initiative. Every registration and ticket carries a QR pass in your dashboard."
                 image={IMG.theatre}
             />
 

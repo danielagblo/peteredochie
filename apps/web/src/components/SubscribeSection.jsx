@@ -3,12 +3,16 @@ import { Link } from 'react-router-dom';
 import Reveal from '@/components/Reveal';
 import { apiCrud } from '@/lib/api';
 import { INTEREST_OPTIONS } from '@/lib/accounts';
+import { REFERRAL_SOURCES } from '@/lib/content';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 
 const SubscribeSection = () => {
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
     const [country, setCountry] = useState('');
+    const [referralSource, setReferralSource] = useState('');
+    const [consent, setConsent] = useState(false);
     const [interests, setInterests] = useState(['General newsletter', 'Event announcements']);
     const [state, setState] = useState('idle');
     const [message, setMessage] = useState('');
@@ -18,18 +22,34 @@ const SubscribeSection = () => {
 
     const submit = async (e) => {
         e.preventDefault();
+        if (!consent) {
+            setState('error');
+            setMessage('Please confirm you agree to receive updates from King Dawie Publishing.');
+            return;
+        }
         setState('busy');
         setMessage('');
         openWhatsApp(
-            composeWhatsApp('Newsletter subscription', {
+            composeWhatsApp('Legacy community subscription', {
                 Name: name,
                 Email: email,
+                Phone: phone,
                 Country: country,
+                'How you heard about us': referralSource,
                 Interests: interests.join(', '),
             }),
         );
         try {
-            await apiCrud.create('subscribers', { email, name, country, interests });
+            await apiCrud.create('subscribers', {
+                email,
+                name,
+                phone,
+                country,
+                referral_source: referralSource,
+                consent_given: true,
+                consent_at: new Date().toISOString(),
+                interests,
+            });
         } catch (_) {
             /* WhatsApp is the primary channel */
         }
@@ -45,7 +65,7 @@ const SubscribeSection = () => {
                 <Reveal>
                     <div>
                         <p className="eyebrow">Stay close to the legacy</p>
-                        <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">Subscribe for updates</h2>
+                        <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">Join the community</h2>
                         <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
                             No account required. Receive event announcements, Meet & Greet news, book launch news,
                             mentorship programme calls and future country launches across Africa — first, and directly.
@@ -68,15 +88,28 @@ const SubscribeSection = () => {
                         <form onSubmit={submit} className="space-y-5 border border-border p-8">
                             <div className="grid gap-2">
                                 <label htmlFor="sub-name" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Name</label>
-                                <input id="sub-name" value={name} onChange={(e) => setName(e.target.value)} className={field} />
+                                <input id="sub-name" required value={name} onChange={(e) => setName(e.target.value)} className={field} />
                             </div>
                             <div className="grid gap-2">
                                 <label htmlFor="sub-email" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Email</label>
                                 <input id="sub-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} />
                             </div>
                             <div className="grid gap-2">
+                                <label htmlFor="sub-phone" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Phone / WhatsApp</label>
+                                <input id="sub-phone" required value={phone} onChange={(e) => setPhone(e.target.value)} className={field} />
+                            </div>
+                            <div className="grid gap-2">
                                 <label htmlFor="sub-country" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Country</label>
-                                <input id="sub-country" value={country} onChange={(e) => setCountry(e.target.value)} className={field} />
+                                <input id="sub-country" required value={country} onChange={(e) => setCountry(e.target.value)} className={field} />
+                            </div>
+                            <div className="grid gap-2">
+                                <label htmlFor="sub-referral" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">How did you hear about us?</label>
+                                <select id="sub-referral" value={referralSource} onChange={(e) => setReferralSource(e.target.value)} className={field}>
+                                    <option value="">Select…</option>
+                                    {REFERRAL_SOURCES.map((src) => (
+                                        <option key={src} value={src} className="bg-background">{src}</option>
+                                    ))}
+                                </select>
                             </div>
                             <fieldset className="grid gap-2">
                                 <legend className="mb-2 text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Send me</legend>
@@ -94,13 +127,23 @@ const SubscribeSection = () => {
                                     ))}
                                 </div>
                             </fieldset>
+                            <label className="flex items-start gap-3 text-sm text-muted-foreground">
+                                <input
+                                    type="checkbox"
+                                    required
+                                    checked={consent}
+                                    onChange={(e) => setConsent(e.target.checked)}
+                                    className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
+                                />
+                                I agree to receive updates from King Dawie Publishing about the Peter Edochie Legacy platform.
+                            </label>
                             {state === 'error' ? <p className="text-sm text-[hsl(var(--destructive))]">{message}</p> : null}
                             <button
                                 type="submit"
                                 disabled={state === 'busy'}
                                 className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
                             >
-                                {state === 'busy' ? 'Opening WhatsApp…' : 'Subscribe via WhatsApp'}
+                                {state === 'busy' ? 'Opening WhatsApp…' : 'Join via WhatsApp'}
                             </button>
                         </form>
                     )}

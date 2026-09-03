@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, ShoppingCart, X } from 'lucide-react';
-import { MORE_NAV, NAV, PRIMARY_NAV, PUBLISHER } from '@/lib/content';
+import { BRAND, LEGACY, MORE_NAV, NAV, PRIMARY_NAV, PUBLISHER } from '@/lib/content';
 import ThemeToggle from '@/components/ThemeToggle';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +10,7 @@ import { whatsappHref } from '@/lib/whatsapp';
 
 const OVERLAY_PATHS = new Set([
     '/',
-    '/pete-edochie',
+    '/peter-edochie',
     '/legacy',
     '/book',
     '/shop',
@@ -19,6 +19,7 @@ const OVERLAY_PATHS = new Set([
     '/gallery',
     '/news',
     '/sponsors',
+    '/faq',
     '/contact',
     '/terms',
     '/privacy',
@@ -86,10 +87,10 @@ const SiteLayout = ({ children }) => {
                 <div className="mx-auto flex h-[4.25rem] max-w-[90rem] items-center gap-4 px-5 md:h-[4.5rem] md:px-8 lg:px-10">
                     <Link to="/" className="min-w-0 shrink-0 leading-tight">
                         <span className={`block font-display text-[1.35rem] tracking-wide md:text-[1.55rem] ${overlay ? 'text-white' : 'text-foreground'}`}>
-                            Pete Edochie
+                            {LEGACY.name}
                         </span>
                         <span className="block text-[0.58rem] uppercase tracking-[0.28em] text-[hsl(var(--gold))]">
-                            Official Legacy Platform
+                            {BRAND.projectName}
                         </span>
                     </Link>
 
@@ -213,19 +214,19 @@ const SiteLayout = ({ children }) => {
             <footer className="border-t border-border bg-[hsl(var(--surface))]">
                 <div className="mx-auto grid max-w-[90rem] gap-12 px-5 py-16 sm:grid-cols-2 lg:grid-cols-12 md:px-10">
                     <div className="sm:col-span-2 lg:col-span-4">
-                        <p className="font-display text-2xl">Pete Edochie</p>
+                        <p className="font-display text-2xl">{LEGACY.name}</p>
                         <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                            The official digital home of a life in storytelling — archive, autobiography, events and mentorship.
+                            The official digital home of {LEGACY.name}, {LEGACY.descriptor.toLowerCase()} — archive, autobiography, events and mentorship.
                         </p>
                         <p className="mt-5 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground">
                             Published by
                         </p>
                         <p className="mt-1 font-display text-lg text-[hsl(var(--gold))]">{PUBLISHER.name}</p>
                         <p className="mt-1 max-w-xs text-xs leading-relaxed text-muted-foreground">
-                            Official owner &amp; rights holder of the Pete Edochie Legacy.
+                            Official owner &amp; rights holder of the {LEGACY.legacyName}.
                         </p>
                         <a
-                            href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`)}
+                            href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Peter Edochie Legacy platform.`)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-6 inline-block text-sm text-[hsl(var(--gold))] transition-colors hover:text-foreground"
@@ -237,7 +238,7 @@ const SiteLayout = ({ children }) => {
                     <FooterCol
                         title="Explore"
                         links={[
-                            { to: '/pete-edochie', label: 'Biography' },
+                            { to: '/peter-edochie', label: 'Biography' },
                             { to: '/legacy', label: 'Legacy archive' },
                             { to: '/gallery', label: 'Gallery' },
                             { to: '/news', label: 'Journal' },
@@ -258,6 +259,7 @@ const SiteLayout = ({ children }) => {
                     <FooterCol
                         title="Contact"
                         links={[
+                            { to: '/faq', label: 'FAQ' },
                             { to: '/contact', label: 'General enquiries' },
                             { to: '/contact', label: 'Media & press' },
                             { to: '/contact', label: 'Publishing & rights' },
@@ -279,6 +281,10 @@ const SiteLayout = ({ children }) => {
                             <Link to="/terms" className="transition-colors hover:text-foreground">Terms</Link>
                             <span className="text-border">·</span>
                             <Link to="/privacy" className="transition-colors hover:text-foreground">Privacy</Link>
+                            <span className="text-border">·</span>
+                            <Link to="/faq" className="transition-colors hover:text-foreground">FAQ</Link>
+                            <span className="text-border">·</span>
+                            <span className="text-[hsl(var(--gold))]">{BRAND.hashtag}</span>
                             <span className="text-border">·</span>
                             <span>Lagos · Enugu · Anambra State, Nigeria</span>
                         </p>

@@ -4,6 +4,7 @@ import { ArrowRight, LayoutDashboard, LogOut } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
+import { BRAND, LEGACY } from '@/lib/content';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -37,8 +38,8 @@ const PortalLayout = ({ children }) => {
             <header className="fixed inset-x-0 top-0 z-50 h-14 border-b border-border bg-background/95 backdrop-blur-md">
                 <div className="flex h-full w-full items-center justify-between px-5 md:px-8">
                     <Link to="/" className="group flex items-baseline gap-3">
-                        <span className="font-display text-xl tracking-wide text-foreground md:text-2xl">Pete Edochie</span>
-                        <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] xl:block">Official Legacy Platform</span>
+                        <span className="font-display text-xl tracking-wide text-foreground md:text-2xl">{LEGACY.name}</span>
+                        <span className="hidden text-[0.6rem] uppercase tracking-[0.3em] text-[hsl(var(--gold))] xl:block">{BRAND.projectName}</span>
                     </Link>
 
                     <div className="flex items-center gap-3 xl:gap-5">

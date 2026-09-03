@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
+import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
 import { formatUSD } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
+import { emptyBookForm, emptyCategoryForm } from '@/lib/books';
 import ProductQrPanel from '@/components/ProductQrPanel';
 import NewsletterBroadcastPanel from '@/components/dashboard/NewsletterBroadcastPanel';
 import { apiCrud } from '@/lib/api';
@@ -60,6 +62,7 @@ const emptyProductForm = {
     name: '', description: '', format: 'hardcopy', price: '', edition: '',
     product_type: 'book', status: 'preorder', inventory_limit: '', current_stock: '',
     low_stock_threshold: '10', enabled: true, main_order_enabled: false, external_url: '', image: '',
+    book_category: '', author: '', isbn: '', pages: '', language: 'English', excerpt: '', published_year: '',
 };
 
 const AdminDashboard = ({ role = 'super_admin' }) => {
@@ -80,6 +83,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [countries, setCountries] = useState([]);
     const [regions, setRegions] = useState([]);
     const [products, setProducts] = useState([]);
+    const [bookCategories, setBookCategories] = useState([]);
+    const [bookPreregistrations, setBookPreregistrations] = useState([]);
+    const [enquiries, setEnquiries] = useState([]);
     const [orders, setOrders] = useState([]);
     const [movements, setMovements] = useState([]);
     const [employees, setEmployees] = useState([]);
@@ -88,7 +94,11 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [eventForm, setEventForm] = useState({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass' });
     const [newsForm, setNewsForm] = useState({ title: '', excerpt: '', category: '' });
     const [productForm, setProductForm] = useState(emptyProductForm);
+    const [bookForm, setBookForm] = useState(emptyBookForm);
+    const [categoryForm, setCategoryForm] = useState(emptyCategoryForm);
     const [editingId, setEditingId] = useState(null);
+    const [editingBookId, setEditingBookId] = useState(null);
+    const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [orderFilter, setOrderFilter] = useState({ status: 'all', product: 'all' });
     const [empForm, setEmpForm] = useState({ user: '', role: 'inventory_manager' });
     const [adjustForm, setAdjustForm] = useState({ product: '', delta: '', reason: '' });
@@ -108,6 +118,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             events: () => apiCrud.list('events', { sort: 'starts' }).catch(() => []),
             news: () => apiCrud.list('news', { sort: '-created' }).catch(() => []),
             products: () => apiCrud.list('products', { sort: '-created' }).catch(() => []),
+            enquiries: () => apiCrud.list('enquiries', { sort: '-created' }).catch(() => []),
             orders: () => apiCrud.list('orders', { sort: '-created' }).catch(() => []),
             movements: () => apiCrud.list('stock-movements', { sort: '-created' }).catch(() => []),
             employees: () => apiCrud.list('employee-roles', { sort: '-created' }).catch(() => []),
@@ -117,6 +128,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             sponsorships: () => apiCrud.list('sponsorships', { sort: '-created' }).catch(() => []),
             countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
             regions: () => apiCrud.list('regions', { sort: 'name' }).catch(() => []),
+            bookCategories: () => apiCrud.list('book-categories', { sort: 'sort' }).catch(() => []),
+            bookPreregs: () => apiCrud.list('book-preregistrations', { sort: '-created' }).catch(() => []),
         };
 
         const want = {
@@ -124,6 +137,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             events: () => has('analytics') || has('events') || has('countries'),
             news: () => has('analytics') || has('cms'),
             products: () => has('analytics') || has('books') || has('inventory') || has('tracking') || has('orders') || has('reports'),
+            enquiries: () => has('analytics') || has('books') || has('cms'),
             orders: () => has('analytics') || has('orders') || has('reports'),
             movements: () => has('tracking'),
             employees: () => has('employees'),
@@ -133,6 +147,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             sponsorships: () => has('analytics') || has('sponsors') || has('sponsorships'),
             countries: () => has('analytics') || has('countries') || has('distributors') || has('newsletter'),
             regions: () => has('countries'),
+            bookCategories: () => has('analytics') || has('books'),
+            bookPreregs: () => has('analytics') || has('books'),
         };
 
         try {
@@ -151,6 +167,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             setEvents(map.events);
             setNews(map.news);
             setProducts(map.products);
+            setEnquiries(map.enquiries);
+            setBookCategories(map.bookCategories || []);
+            setBookPreregistrations(map.bookPreregs || []);
             setOrders(map.orders);
             setMovements(map.movements);
             setEmployees(map.employees);
@@ -250,6 +269,132 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         } catch (_) { setError('Could not publish that entry.'); }
     };
 
+    const bookPayload = (form) => ({
+        name: form.name,
+        edition: form.edition,
+        description: form.description,
+        excerpt: form.excerpt,
+        author: form.author,
+        isbn: form.isbn,
+        pages: form.pages === '' ? null : Number(form.pages),
+        language: form.language,
+        published_year: form.published_year,
+        format: form.format,
+        product_type: 'book',
+        book_category: form.book_category || '',
+        status: form.status,
+        price: form.price === '' ? 0 : Number(form.price),
+        inventory_limit: form.inventory_limit === '' ? 0 : Number(form.inventory_limit),
+        current_stock: form.current_stock === '' ? 0 : Number(form.current_stock),
+        low_stock_threshold: form.low_stock_threshold === '' ? 0 : Number(form.low_stock_threshold),
+        enabled: form.enabled,
+        main_order_enabled: form.main_order_enabled,
+        external_url: form.external_url || '',
+        image: form.image || '',
+    });
+
+    const saveBook = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = bookPayload(bookForm);
+            if (editingBookId) {
+                await apiCrud.update('products', editingBookId, payload);
+            } else {
+                await apiCrud.create('products', payload);
+            }
+            setBookForm(emptyBookForm);
+            setEditingBookId(null);
+            load();
+        } catch (_) { setError('Could not save that book.'); }
+    };
+
+    const editBook = (p) => {
+        setEditingBookId(p.id);
+        setBookForm({
+            name: p.name || '',
+            edition: p.edition || '',
+            description: p.description || '',
+            excerpt: p.excerpt || '',
+            author: p.author || 'Peter Edochie',
+            isbn: p.isbn || '',
+            pages: p.pages ?? '',
+            language: p.language || 'English',
+            published_year: p.published_year || '',
+            format: p.format || 'hardcopy',
+            price: p.price ?? '',
+            status: p.status || 'preorder',
+            inventory_limit: p.inventory_limit ?? '',
+            current_stock: p.current_stock ?? '',
+            low_stock_threshold: p.low_stock_threshold ?? 10,
+            enabled: !!p.enabled,
+            main_order_enabled: !!p.main_order_enabled,
+            external_url: p.external_url || '',
+            image: p.image || '',
+            book_category: p.expand?.book_category?.id || p.book_category?.id || p.book_category || '',
+        });
+    };
+
+    const deleteBook = async (id) => {
+        try {
+            await apiCrud.remove('products', id);
+            if (editingBookId === id) {
+                setEditingBookId(null);
+                setBookForm(emptyBookForm);
+            }
+            load();
+        } catch (_) { setError('Could not delete that book.'); }
+    };
+
+    const saveCategory = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                name: categoryForm.name,
+                slug: categoryForm.slug || categoryForm.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+                description: categoryForm.description,
+                sort: categoryForm.sort === '' ? 0 : Number(categoryForm.sort),
+                enabled: categoryForm.enabled,
+            };
+            if (editingCategoryId) {
+                await apiCrud.update('book-categories', editingCategoryId, payload);
+            } else {
+                await apiCrud.create('book-categories', payload);
+            }
+            setCategoryForm(emptyCategoryForm);
+            setEditingCategoryId(null);
+            load();
+        } catch (_) { setError('Could not save that category.'); }
+    };
+
+    const editCategory = (c) => {
+        setEditingCategoryId(c.id);
+        setCategoryForm({
+            name: c.name || '',
+            slug: c.slug || '',
+            description: c.description || '',
+            sort: c.sort ?? '',
+            enabled: true,
+        });
+    };
+
+    const deleteCategory = async (id) => {
+        try {
+            await apiCrud.remove('book-categories', id);
+            if (editingCategoryId === id) {
+                setEditingCategoryId(null);
+                setCategoryForm(emptyCategoryForm);
+            }
+            load();
+        } catch (_) { setError('Could not delete that category.'); }
+    };
+
+    const updatePreregStatus = async (id, status) => {
+        try {
+            await apiCrud.update('book-preregistrations', id, { status });
+            setBookPreregistrations((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+        } catch (_) { setError('Could not update pre-registration status.'); }
+    };
+
     const saveProduct = async (e) => {
         e.preventDefault();
         try {
@@ -259,8 +404,10 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                 inventory_limit: productForm.inventory_limit === '' ? 0 : Number(productForm.inventory_limit),
                 current_stock: productForm.current_stock === '' ? 0 : Number(productForm.current_stock),
                 low_stock_threshold: productForm.low_stock_threshold === '' ? 0 : Number(productForm.low_stock_threshold),
+                pages: productForm.pages === '' ? null : Number(productForm.pages),
                 external_url: productForm.external_url || '',
                 image: productForm.image || '',
+                book_category: productForm.book_category || '',
             };
             if (editingId) {
                 await apiCrud.update('products', editingId, payload);
@@ -282,6 +429,9 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             current_stock: p.current_stock ?? '', low_stock_threshold: p.low_stock_threshold ?? 10,
             enabled: !!p.enabled, main_order_enabled: !!p.main_order_enabled,
             external_url: p.external_url || '', image: p.image || '',
+            book_category: p.book_category || p.expand?.book_category?.id || '',
+            author: p.author || '', isbn: p.isbn || '', pages: p.pages ?? '',
+            language: p.language || '', excerpt: p.excerpt || '', published_year: p.published_year || '',
         });
     };
 
@@ -441,6 +591,25 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         [products],
     );
 
+    const preregStats = useMemo(() => {
+        const byProduct = {};
+        let totalCopies = 0;
+        let totalRegistrations = 0;
+        for (const r of bookPreregistrations) {
+            if (r.status === 'cancelled') continue;
+            const pid = typeof r.product === 'object' ? r.product?.id : r.product;
+            const qty = Number(r.quantity) || 1;
+            if (!byProduct[pid]) byProduct[pid] = { copies: 0, registrations: 0 };
+            byProduct[pid].copies += qty;
+            byProduct[pid].registrations += 1;
+            totalCopies += qty;
+            totalRegistrations += 1;
+        }
+        return { byProduct, totalCopies, totalRegistrations };
+    }, [bookPreregistrations]);
+
+    const pendingPrereg = bookPreregistrations.filter((r) => (r.status || 'pending') === 'pending').length;
+
     const approvalRow = (u) => (
         <li key={u.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
             <div>
@@ -478,7 +647,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     return (
         <DashboardShell
             title="Administrator dashboard | King Dawie Publishing"
-            description="Inventory, sales, orders, stock tracking, employee access and platform administration for the Pete Edochie Legacy commerce system."
+            description="Inventory, sales, orders, stock tracking, employee access and platform administration for the Peter Edochie Legacy commerce system."
             nav={nav}
         >
             {(tab) => (
@@ -505,6 +674,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <Stat label="Sponsorship revenue" value={formatUSD(sponsorships.filter((s) => s.payment_status === 'paid').reduce((n, s) => n + (Number(s.investment_amount) || 0), 0))} hint="Paid investments" />
                                 <Stat label="Countries" value={countries.length} hint="Active & upcoming" />
                             </div>
+                            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                <Stat label="Copies pre-ordering" value={preregStats.totalCopies} hint={`${preregStats.totalRegistrations} registrations`} />
+                                <Stat label="Mentorship applications" value={applications.length} hint={`${applications.filter((a) => (a.status || 'pending') === 'pending').length} pending`} />
+                                <Stat label="Contact enquiries" value={enquiries.length} />
+                                <Stat label="Newsletter subscribers" value={subscribers.length} />
+                            </div>
                         </>
                     ) : null}
 
@@ -527,6 +702,21 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <input type="number" placeholder="Current stock" value={productForm.current_stock} onChange={(e) => setProductForm({ ...productForm, current_stock: e.target.value })} className={input} />
                                 <input type="number" placeholder="Low-stock threshold" value={productForm.low_stock_threshold} onChange={(e) => setProductForm({ ...productForm, low_stock_threshold: e.target.value })} className={input} />
                                 <input placeholder="External URL (Amazon) — optional" value={productForm.external_url} onChange={(e) => setProductForm({ ...productForm, external_url: e.target.value })} className={input} />
+                                <input placeholder="Image URL" value={productForm.image} onChange={(e) => setProductForm({ ...productForm, image: e.target.value })} className={input} />
+                                {productForm.product_type === 'book' ? (
+                                    <>
+                                        <select value={productForm.book_category} onChange={(e) => setProductForm({ ...productForm, book_category: e.target.value })} className={input}>
+                                            <option value="">No category</option>
+                                            {bookCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                        <input placeholder="Author" value={productForm.author} onChange={(e) => setProductForm({ ...productForm, author: e.target.value })} className={input} />
+                                        <input placeholder="ISBN" value={productForm.isbn} onChange={(e) => setProductForm({ ...productForm, isbn: e.target.value })} className={input} />
+                                        <input type="number" placeholder="Pages" value={productForm.pages} onChange={(e) => setProductForm({ ...productForm, pages: e.target.value })} className={input} />
+                                        <input placeholder="Language" value={productForm.language} onChange={(e) => setProductForm({ ...productForm, language: e.target.value })} className={input} />
+                                        <input placeholder="Published year" value={productForm.published_year} onChange={(e) => setProductForm({ ...productForm, published_year: e.target.value })} className={input} />
+                                        <textarea placeholder="Excerpt" rows={3} value={productForm.excerpt} onChange={(e) => setProductForm({ ...productForm, excerpt: e.target.value })} className={`${input} md:col-span-2`} />
+                                    </>
+                                ) : null}
                                 <input placeholder="Description" value={productForm.description} onChange={(e) => setProductForm({ ...productForm, description: e.target.value })} className={`${input} md:col-span-2`} />
                                 <div className="flex items-center gap-6 md:col-span-2">
                                     <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={productForm.enabled} onChange={(e) => setProductForm({ ...productForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Enabled on storefront</label>
@@ -794,61 +984,20 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
 
                     {tab === 'mentorship' ? (
                         <>
-                        <Panel title="Mentorship applications" lead="Review applications, assign registration type on acceptance, and manage programme materials.">
+                        <Panel title="Mentorship applications" lead="Every field submitted on the public mentorship application form — name, email, country, discipline, registration type, cohort and personal statement.">
                             <ul className="divide-y divide-border">
                                 {applications.length === 0 ? <EmptyState>No applications submitted.</EmptyState> : null}
                                 {applications.map((a) => (
-                                    <li key={a.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
-                                        <div className="max-w-xl">
-                                            <p className="font-display text-lg">{a.name || a.email}</p>
-                                            <p className="mt-1 text-xs text-muted-foreground">
-                                                {a.email} · {a.country || 'Country not set'} · {a.discipline || 'Discipline not set'} · {a.cohort || '2027'} cohort
-                                            </p>
-                                            <p className="mt-1 text-xs text-muted-foreground">
-                                                Requested: {registrationTypeLabel(a.requested_type || 'standard')}
-                                                {a.registration_type ? ` · Assigned: ${registrationTypeLabel(a.registration_type)}` : ''}
-                                            </p>
-                                            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a.statement}</p>
-                                        </div>
-                                        <div className="flex flex-col items-end gap-3">
-                                            <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{a.status || 'pending'}</span>
-                                            {a.status === 'accepted' ? (
-                                                <select
-                                                    value={a.registration_type || a.requested_type || 'standard'}
-                                                    onChange={(e) => setMentorshipRegistrationType(a.id, e.target.value)}
-                                                    className={`${input} max-w-[12rem]`}
-                                                >
-                                                    {REGISTRATION_TYPES.map((t) => (
-                                                        <option key={t.value} value={t.value}>{t.label}</option>
-                                                    ))}
-                                                </select>
-                                            ) : (
-                                                <select
-                                                    id={`accept-type-${a.id}`}
-                                                    defaultValue={a.registration_type || a.requested_type || 'standard'}
-                                                    className={`${input} max-w-[12rem]`}
-                                                >
-                                                    {REGISTRATION_TYPES.map((t) => (
-                                                        <option key={t.value} value={t.value}>{t.label}</option>
-                                                    ))}
-                                                </select>
-                                            )}
-                                            <div className="flex items-center gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const sel = document.getElementById(`accept-type-${a.id}`);
-                                                        setMentorshipStatus(a.id, 'accepted', sel?.value);
-                                                    }}
-                                                    className={smallBtn}
-                                                    disabled={a.status === 'accepted'}
-                                                >
-                                                    Accept
-                                                </button>
-                                                <button type="button" onClick={() => setMentorshipStatus(a.id, 'rejected')} className={dangerBtn}>Reject</button>
-                                            </div>
-                                        </div>
-                                    </li>
+                                    <MentorshipApplicationRow
+                                        key={a.id}
+                                        application={a}
+                                        input={input}
+                                        smallBtn={smallBtn}
+                                        dangerBtn={dangerBtn}
+                                        onAccept={(id, type) => setMentorshipStatus(id, 'accepted', type)}
+                                        onReject={(id) => setMentorshipStatus(id, 'rejected')}
+                                        onRegistrationTypeChange={setMentorshipRegistrationType}
+                                    />
                                 ))}
                             </ul>
                         </Panel>
@@ -892,16 +1041,165 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     ) : null}
 
                     {tab === 'books' ? (
-                        <Panel title="Book QR codes" lead="Generate scan-to-order QR codes for each book edition. Display these at events, on printed materials or in-store — scanning opens the edition order page.">
+                        <>
+                        <Panel title="Book categories" lead="Organise the book catalogue into categories shown on the public book page.">
+                            <form onSubmit={saveCategory} className="grid gap-4 md:grid-cols-2">
+                                <input required placeholder="Category name" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })} className={input} />
+                                <input placeholder="Slug (auto-generated if empty)" value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })} className={input} />
+                                <input type="number" placeholder="Sort order" value={categoryForm.sort} onChange={(e) => setCategoryForm({ ...categoryForm, sort: e.target.value })} className={input} />
+                                <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={categoryForm.enabled} onChange={(e) => setCategoryForm({ ...categoryForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Enabled on storefront</label>
+                                <textarea placeholder="Category description" rows={3} value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })} className={`${input} md:col-span-2`} />
+                                <div className="flex flex-wrap gap-3 md:col-span-2">
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingCategoryId ? 'Update category' : 'Add category'}</button>
+                                    {editingCategoryId ? <button type="button" onClick={() => { setEditingCategoryId(null); setCategoryForm(emptyCategoryForm); }} className={smallBtn}>Cancel</button> : null}
+                                </div>
+                            </form>
+                            <ul className="mt-8 divide-y divide-border">
+                                {bookCategories.length === 0 ? <EmptyState>No categories yet.</EmptyState> : bookCategories.map((c) => (
+                                    <li key={c.id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                                        <div>
+                                            <p className="font-display text-lg">{c.name}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{c.slug} · sort {c.sort ?? 0} · {c.enabled ? 'Enabled' : 'Hidden'}</p>
+                                            {c.description ? <p className="mt-2 text-sm text-muted-foreground">{c.description}</p> : null}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button type="button" onClick={() => editCategory(c)} className={smallBtn}>Edit</button>
+                                            <button type="button" onClick={() => deleteCategory(c.id)} className={dangerBtn}>Delete</button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </Panel>
+
+                        <Panel title="Books & editions" lead="Manage book details, pricing, stock and category assignment.">
+                            <form onSubmit={saveBook} className="grid gap-4 md:grid-cols-2">
+                                <input required placeholder="Book title" value={bookForm.name} onChange={(e) => setBookForm({ ...bookForm, name: e.target.value })} className={input} />
+                                <input placeholder="Edition label (e.g. Signed copy)" value={bookForm.edition} onChange={(e) => setBookForm({ ...bookForm, edition: e.target.value })} className={input} />
+                                <select required value={bookForm.book_category} onChange={(e) => setBookForm({ ...bookForm, book_category: e.target.value })} className={input}>
+                                    <option value="">Select category</option>
+                                    {bookCategories.filter((c) => c.enabled !== false).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                                <input placeholder="Author" value={bookForm.author} onChange={(e) => setBookForm({ ...bookForm, author: e.target.value })} className={input} />
+                                <input placeholder="ISBN" value={bookForm.isbn} onChange={(e) => setBookForm({ ...bookForm, isbn: e.target.value })} className={input} />
+                                <input type="number" placeholder="Pages" value={bookForm.pages} onChange={(e) => setBookForm({ ...bookForm, pages: e.target.value })} className={input} />
+                                <input placeholder="Language" value={bookForm.language} onChange={(e) => setBookForm({ ...bookForm, language: e.target.value })} className={input} />
+                                <input placeholder="Published year" value={bookForm.published_year} onChange={(e) => setBookForm({ ...bookForm, published_year: e.target.value })} className={input} />
+                                <select value={bookForm.format} onChange={(e) => setBookForm({ ...bookForm, format: e.target.value })} className={input}>
+                                    {FORMATS.map((f) => <option key={f} value={f}>{f}</option>)}
+                                </select>
+                                <select value={bookForm.status} onChange={(e) => setBookForm({ ...bookForm, status: e.target.value })} className={input}>
+                                    {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                                <input type="number" step="0.01" placeholder="Price (USD)" value={bookForm.price} onChange={(e) => setBookForm({ ...bookForm, price: e.target.value })} className={input} />
+                                <input type="number" placeholder="Inventory limit" value={bookForm.inventory_limit} onChange={(e) => setBookForm({ ...bookForm, inventory_limit: e.target.value })} className={input} />
+                                <input type="number" placeholder="Current stock" value={bookForm.current_stock} onChange={(e) => setBookForm({ ...bookForm, current_stock: e.target.value })} className={input} />
+                                <input placeholder="Image URL" value={bookForm.image} onChange={(e) => setBookForm({ ...bookForm, image: e.target.value })} className={input} />
+                                <input placeholder="External URL (Amazon)" value={bookForm.external_url} onChange={(e) => setBookForm({ ...bookForm, external_url: e.target.value })} className={input} />
+                                <textarea placeholder="Full description" rows={4} value={bookForm.description} onChange={(e) => setBookForm({ ...bookForm, description: e.target.value })} className={`${input} md:col-span-2`} />
+                                <textarea placeholder="Excerpt / sample text" rows={3} value={bookForm.excerpt} onChange={(e) => setBookForm({ ...bookForm, excerpt: e.target.value })} className={`${input} md:col-span-2`} />
+                                <div className="flex flex-wrap gap-6 md:col-span-2">
+                                    <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={bookForm.enabled} onChange={(e) => setBookForm({ ...bookForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Enabled on storefront</label>
+                                    <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={bookForm.main_order_enabled} onChange={(e) => setBookForm({ ...bookForm, main_order_enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Main order available</label>
+                                </div>
+                                <div className="flex flex-wrap gap-3 md:col-span-2">
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingBookId ? 'Update book' : 'Add book'}</button>
+                                    {editingBookId ? <button type="button" onClick={() => { setEditingBookId(null); setBookForm(emptyBookForm); }} className={smallBtn}>Cancel</button> : null}
+                                </div>
+                            </form>
+
+                            {bookCategories.map((cat) => {
+                                const catBooks = products.filter((p) => p.product_type === 'book' && (p.book_category === cat.id || p.expand?.book_category?.id === cat.id));
+                                if (catBooks.length === 0) return null;
+                                return (
+                                    <div key={cat.id} className="mt-10 border-t border-border pt-8">
+                                        <p className="eyebrow">{cat.name}</p>
+                                        <ul className="mt-4 divide-y divide-border">
+                                            {catBooks.map((p) => (
+                                                <li key={p.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
+                                                    <div className="max-w-2xl">
+                                                        <p className="font-display text-xl">{p.edition || p.name}</p>
+                                                        <p className="mt-1 text-xs text-muted-foreground">
+                                                            {p.author || '—'} · {p.isbn || 'No ISBN'} · {p.format} · {formatUSD(p.price)} · {p.enabled ? 'Live' : 'Hidden'}
+                                                        </p>
+                                                        <p className="mt-2 text-xs text-[hsl(var(--gold))]">
+                                                            {preregStats.byProduct[p.id]
+                                                                ? `${preregStats.byProduct[p.id].copies} copies pre-ordering · ${preregStats.byProduct[p.id].registrations} registration${preregStats.byProduct[p.id].registrations === 1 ? '' : 's'}`
+                                                                : 'No pre-orders yet'}
+                                                        </p>
+                                                        {p.excerpt ? <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{p.excerpt}</p> : null}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <button type="button" onClick={() => editBook(p)} className={smallBtn}>Edit</button>
+                                                        <button type="button" onClick={() => deleteBook(p.id)} className={dangerBtn}>Delete</button>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                );
+                            })}
+                            {products.filter((p) => p.product_type === 'book' && !p.book_category && !p.expand?.book_category?.id).length > 0 ? (
+                                <div className="mt-10 border-t border-border pt-8">
+                                    <p className="eyebrow">Uncategorised</p>
+                                    <ul className="mt-4 divide-y divide-border">
+                                        {products.filter((p) => p.product_type === 'book' && !p.book_category && !p.expand?.book_category?.id).map((p) => (
+                                            <li key={p.id} className="flex flex-wrap items-center justify-between gap-4 py-5">
+                                                <p className="font-display text-xl">{p.edition || p.name}</p>
+                                                <div className="flex gap-2">
+                                                    <button type="button" onClick={() => editBook(p)} className={smallBtn}>Edit</button>
+                                                    <button type="button" onClick={() => deleteBook(p.id)} className={dangerBtn}>Delete</button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : null}
+                        </Panel>
+
+                        <Panel title="Pre-registrations" lead="Interest captured from the public book detail pages. Follow up when ordering opens.">
+                            <div className="mb-8 grid gap-4 sm:grid-cols-2">
+                                <Stat label="Total copies pre-ordering" value={preregStats.totalCopies} />
+                                <Stat label="Registrations" value={preregStats.totalRegistrations} />
+                            </div>
+                            {bookPreregistrations.length === 0 ? (
+                                <EmptyState>No pre-registrations yet.</EmptyState>
+                            ) : (
+                                <ul className="divide-y divide-border">
+                                    {bookPreregistrations.map((r) => (
+                                        <li key={r.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
+                                            <div>
+                                                <p className="font-display text-lg">{r.full_name}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">{r.email} · {r.phone || 'No phone'} · {r.city || '—'}, {r.country || '—'}</p>
+                                                <p className="mt-2 text-sm text-[hsl(var(--gold))]">{r.edition || r.product?.edition || r.expand?.product?.edition || r.product_name}</p>
+                                                <p className="mt-1 text-xs font-medium text-foreground">{Number(r.quantity) || 1} {(Number(r.quantity) || 1) === 1 ? 'copy' : 'copies'}</p>
+                                                {r.notes ? <p className="mt-2 text-sm text-muted-foreground">{r.notes}</p> : null}
+                                                <p className="mt-2 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{fmtDate(r.created)}</p>
+                                            </div>
+                                            <select value={r.status || 'pending'} onChange={(e) => updatePreregStatus(r.id, e.target.value)} className={`${input} max-w-[10rem]`}>
+                                                <option value="pending">Pending</option>
+                                                <option value="contacted">Contacted</option>
+                                                <option value="confirmed">Confirmed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </Panel>
+
+                        <Panel title="Book QR codes" lead="Generate scan-to-order QR codes for each book edition.">
                             {products.filter((p) => p.product_type === 'book').length === 0 ? (
-                                <EmptyState>No book editions yet. Add books under Inventory.</EmptyState>
+                                <EmptyState>No book editions yet.</EmptyState>
                             ) : (
                                 <ul className="divide-y divide-border">
                                     {products.filter((p) => p.product_type === 'book').map((p) => (
                                         <li key={p.id} className="flex flex-wrap items-start justify-between gap-6 py-6">
                                             <div>
                                                 <p className="font-display text-xl">{p.edition || p.name}</p>
-                                                <p className="mt-1 text-xs text-muted-foreground">{p.format} · {formatUSD(p.price)} · {p.enabled ? 'On storefront' : 'Hidden'}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                    {p.book_category?.name || p.expand?.book_category?.name || bookCategories.find((c) => c.id === (p.book_category?.id || p.book_category))?.name || 'Uncategorised'} · {p.format} · {formatUSD(p.price)}
+                                                    {preregStats.byProduct[p.id] ? ` · ${preregStats.byProduct[p.id].copies} copies pre-ordering` : ''}
+                                                </p>
                                             </div>
                                             <ProductQrPanel product={p} />
                                         </li>
@@ -909,6 +1207,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 </ul>
                             )}
                         </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'cms' ? (

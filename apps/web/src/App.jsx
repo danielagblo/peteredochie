@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, Outlet, BrowserRouter as Router } from 'react-router-dom';
+import { Navigate, Route, Routes, Outlet, BrowserRouter as Router } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import ScrollToTop from './components/ScrollToTop';
 import SiteLayout from './components/SiteLayout';
@@ -23,6 +23,7 @@ import SponsorApplyPage from './pages/SponsorApplyPage';
 import GalleryPage from './pages/GalleryPage';
 import NewsPage from './pages/NewsPage';
 import ContactPage from './pages/ContactPage';
+import FaqPage from './pages/FaqPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import LoginPage from './pages/LoginPage';
@@ -63,7 +64,8 @@ function App() {
                             {/* Public site (with header/footer) */}
                             <Route element={<PublicLayout />}>
                                 <Route path="/" element={<HomePage />} />
-                                <Route path="/pete-edochie" element={<PetePage />} />
+                                <Route path="/peter-edochie" element={<PetePage />} />
+                                <Route path="/pete-edochie" element={<Navigate to="/peter-edochie" replace />} />
                                 <Route path="/legacy" element={<LegacyPage />} />
                                 <Route path="/book/item/:productId" element={<BookProductPage />} />
                                 <Route path="/book" element={<BookPage />} />
@@ -82,6 +84,7 @@ function App() {
                                 <Route path="/gallery" element={<GalleryPage />} />
                                 <Route path="/news" element={<NewsPage />} />
                                 <Route path="/contact" element={<ContactPage />} />
+                                <Route path="/faq" element={<FaqPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
                                 <Route path="/checkout" element={<CheckoutPage />} />

@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import {
     Activity,
+    BookOpen,
     ClipboardList,
     GraduationCap,
     Handshake,
     KeyRound,
     LogOut,
+    Mail,
+    Newspaper,
     ShieldCheck,
     Users,
 } from 'lucide-react';
@@ -15,6 +18,7 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Panel, Stat, EmptyState } from '@/components/dashboard/DashboardShell';
 import { api, apiCrud } from '@/lib/api';
+import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { formatUSD } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { PUBLISHER } from '@/lib/content';
@@ -45,6 +49,9 @@ const TABS = [
     { key: 'overview', label: 'Overview', icon: Activity },
     { key: 'employees', label: 'Employees', icon: Users },
     { key: 'orders', label: 'Orders', icon: ClipboardList },
+    { key: 'books', label: 'Books', icon: BookOpen },
+    { key: 'enquiries', label: 'Enquiries', icon: Mail },
+    { key: 'subscribers', label: 'Subscribers', icon: Newspaper },
     { key: 'sponsorships', label: 'Sponsorships', icon: Handshake },
     { key: 'mentorship', label: 'Mentorship', icon: GraduationCap },
     { key: 'history', label: 'Login History', icon: ShieldCheck },
@@ -54,7 +61,7 @@ const TABS = [
 const ROLE_TAB_SCOPE = {
     super_admin: TABS.map((t) => t.key),
     inventory_manager: ['overview', 'orders', 'password'],
-    sales_manager: ['overview', 'orders', 'password'],
+    sales_manager: ['overview', 'orders', 'books', 'enquiries', 'password'],
     fulfillment_officer: ['overview', 'orders', 'password'],
     sponsorship_manager: ['overview', 'sponsorships', 'password'],
     country_manager: ['overview', 'password'],
@@ -104,6 +111,11 @@ const AdminPortalPage = () => {
     const [materials, setMaterials] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [countries, setCountries] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [bookCategories, setBookCategories] = useState([]);
+    const [bookPreregistrations, setBookPreregistrations] = useState([]);
+    const [enquiries, setEnquiries] = useState([]);
+    const [subscribers, setSubscribers] = useState([]);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
     const [materialForm, setMaterialForm] = useState({
@@ -121,6 +133,11 @@ const AdminPortalPage = () => {
                 materials: () => apiCrud.list('mentorship-materials', { sort: 'sort,title' }).catch(() => []),
                 employees: () => apiCrud.list('users', { sort: '-created' }).catch(() => []),
                 countries: () => apiCrud.list('countries', { sort: 'name' }).catch(() => []),
+                products: () => apiCrud.list('products', { sort: '-created' }).catch(() => []),
+                enquiries: () => apiCrud.list('enquiries', { sort: '-created' }).catch(() => []),
+                subscribers: () => apiCrud.list('subscribers', { sort: '-created' }).catch(() => []),
+                bookCategories: () => apiCrud.list('book-categories', { sort: 'sort' }).catch(() => []),
+                bookPreregs: () => apiCrud.list('book-preregistrations', { sort: '-created' }).catch(() => []),
             };
             const keys = Object.keys(fetchers);
             const results = await Promise.all(keys.map((k) => fetchers[k]()));
@@ -133,6 +150,11 @@ const AdminPortalPage = () => {
                 (map.employees || []).filter((u) => u.staff_role || u.account_type === 'admin'),
             );
             setCountries(map.countries);
+            setProducts(map.products);
+            setEnquiries(map.enquiries);
+            setBookCategories(map.bookCategories || []);
+            setBookPreregistrations(map.bookPreregs || []);
+            setSubscribers(map.subscribers);
         } catch (_) {
             setError('Some administration data could not be loaded.');
         }
@@ -370,6 +392,37 @@ const AdminPortalPage = () => {
         }
     };
 
+    const updatePreregStatus = async (id, status) => {
+        try {
+            await apiCrud.update('book-preregistrations', id, { status });
+            setBookPreregistrations((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+        } catch (_) {
+            setError('Could not update pre-registration status.');
+        }
+    };
+
+    const preregStats = useMemo(() => {
+        const byProduct = {};
+        let totalCopies = 0;
+        let totalRegistrations = 0;
+        for (const r of bookPreregistrations) {
+            if (r.status === 'cancelled') continue;
+            const pid = typeof r.product === 'object' ? r.product?.id : r.product;
+            const qty = Number(r.quantity) || 1;
+            if (!byProduct[pid]) byProduct[pid] = { copies: 0, registrations: 0 };
+            byProduct[pid].copies += qty;
+            byProduct[pid].registrations += 1;
+            totalCopies += qty;
+            totalRegistrations += 1;
+        }
+        return { byProduct, totalCopies, totalRegistrations };
+    }, [bookPreregistrations]);
+
+    const bookProducts = useMemo(
+        () => products.filter((p) => p.product_type === 'book'),
+        [products],
+    );
+
     // ---- Change password ----
     const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
     const [pwBusy, setPwBusy] = useState(false);
@@ -418,6 +471,7 @@ const AdminPortalPage = () => {
     const pendingApprovals = employees.filter((u) => u.approval_status === 'pending').length;
     const activeSponsors = sponsorships.filter((s) => s.status === 'approved').length;
     const pendingMentorship = applications.filter((a) => (a.status || 'pending') === 'pending').length;
+    const pendingPrereg = bookPreregistrations.filter((r) => (r.status || 'pending') === 'pending').length;
 
     const locked = mustChangePassword && tab !== 'password';
 
@@ -444,7 +498,7 @@ const AdminPortalPage = () => {
                 <title>Admin Portal | King Dawie Publishing</title>
                 <meta
                     name="description"
-                    content="King Dawie Publishing administration portal — employees, orders, sponsorships, mentorship and platform operations for the Pete Edochie Legacy."
+                    content="King Dawie Publishing administration portal — employees, orders, sponsorships, mentorship and platform operations for the Peter Edochie Legacy."
                 />
             </Helmet>
 
@@ -531,7 +585,7 @@ const AdminPortalPage = () => {
                         <>
                             <Panel
                                 title={`Welcome, ${greeting}`}
-                                lead="Your command center for the Pete Edochie Legacy platform. Quick stats across commerce, partnerships and programmes are below."
+                                lead="Your command center for the Peter Edochie Legacy platform. Quick stats across commerce, partnerships and programmes are below."
                             >
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                     <Stat label="Total orders" value={orders.length} />
@@ -544,8 +598,64 @@ const AdminPortalPage = () => {
                                         value={applications.length}
                                         hint={`${pendingMentorship} pending review`}
                                     />
+                                    <Stat
+                                        label="Copies pre-ordering"
+                                        value={preregStats.totalCopies}
+                                        hint={`${pendingPrereg} pending · ${preregStats.totalRegistrations} registrations`}
+                                    />
+                                    <Stat label="Contact enquiries" value={enquiries.length} />
+                                    <Stat label="Newsletter subscribers" value={subscribers.length} />
                                 </div>
                             </Panel>
+
+                            {bookPreregistrations.length > 0 ? (
+                                <Panel
+                                    title="Recent book pre-registrations"
+                                    lead="Latest interest captured from the public book detail pages."
+                                >
+                                    <ul className="divide-y divide-border">
+                                        {bookPreregistrations.slice(0, 5).map((r) => (
+                                            <li key={r.id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                                                <div>
+                                                    <p className="font-display text-lg">{r.full_name}</p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        {r.email} · {Number(r.quantity) || 1} {(Number(r.quantity) || 1) === 1 ? 'copy' : 'copies'}
+                                                    </p>
+                                                    <p className="mt-1 text-sm text-[hsl(var(--gold))]">
+                                                        {r.edition || r.product?.edition || r.expand?.product?.edition || r.product_name}
+                                                    </p>
+                                                </div>
+                                                <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
+                                                    {r.status || 'pending'}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button type="button" onClick={() => setTab('books')} className={`${smallBtn} mt-4`}>
+                                        View all pre-registrations
+                                    </button>
+                                </Panel>
+                            ) : null}
+
+                            {applications.length > 0 ? (
+                                <Panel
+                                    title="Recent mentorship applications"
+                                    lead="Latest 2027 cohort applications from the public mentorship page."
+                                >
+                                    <ul className="divide-y divide-border">
+                                        {applications.slice(0, 5).map((a) => (
+                                            <MentorshipApplicationRow
+                                                key={a.id}
+                                                application={a}
+                                                compact
+                                            />
+                                        ))}
+                                    </ul>
+                                    <button type="button" onClick={() => setTab('mentorship')} className={`${smallBtn} mt-4`}>
+                                        View all applications
+                                    </button>
+                                </Panel>
+                            ) : null}
 
                             <Panel title="Team" lead="Staff accounts with portal access.">
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -797,6 +907,151 @@ const AdminPortalPage = () => {
                         </Panel>
                     ) : null}
 
+                    {tab === 'books' ? (
+                        <>
+                            <Panel
+                                title="Book pre-registrations"
+                                lead="Interest captured from public book detail pages. Follow up when ordering opens."
+                            >
+                                <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    <Stat label="Total copies pre-ordering" value={preregStats.totalCopies} />
+                                    <Stat label="Registrations" value={preregStats.totalRegistrations} />
+                                    <Stat label="Pending follow-up" value={pendingPrereg} />
+                                </div>
+                                {bookPreregistrations.length === 0 ? (
+                                    <EmptyState>No pre-registrations yet.</EmptyState>
+                                ) : (
+                                    <ul className="divide-y divide-border">
+                                        {bookPreregistrations.map((r) => (
+                                            <li key={r.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
+                                                <div className="max-w-2xl">
+                                                    <p className="font-display text-lg">{r.full_name}</p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        {r.email} · {r.phone || 'No phone'} · {r.city || '—'}, {r.country || '—'}
+                                                    </p>
+                                                    <p className="mt-2 text-sm text-[hsl(var(--gold))]">
+                                                        {r.edition || r.product?.edition || r.expand?.product?.edition || r.product_name}
+                                                    </p>
+                                                    <p className="mt-1 text-xs font-medium text-foreground">
+                                                        {Number(r.quantity) || 1} {(Number(r.quantity) || 1) === 1 ? 'copy' : 'copies'}
+                                                    </p>
+                                                    {r.notes ? <p className="mt-2 text-sm text-muted-foreground">{r.notes}</p> : null}
+                                                    <p className="mt-2 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
+                                                        {fmtDate(r.created)}
+                                                    </p>
+                                                </div>
+                                                <select
+                                                    value={r.status || 'pending'}
+                                                    onChange={(e) => updatePreregStatus(r.id, e.target.value)}
+                                                    className={`${input} max-w-[10rem]`}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="contacted">Contacted</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                </select>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </Panel>
+
+                            <Panel title="Books catalogue" lead="Live editions and pre-order totals by title.">
+                                {bookProducts.length === 0 ? (
+                                    <EmptyState>No book editions yet.</EmptyState>
+                                ) : (
+                                    <ul className="divide-y divide-border">
+                                        {bookProducts.map((p) => (
+                                            <li key={p.id} className="py-5">
+                                                <p className="font-display text-xl">{p.edition || p.name}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                    {p.expand?.book_category?.name || bookCategories.find((c) => c.id === p.book_category)?.name || 'Uncategorised'}
+                                                    {' · '}
+                                                    {p.author || '—'} · {p.format} · {formatUSD(p.price)} · {p.enabled ? 'Live' : 'Hidden'}
+                                                </p>
+                                                <p className="mt-2 text-xs text-[hsl(var(--gold))]">
+                                                    {preregStats.byProduct[p.id]
+                                                        ? `${preregStats.byProduct[p.id].copies} copies pre-ordering · ${preregStats.byProduct[p.id].registrations} registration${preregStats.byProduct[p.id].registrations === 1 ? '' : 's'}`
+                                                        : 'No pre-orders yet'}
+                                                </p>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </Panel>
+                        </>
+                    ) : null}
+
+                    {tab === 'enquiries' ? (
+                        <Panel
+                            title="Contact enquiries"
+                            lead="Messages submitted through the public contact form."
+                        >
+                            {enquiries.length === 0 ? (
+                                <EmptyState>No enquiries yet.</EmptyState>
+                            ) : (
+                                <ul className="divide-y divide-border">
+                                    {enquiries.map((e) => (
+                                        <li key={e.id} className="py-5">
+                                            <div className="flex flex-wrap items-start justify-between gap-4">
+                                                <div className="max-w-2xl">
+                                                    <p className="font-display text-lg">{e.name}</p>
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        {e.email}
+                                                        {e.organisation ? ` · ${e.organisation}` : ''}
+                                                        {e.subject ? ` · ${e.subject}` : ''}
+                                                    </p>
+                                                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{e.message}</p>
+                                                    <p className="mt-2 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
+                                                        {fmtDate(e.created)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </Panel>
+                    ) : null}
+
+                    {tab === 'subscribers' ? (
+                        <Panel
+                            title="Newsletter subscribers"
+                            lead="Every field collected from the public subscribe form — name, email, country and interest preferences."
+                        >
+                            {subscribers.length === 0 ? (
+                                <EmptyState>No subscribers yet.</EmptyState>
+                            ) : (
+                                <ul className="divide-y divide-border">
+                                    {subscribers.map((s) => (
+                                        <li key={s.id} className="py-5">
+                                            <p className="font-display text-lg">{s.name || s.email}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{s.email}</p>
+                                            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                                                <div>
+                                                    <p className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">Country</p>
+                                                    <p className="mt-1 text-sm">{s.country || '—'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">Subscribed</p>
+                                                    <p className="mt-1 text-sm">{fmtDate(s.created)}</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4">
+                                                <p className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">Interests</p>
+                                                <p className="mt-1 text-sm text-muted-foreground">
+                                                    {Array.isArray(s.interests) && s.interests.length
+                                                        ? s.interests.join(' · ')
+                                                        : '—'}
+                                                </p>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </Panel>
+                    ) : null}
+
                     {tab === 'sponsorships' ? (
                         <Panel
                             title="Sponsorship applications"
@@ -850,77 +1105,23 @@ const AdminPortalPage = () => {
                         <>
                         <Panel
                             title="Mentorship applications"
-                            lead="Review applications, assign registration type on acceptance, and manage programme materials."
+                            lead="Every field submitted on the public mentorship application form — name, email, country, discipline, registration type, cohort and personal statement."
                         >
                             {applications.length === 0 ? (
                                 <EmptyState>No applications submitted.</EmptyState>
                             ) : (
                                 <ul className="divide-y divide-border">
                                     {applications.map((a) => (
-                                        <li key={a.id} className="py-5">
-                                            <div className="flex flex-wrap items-start justify-between gap-4">
-                                                <div className="max-w-xl">
-                                                    <p className="font-display text-lg">{a.name || a.email}</p>
-                                                    <p className="mt-1 text-xs text-muted-foreground">
-                                                        {a.email} · {a.country || 'Country not set'} ·{' '}
-                                                        {a.discipline || 'Discipline not set'} · {a.cohort || '2027'} cohort
-                                                    </p>
-                                                    <p className="mt-1 text-xs text-muted-foreground">
-                                                        Requested: {registrationTypeLabel(a.requested_type || 'standard')}
-                                                        {a.registration_type ? ` · Assigned: ${registrationTypeLabel(a.registration_type)}` : ''}
-                                                    </p>
-                                                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                                                        {a.statement}
-                                                    </p>
-                                                </div>
-                                                <div className="flex flex-col items-end gap-3">
-                                                    <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
-                                                        {a.status || 'pending'}
-                                                    </span>
-                                                    {a.status === 'accepted' ? (
-                                                        <select
-                                                            value={a.registration_type || a.requested_type || 'standard'}
-                                                            onChange={(e) => setMentorshipRegistrationType(a.id, e.target.value)}
-                                                            className={`${input} max-w-[12rem]`}
-                                                        >
-                                                            {REGISTRATION_TYPES.map((t) => (
-                                                                <option key={t.value} value={t.value}>{t.label}</option>
-                                                            ))}
-                                                        </select>
-                                                    ) : (
-                                                        <select
-                                                            id={`accept-type-${a.id}`}
-                                                            defaultValue={a.registration_type || a.requested_type || 'standard'}
-                                                            className={`${input} max-w-[12rem]`}
-                                                        >
-                                                            {REGISTRATION_TYPES.map((t) => (
-                                                                <option key={t.value} value={t.value}>{t.label}</option>
-                                                            ))}
-                                                        </select>
-                                                    )}
-                                                    <div className="flex items-center gap-2">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const sel = document.getElementById(`accept-type-${a.id}`);
-                                                                setMentorshipStatus(a.id, 'accepted', sel?.value);
-                                                            }}
-                                                            className={smallBtn}
-                                                            disabled={a.status === 'accepted'}
-                                                        >
-                                                            Accept
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setMentorshipStatus(a.id, 'rejected')}
-                                                            className={dangerBtn}
-                                                        >
-                                                            Reject
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
+                                        <MentorshipApplicationRow
+                                            key={a.id}
+                                            application={a}
+                                            input={input}
+                                            smallBtn={smallBtn}
+                                            dangerBtn={dangerBtn}
+                                            onAccept={(id, type) => setMentorshipStatus(id, 'accepted', type)}
+                                            onReject={(id) => setMentorshipStatus(id, 'rejected')}
+                                            onRegistrationTypeChange={setMentorshipRegistrationType}
+                                        />
                                     ))}
                                 </ul>
                             )}

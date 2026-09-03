@@ -6,7 +6,7 @@ import { IMG, PUBLISHER } from '@/lib/content';
 const SECTIONS = [
     {
         h: '1. The platform operator',
-        p: `These Terms of Service govern your use of the Pete Edochie Legacy platform. The platform is owned, published and operated by ${PUBLISHER.name}, the official owner and rights holder of the Pete Edochie Legacy. By accessing or using any part of the platform — the archive, the autobiography, events, the Meet & Greet, the mentorship programme or member dashboard — you agree to be bound by these terms.`,
+        p: `These Terms of Service govern your use of the Peter Edochie Legacy platform. The platform is owned, published and operated by ${PUBLISHER.name}, the official owner and rights holder of the Peter Edochie Legacy. By accessing or using any part of the platform — the archive, the autobiography, events, the Meet & Greet, the mentorship programme or member dashboard — you agree to be bound by these terms.`,
     },
     {
         h: '2. Ownership & intellectual property',
@@ -41,13 +41,13 @@ const SECTIONS = [
 const TermsPage = () => (
     <div>
         <PageHead
-            title="Terms of Service | The Pete Edochie Legacy | King Dawie Publishing"
-            description="Terms of Service for the Pete Edochie Legacy platform, operated by King Dawie Publishing as the official owner and rights holder."
+            title="Terms of Service | The Peter Edochie Legacy | King Dawie Publishing"
+            description="Terms of Service for the Peter Edochie Legacy platform, operated by King Dawie Publishing as the official owner and rights holder."
         />
         <PageHero
             eyebrow="Legal"
             title="Terms of Service"
-            lead={`The Pete Edochie Legacy platform is owned, published and operated by ${PUBLISHER.name}.`}
+            lead={`The Peter Edochie Legacy platform is owned, published and operated by ${PUBLISHER.name}.`}
             image={IMG.theatre}
         />
 

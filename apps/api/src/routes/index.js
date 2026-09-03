@@ -19,6 +19,8 @@ import sponsorshipPackages from './sponsorship-packages.js';
 import sponsorships from './sponsorships.js';
 import mentorshipApplications from './mentorship-applications.js';
 import mentorshipMaterials from './mentorship-materials.js';
+import bookCategories from './book-categories.js';
+import bookPreregistrations from './book-preregistrations.js';
 import stockMovements from './stock-movements.js';
 import newsletter from './newsletter.js';
 
@@ -45,6 +47,8 @@ export default () => {
 	router.use('/sponsorships', sponsorships);
 	router.use('/mentorship-applications', mentorshipApplications);
 	router.use('/mentorship-materials', mentorshipMaterials);
+	router.use('/book-categories', bookCategories);
+	router.use('/book-preregistrations', bookPreregistrations);
 	router.use('/stock-movements', stockMovements);
 	router.use('/paystack', paystack);
 

@@ -26,8 +26,8 @@ const SponsorsPage = () => {
     return (
         <div>
             <PageHead
-                title="Sponsors & Partners | The Pete Edochie Legacy | King Dawie Publishing"
-                description="Partnership opportunities with the Pete Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
+                title="Sponsors & Partners | The Peter Edochie Legacy | King Dawie Publishing"
+                description="Partnership opportunities with the Peter Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
             />
             <PageHero eyebrow="Sponsors & Partners" title="Institutions that carry this forward" lead="The archive, the events and the mentorship cohorts are sustained by partners who think in decades. Choose a package and apply to partner with the legacy." image={IMG.podium} />
 

@@ -16,7 +16,10 @@ const controller = crudController(prisma.product, {
 	deleteGuard: adminOnly,
 	searchable: ['name', 'category', 'productType'],
 	orderBy: { createdAt: 'desc' },
-	include: { createdBy: { select: { id: true, name: true, email: true } } },
+	include: {
+		createdBy: { select: { id: true, name: true, email: true } },
+		bookCategory: true,
+	},
 	preCreate: async (req, data) => {
 		if (req.user?.id) data.createdById = req.user.id;
 		return data;

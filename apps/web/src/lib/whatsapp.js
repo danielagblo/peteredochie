@@ -1,4 +1,4 @@
-import { PUBLISHER } from '@/lib/content';
+import { LEGACY, PUBLISHER } from '@/lib/content';
 
 const digits = () => String(PUBLISHER.whatsapp || '').replace(/\D/g, '');
 
@@ -22,7 +22,7 @@ export const composeWhatsApp = (title, fields = {}, extra = '') => {
         .map(([k, v]) => line(k, v))
         .filter(Boolean)
         .join('\n');
-    return ['Pete Edochie Legacy', title, '', body, extra ? `\n${extra}` : '']
+    return [LEGACY.legacyName, title, '', body, extra ? `\n${extra}` : '']
         .filter((p) => p !== '')
         .join('\n')
         .trim();

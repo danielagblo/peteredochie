@@ -6,7 +6,7 @@ import { IMG, PUBLISHER } from '@/lib/content';
 const SECTIONS = [
     {
         h: '1. The data controller',
-        p: `The Pete Edochie Legacy platform is owned, published and operated by ${PUBLISHER.name}, which acts as the data controller responsible for your personal information collected through this platform.`,
+        p: `The Peter Edochie Legacy platform is owned, published and operated by ${PUBLISHER.name}, which acts as the data controller responsible for your personal information collected through this platform.`,
     },
     {
         h: '2. Information we collect',
@@ -41,13 +41,13 @@ const SECTIONS = [
 const PrivacyPage = () => (
     <div>
         <PageHead
-            title="Privacy Policy | The Pete Edochie Legacy | King Dawie Publishing"
-            description="Privacy Policy for the Pete Edochie Legacy platform, operated by King Dawie Publishing as the official owner and rights holder."
+            title="Privacy Policy | The Peter Edochie Legacy | King Dawie Publishing"
+            description="Privacy Policy for the Peter Edochie Legacy platform, operated by King Dawie Publishing as the official owner and rights holder."
         />
         <PageHero
             eyebrow="Legal"
             title="Privacy Policy"
-            lead={`Your privacy is respected by ${PUBLISHER.name}, the operator of the Pete Edochie Legacy platform.`}
+            lead={`Your privacy is respected by ${PUBLISHER.name}, the operator of the Peter Edochie Legacy platform.`}
             image={IMG.artifact}
         />
 

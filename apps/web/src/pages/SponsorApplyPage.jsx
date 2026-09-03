@@ -102,7 +102,7 @@ const SponsorApplyPage = () => {
         return (
             <div className="pt-32 pb-28">
                 <PageHead
-                    title="Sponsorship application received | The Pete Edochie Legacy"
+                    title="Sponsorship application received | The Peter Edochie Legacy"
                     description="Your sponsorship application has been received and is under review by King Dawie Publishing."
                 />
                 <Section width="max-w-[48rem]">
@@ -128,8 +128,8 @@ const SponsorApplyPage = () => {
     return (
         <div className="pt-32 pb-28">
             <PageHead
-                title="Become a Sponsor | The Pete Edochie Legacy | King Dawie Publishing"
-                description="Apply to become a corporate sponsor or partner of the Pete Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
+                title="Become a Sponsor | The Peter Edochie Legacy | King Dawie Publishing"
+                description="Apply to become a corporate sponsor or partner of the Peter Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
             />
             <Section width="max-w-[64rem]">
                 <SectionTitle

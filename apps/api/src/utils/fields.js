@@ -76,6 +76,10 @@ const INPUT = {
 		email: 'email',
 		name: 'name',
 		country: 'country',
+		phone: 'phone',
+		referral_source: 'referralSource',
+		consent_given: 'consentGiven',
+		consent_at: 'consentAt',
 		interests: 'interests',
 	},
 	country: {
@@ -114,6 +118,35 @@ const INPUT = {
 		created_by: 'createdById',
 		variants: 'variants',
 		category: 'category',
+		book_category: 'bookCategoryId',
+		author: 'author',
+		isbn: 'isbn',
+		pages: 'pages',
+		language: 'language',
+		excerpt: 'excerpt',
+		published_year: 'publishedYear',
+	},
+	bookCategory: {
+		id: 'id',
+		name: 'name',
+		slug: 'slug',
+		description: 'description',
+		sort: 'sort',
+		enabled: 'enabled',
+	},
+	bookPreregistration: {
+		id: 'id',
+		product: 'productId',
+		product_id: 'productId',
+		full_name: 'fullName',
+		email: 'email',
+		phone: 'phone',
+		country: 'country',
+		city: 'city',
+		quantity: 'quantity',
+		notes: 'notes',
+		status: 'status',
+		edition: 'edition',
 	},
 	order: {
 		id: 'id',
@@ -300,7 +333,14 @@ const RELATIONS = {
 		product: { model: 'product', as: 'product' },
 		createdBy: { model: 'user', as: 'created_by' },
 	},
-	product: { createdBy: { model: 'user', as: 'created_by' } },
+	product: {
+		createdBy: { model: 'user', as: 'created_by' },
+		bookCategory: { model: 'bookCategory', as: 'book_category' },
+	},
+	bookCategory: {},
+	bookPreregistration: {
+		product: { model: 'product', as: 'product' },
+	},
 	country: {
 		primaryDistributor: { model: 'user', as: 'primary_distributor' },
 		regionalCoordinator: { model: 'user', as: 'regional_coordinator' },
@@ -374,6 +414,8 @@ export function mapModel(snakeModel) {
 		'mentorship-applications': 'mentorshipApplication',
 		'mentorship-materials': 'mentorshipMaterial',
 		'stock-movements': 'stockMovement',
+		'book-categories': 'bookCategory',
+		'book-preregistrations': 'bookPreregistration',
 	};
 	return aliases[snakeModel] || snakeModel;
 }
