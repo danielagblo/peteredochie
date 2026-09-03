@@ -1,6 +1,7 @@
 // Branded HTML email template for The Pete Edochie Legacy.
 // Designed with inline styles and table structures for maximum compatibility
 // across Gmail (Web & App, Light & Dark modes), Apple Mail, Outlook, Yahoo, and mobile clients.
+// Light theme with gold accent.
 
 export function parseMarkdownToEmailHtml(text = '') {
 	if (!text) return '';
@@ -19,23 +20,23 @@ export function parseMarkdownToEmailHtml(text = '') {
 		let out = escapeHtml(str);
 
 		// Bold: **text** or __text__
-		out = out.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #ffffff !important; font-weight: 700;">$1</strong>');
-		out = out.replace(/__(.*?)__/g, '<strong style="color: #ffffff !important; font-weight: 700;">$1</strong>');
+		out = out.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #18181b !important; font-weight: 700;">$1</strong>');
+		out = out.replace(/__(.*?)__/g, '<strong style="color: #18181b !important; font-weight: 700;">$1</strong>');
 
 		// Italic: *text* or _text_
-		out = out.replace(/(^|[^*])\*(?!\*)(.*?)\*(?!\*)/g, '$1<em style="color: #f4f4f5 !important; font-style: italic;">$2</em>');
-		out = out.replace(/(^|[^_])_(?!_)(.*?)_(?!_)/g, '$1<em style="color: #f4f4f5 !important; font-style: italic;">$2</em>');
+		out = out.replace(/(^|[^*])\*(?!\*)(.*?)\*(?!\*)/g, '$1<em style="color: #3f3f46 !important; font-style: italic;">$2</em>');
+		out = out.replace(/(^|[^_])_(?!_)(.*?)_(?!_)/g, '$1<em style="color: #3f3f46 !important; font-style: italic;">$2</em>');
 
 		// Markdown Links: [text](url)
 		out = out.replace(
 			/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g,
-			'<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #D4AF37 !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #D4AF37 !important;">$1</span></a>',
+			'<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #B8860B !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #B8860B !important;">$1</span></a>',
 		);
 
 		// Auto-Links: https://...
 		out = out.replace(
 			/(^|[\s(])(https?:\/\/[^\s)<]+)/g,
-			'$1<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #D4AF37 !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #D4AF37 !important;">$2</span></a>',
+			'$1<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #B8860B !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #B8860B !important;">$2</span></a>',
 		);
 
 		// Single line breaks
@@ -52,13 +53,13 @@ export function parseMarkdownToEmailHtml(text = '') {
 
 		// Headings
 		if (trimmed.startsWith('### ')) {
-			return `<h3 style="margin: 22px 0 10px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 18px; line-height: 1.4; font-weight: 600; color: #D4AF37 !important;">${formatInline(trimmed.slice(4))}</h3>`;
+			return `<h3 style="margin: 22px 0 10px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 18px; line-height: 1.4; font-weight: 600; color: #B8860B !important;">${formatInline(trimmed.slice(4))}</h3>`;
 		}
 		if (trimmed.startsWith('## ')) {
-			return `<h2 style="margin: 26px 0 12px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 21px; line-height: 1.35; font-weight: 600; color: #D4AF37 !important;">${formatInline(trimmed.slice(3))}</h2>`;
+			return `<h2 style="margin: 26px 0 12px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 21px; line-height: 1.35; font-weight: 600; color: #B8860B !important;">${formatInline(trimmed.slice(3))}</h2>`;
 		}
 		if (trimmed.startsWith('# ')) {
-			return `<h1 style="margin: 28px 0 14px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 24px; line-height: 1.3; font-weight: 700; color: #ffffff !important;">${formatInline(trimmed.slice(2))}</h1>`;
+			return `<h1 style="margin: 28px 0 14px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 24px; line-height: 1.3; font-weight: 700; color: #18181b !important;">${formatInline(trimmed.slice(2))}</h1>`;
 		}
 
 		// Blockquote
@@ -67,7 +68,7 @@ export function parseMarkdownToEmailHtml(text = '') {
 				.split('\n')
 				.map((line) => line.replace(/^(?:>|&gt;)\s?/, ''))
 				.join('\n');
-			return `<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #D4AF37; background-color: #19191d; color: #f4f4f5 !important; font-style: italic; font-size: 15px; line-height: 1.7;">${formatInline(quoteLines)}</blockquote>`;
+			return `<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #B8860B; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">${formatInline(quoteLines)}</blockquote>`;
 		}
 
 		// Bullet list (handles mixed text + bullet lines)
@@ -82,18 +83,18 @@ export function parseMarkdownToEmailHtml(text = '') {
 				} else {
 					if (currentList.length > 0) {
 						outputParts.push(
-							`<ul style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">${formatInline(item)}</li>`).join('')}</ul>`,
+							`<ul style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">${formatInline(item)}</li>`).join('')}</ul>`,
 						);
 						currentList = [];
 					}
 					if (line.trim()) {
-						outputParts.push(`<p style="margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #d4d4d8 !important;">${formatInline(line.trim())}</p>`);
+						outputParts.push(`<p style="margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #3f3f46 !important;">${formatInline(line.trim())}</p>`);
 					}
 				}
 			}
 			if (currentList.length > 0) {
 				outputParts.push(
-					`<ul style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">${formatInline(item)}</li>`).join('')}</ul>`,
+					`<ul style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">${formatInline(item)}</li>`).join('')}</ul>`,
 				);
 			}
 			return outputParts.join('\n');
@@ -110,25 +111,25 @@ export function parseMarkdownToEmailHtml(text = '') {
 				} else {
 					if (currentList.length > 0) {
 						outputParts.push(
-							`<ol style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">${formatInline(item)}</li>`).join('')}</ol>`,
+							`<ol style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">${formatInline(item)}</li>`).join('')}</ol>`,
 						);
 						currentList = [];
 					}
 					if (line.trim()) {
-						outputParts.push(`<p style="margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #d4d4d8 !important;">${formatInline(line.trim())}</p>`);
+						outputParts.push(`<p style="margin: 0 0 12px; font-size: 15px; line-height: 1.7; color: #3f3f46 !important;">${formatInline(line.trim())}</p>`);
 					}
 				}
 			}
 			if (currentList.length > 0) {
 				outputParts.push(
-					`<ol style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">${formatInline(item)}</li>`).join('')}</ol>`,
+					`<ol style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">${currentList.map((item) => `<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">${formatInline(item)}</li>`).join('')}</ol>`,
 				);
 			}
 			return outputParts.join('\n');
 		}
 
 		// Paragraph
-		return `<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.7; color: #d4d4d8 !important;">${formatInline(trimmed)}</p>`;
+		return `<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.7; color: #3f3f46 !important;">${formatInline(trimmed)}</p>`;
 	});
 
 	return rendered.filter(Boolean).join('\n');
@@ -145,23 +146,23 @@ export function formatContentForEmail(content = '') {
 	if (hasHtml) {
 		let styled = trimmed;
 		// Inject or normalize inline styles on tags for bulletproof Gmail/Outlook rendering
-		styled = styled.replace(/<p(?:\s+style="[^"]*")?>/gi, '<p style="margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #d4d4d8 !important;">');
-		styled = styled.replace(/<h1(?:\s+style="[^"]*")?>/gi, '<h1 style="margin: 28px 0 14px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 24px; line-height: 1.3; font-weight: 700; color: #ffffff !important;">');
-		styled = styled.replace(/<h2(?:\s+style="[^"]*")?>/gi, '<h2 style="margin: 24px 0 12px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 21px; line-height: 1.35; font-weight: 600; color: #D4AF37 !important;">');
-		styled = styled.replace(/<h3(?:\s+style="[^"]*")?>/gi, '<h3 style="margin: 20px 0 10px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 18px; line-height: 1.4; font-weight: 600; color: #D4AF37 !important;">');
-		styled = styled.replace(/<strong(?:\s+style="[^"]*")?>/gi, '<strong style="color: #ffffff !important; font-weight: 700;">');
-		styled = styled.replace(/<b(?:\s+style="[^"]*")?>/gi, '<strong style="color: #ffffff !important; font-weight: 700;">');
+		styled = styled.replace(/<p(?:\s+style="[^"]*")?>/gi, '<p style="margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #3f3f46 !important;">');
+		styled = styled.replace(/<h1(?:\s+style="[^"]*")?>/gi, '<h1 style="margin: 28px 0 14px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 24px; line-height: 1.3; font-weight: 700; color: #18181b !important;">');
+		styled = styled.replace(/<h2(?:\s+style="[^"]*")?>/gi, '<h2 style="margin: 24px 0 12px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 21px; line-height: 1.35; font-weight: 600; color: #B8860B !important;">');
+		styled = styled.replace(/<h3(?:\s+style="[^"]*")?>/gi, '<h3 style="margin: 20px 0 10px; font-family: \'Georgia\', \'Times New Roman\', serif; font-size: 18px; line-height: 1.4; font-weight: 600; color: #B8860B !important;">');
+		styled = styled.replace(/<strong(?:\s+style="[^"]*")?>/gi, '<strong style="color: #18181b !important; font-weight: 700;">');
+		styled = styled.replace(/<b(?:\s+style="[^"]*")?>/gi, '<strong style="color: #18181b !important; font-weight: 700;">');
 		styled = styled.replace(/<\/b>/gi, '</strong>');
-		styled = styled.replace(/<em(?:\s+style="[^"]*")?>/gi, '<em style="color: #f4f4f5 !important; font-style: italic;">');
-		styled = styled.replace(/<i(?:\s+style="[^"]*")?>/gi, '<em style="color: #f4f4f5 !important; font-style: italic;">');
+		styled = styled.replace(/<em(?:\s+style="[^"]*")?>/gi, '<em style="color: #3f3f46 !important; font-style: italic;">');
+		styled = styled.replace(/<i(?:\s+style="[^"]*")?>/gi, '<em style="color: #3f3f46 !important; font-style: italic;">');
 		styled = styled.replace(/<\/i>/gi, '</em>');
 		styled = styled.replace(/<u(?:\s+style="[^"]*")?>/gi, '<span style="text-decoration: underline; color: inherit;">');
 		styled = styled.replace(/<\/u>/gi, '</span>');
-		styled = styled.replace(/<ul(?:\s+style="[^"]*")?>/gi, '<ul style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">');
-		styled = styled.replace(/<ol(?:\s+style="[^"]*")?>/gi, '<ol style="margin: 14px 0 20px; padding-left: 24px; color: #D4AF37;">');
-		styled = styled.replace(/<li(?:\s+style="[^"]*")?>/gi, '<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #d4d4d8 !important;">');
-		styled = styled.replace(/<blockquote(?:\s+style="[^"]*")?>/gi, '<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #D4AF37; background-color: #19191d; color: #f4f4f5 !important; font-style: italic; font-size: 15px; line-height: 1.7;">');
-		styled = styled.replace(/<a\s+([^>]*?)href="([^"]+)"([^>]*?)>/gi, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #D4AF37 !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #D4AF37 !important;">');
+		styled = styled.replace(/<ul(?:\s+style="[^"]*")?>/gi, '<ul style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">');
+		styled = styled.replace(/<ol(?:\s+style="[^"]*")?>/gi, '<ol style="margin: 14px 0 20px; padding-left: 24px; color: #B8860B;">');
+		styled = styled.replace(/<li(?:\s+style="[^"]*")?>/gi, '<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">');
+		styled = styled.replace(/<blockquote(?:\s+style="[^"]*")?>/gi, '<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #B8860B; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">');
+		styled = styled.replace(/<a\s+([^>]*?)href="([^"]+)"([^>]*?)>/gi, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #B8860B !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #B8860B !important;">');
 		styled = styled.replace(/<\/a>/gi, '</span></a>');
 		// Clean up empty lines
 		styled = styled.replace(/<p[^>]*><br\s*\/?><\/p>/gi, '');
@@ -190,8 +191,8 @@ export function renderNewsletterHtml({
 			<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 28px 0 10px;">
 				<tr>
 					<td align="center" bgcolor="#D4AF37" style="border-radius: 2px; background-color: #D4AF37; padding: 0;">
-						<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; color: #09090b !important; text-decoration: none; text-transform: uppercase; letter-spacing: 0.18em; background-color: #D4AF37;">
-							<span style="color: #09090b !important; font-weight: 700; text-decoration: none;">${ctaText}</span>
+						<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; color: #18181b !important; text-decoration: none; text-transform: uppercase; letter-spacing: 0.18em; background-color: #D4AF37;">
+							<span style="color: #18181b !important; font-weight: 700; text-decoration: none;">${ctaText}</span>
 						</a>
 					</td>
 				</tr>
@@ -204,8 +205,8 @@ export function renderNewsletterHtml({
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="color-scheme" content="light dark">
-	<meta name="supported-color-schemes" content="light dark">
+	<meta name="color-scheme" content="light">
+	<meta name="supported-color-schemes" content="light">
 	<title>${subject}</title>
 	<!--[if mso]>
 	<noscript>
@@ -218,28 +219,28 @@ export function renderNewsletterHtml({
 	<![endif]-->
 	<style>
 		:root {
-			color-scheme: light dark;
-			supported-color-schemes: light dark;
+			color-scheme: light;
+			supported-color-schemes: light;
 		}
 		body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
 		table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 		img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
-		body { margin: 0; padding: 0; width: 100% !important; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-		u + #body a { color: #D4AF37 !important; text-decoration: underline !important; }
+		body { margin: 0; padding: 0; width: 100% !important; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+		u + #body a { color: #B8860B !important; text-decoration: underline !important; }
 		@media only screen and (max-width: 620px) {
 			.container { width: 100% !important; padding: 0 !important; }
 			.content-cell { padding: 28px 20px !important; }
 		}
 	</style>
 </head>
-<body id="body" bgcolor="#09090b" style="margin: 0; padding: 0; width: 100% !important; background-color: #09090b; color: #f4f4f5;">
-	${previewText ? `<div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #09090b; opacity: 0;">${previewText}</div>` : ''}
+<body id="body" bgcolor="#f4f4f5" style="margin: 0; padding: 0; width: 100% !important; background-color: #f4f4f5; color: #18181b;">
+	${previewText ? `<div style="display: none; max-height: 0px; overflow: hidden; mso-hide: all; font-size: 1px; line-height: 1px; color: #f4f4f5; opacity: 0;">${previewText}</div>` : ''}
 
-	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#09090b" style="background-color: #09090b;">
+	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f4f4f5" style="background-color: #f4f4f5;">
 		<tr>
-			<td align="center" bgcolor="#09090b" style="padding: 40px 16px; background-color: #09090b;">
+			<td align="center" bgcolor="#f4f4f5" style="padding: 40px 16px; background-color: #f4f4f5;">
 				<!-- Container -->
-				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="container" bgcolor="#141416" style="max-width: 600px; width: 100%; background-color: #141416; border: 1px solid #27272a;">
+				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="container" bgcolor="#ffffff" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e4e4e7;">
 					<!-- Top Gold Line -->
 					<tr>
 						<td height="3" bgcolor="#D4AF37" style="background-color: #D4AF37; font-size: 0; line-height: 0;">&nbsp;</td>
@@ -247,8 +248,8 @@ export function renderNewsletterHtml({
 
 					<!-- Header / Crest -->
 					<tr>
-						<td align="center" bgcolor="#141416" style="padding: 36px 32px 24px; border-bottom: 1px solid #222226; background-color: #141416;">
-							<p style="margin: 0; font-family: 'Georgia', 'Times New Roman', serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.28em; color: #D4AF37 !important;">
+						<td align="center" bgcolor="#ffffff" style="padding: 36px 32px 24px; border-bottom: 1px solid #ececef; background-color: #ffffff;">
+							<p style="margin: 0; font-family: 'Georgia', 'Times New Roman', serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.28em; color: #B8860B !important;">
 								THE PETE EDOCHIE LEGACY
 							</p>
 							<p style="margin: 6px 0 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: #71717a !important;">
@@ -259,22 +260,22 @@ export function renderNewsletterHtml({
 
 					<!-- Main Content -->
 					<tr>
-						<td class="content-cell" bgcolor="#141416" style="padding: 40px 36px 32px; background-color: #141416;">
-							${headline ? `<h1 style="margin: 0 0 24px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 26px; line-height: 1.3; font-weight: 500; color: #ffffff !important; letter-spacing: -0.01em;">${headline}</h1>` : ''}
+						<td class="content-cell" bgcolor="#ffffff" style="padding: 40px 36px 32px; background-color: #ffffff;">
+							${headline ? `<h1 style="margin: 0 0 24px; font-family: 'Georgia', 'Times New Roman', serif; font-size: 26px; line-height: 1.3; font-weight: 600; color: #18181b !important; letter-spacing: -0.01em;">${headline}</h1>` : ''}
 
-							<p style="margin: 0 0 20px; font-size: 15px; line-height: 1.7; color: #e4e4e7 !important;">
+							<p style="margin: 0 0 20px; font-size: 15px; line-height: 1.7; color: #3f3f46 !important;">
 								${greeting}
 							</p>
 
-							<div style="color: #d4d4d8;">
+							<div style="color: #3f3f46;">
 								${formattedBody}
 							</div>
 
 							${buttonHtml}
 
-							<p style="margin: 32px 0 0; font-size: 14px; line-height: 1.6; color: #a1a1aa !important;">
+							<p style="margin: 32px 0 0; font-size: 14px; line-height: 1.6; color: #52525b !important;">
 								Warm regards,<br />
-								<strong style="color: #ffffff !important; font-weight: 600;">The Pete Edochie Legacy Team</strong><br />
+								<strong style="color: #18181b !important; font-weight: 600;">The Pete Edochie Legacy Team</strong><br />
 								<span style="font-size: 12px; color: #71717a !important;">King Dawie Publishing</span>
 							</p>
 						</td>
@@ -282,11 +283,11 @@ export function renderNewsletterHtml({
 
 					<!-- Footer -->
 					<tr>
-						<td bgcolor="#0c0c0e" style="padding: 24px 32px; background-color: #0c0c0e; border-top: 1px solid #222226; text-align: center;">
+						<td bgcolor="#f4f4f5" style="padding: 24px 32px; background-color: #f4f4f5; border-top: 1px solid #ececef; text-align: center;">
 							<p style="margin: 0 0 8px; font-size: 11px; line-height: 1.5; color: #71717a !important;">
 								You received this email because you subscribed to updates from the Pete Edochie Legacy platform${recipientEmail ? ` (${recipientEmail})` : ''}.
 							</p>
-							<p style="margin: 0; font-size: 11px; line-height: 1.5; color: #52525b !important;">
+							<p style="margin: 0; font-size: 11px; line-height: 1.5; color: #a1a1aa !important;">
 								&copy; ${new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.
 							</p>
 						</td>

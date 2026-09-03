@@ -614,9 +614,9 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
 
                     {/* ─── THE WORD-STYLE LETTERHEAD DOCUMENT SHEET ─── */}
                     {/* What you see and type here IS the document itself! */}
-                    <div className="py-6 flex justify-center bg-zinc-950/60 border border-border min-h-[600px]">
+                    <div className="py-6 flex justify-center bg-zinc-200/60 border border-border min-h-[600px]">
                         <div
-                            className={`transition-all duration-300 w-full shadow-2xl bg-[#141416] border border-[#27272a] ${
+                            className={`transition-all duration-300 w-full shadow-2xl bg-white border border-[#e4e4e7] ${
                                 previewDevice === 'mobile' ? 'max-w-[360px]' : 'max-w-[620px]'
                             }`}
                         >
@@ -624,7 +624,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                             <div className="h-1.5 w-full bg-[#D4AF37]" />
 
                             {/* Letterhead Header / Crest */}
-                            <div className="border-b border-[#222226] px-6 py-6 text-center select-none">
+                            <div className="border-b border-[#ececef] px-6 py-6 text-center select-none">
                                 <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
                                     THE PETE EDOCHIE LEGACY
                                 </p>

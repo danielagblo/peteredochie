@@ -7,7 +7,10 @@ import logger from '../utils/logger.js';
 const router = Router();
 
 // 1. Get SMS service configuration and audience statistics (admin only)
-router.get('/status', requireAuth, requireRole('super_admin'), async (req, res) => {
+router.get('/status', requireAuth, (req, res, next) => {
+	if (req.user?.role === 'admin' || req.user?.accountType === 'admin' || req.employeeRole === 'super_admin') return next();
+	return res.status(403).json({ error: 'Super admin access required.' });
+}, async (req, res) => {
 	try {
 		const configured = isArkeselConfigured();
 
@@ -39,7 +42,10 @@ router.get('/status', requireAuth, requireRole('super_admin'), async (req, res) 
 });
 
 // 2. Fetch SMS delivery history & logs (admin only)
-router.get('/logs', requireAuth, requireRole('super_admin'), async (req, res) => {
+router.get('/logs', requireAuth, (req, res, next) => {
+	if (req.user?.role === 'admin' || req.user?.accountType === 'admin' || req.employeeRole === 'super_admin') return next();
+	return res.status(403).json({ error: 'Super admin access required.' });
+}, async (req, res) => {
 	try {
 		const logs = await prisma.smsLog.findMany({
 			orderBy: { createdAt: 'desc' },
@@ -70,7 +76,10 @@ router.get('/logs', requireAuth, requireRole('super_admin'), async (req, res) =>
 });
 
 // 3. Broadcast SMS campaign and record in sms_logs (admin only)
-router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) => {
+router.post('/send', requireAuth, (req, res, next) => {
+	if (req.user?.role === 'admin' || req.user?.accountType === 'admin' || req.employeeRole === 'super_admin') return next();
+	return res.status(403).json({ error: 'Super admin access required.' });
+}, async (req, res) => {
 	try {
 		const {
 			message,
