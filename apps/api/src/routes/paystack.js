@@ -25,8 +25,33 @@ async function buildCharge(priceUsd) {
 	return { amountInCents, currency };
 }
 
-// Meet & Greet tier prices in USD major units.
+// Meet & Greet tier prices in USD major units (fallback when an event has no
+// ticket_tiers). Events that define their own tiers are priced from them.
 const TIER_PRICES = { vip: 1000, standard: 500 };
+
+// Resolve a Meet & Greet tier from an event's ticket_tiers by slug. The tier
+// may be stored with either a `name` or `key` field, each with price/currency.
+function resolveTicketTier(event, tierSlug) {
+	const tiers = Array.isArray(event?.ticketTiers) ? event.ticketTiers : [];
+	const slug = String(tierSlug || "").toLowerCase();
+	return tiers.find((t) => {
+		const name = String(t.tier || t.name || "").toLowerCase();
+		const key = String(t.key || "").toLowerCase();
+		return name === slug || key === slug;
+	});
+}
+
+// Convert an amount expressed in `fromCurrency` into `toCurrency`. Both rates
+// come from the same USD-based snapshot, so we use the ratio. Falls back to
+// the raw amount when the target is the source, or when no source is given.
+async function convertCurrency(amount, fromCurrency, toCurrency) {
+	const from = (fromCurrency || "").toUpperCase();
+	const to = (toCurrency || "USD").toUpperCase();
+	if (!from || from === to) return Number(amount) || 0;
+	const fromRate = await getUsdRate(from);
+	const toRate = await getUsdRate(to);
+	return (Number(amount) || 0) * (toRate / fromRate);
+}
 
 // Admin roles that may bypass owner scoping on orders/tickets.
 const isAdminRole = (role) =>
@@ -451,11 +476,6 @@ router.post("/tickets/initialize", async (req, res) => {
 		return res.status(422).json({ error: "An email address is required." });
 	}
 
-	const price = TIER_PRICES[tier];
-	if (price == null) {
-		return res.status(422).json({ error: "Invalid ticket tier." });
-	}
-
 	const event = await prisma.event.findUnique({ where: { id: event_id } });
 	if (!event) {
 		return res.status(422).json({ error: "Event not found." });
@@ -463,6 +483,15 @@ router.post("/tickets/initialize", async (req, res) => {
 	if (event.eventType !== "meet_and_greet") {
 		return res.status(422).json({ error: "This event is not ticketed." });
 	}
+
+	// Price the ticket from the event's own ticket_tiers so the charge matches
+	// what visitors see. Falls back to the legacy flat TIER_PRICES map.
+	const tierDef = resolveTicketTier(event, tier);
+	let price = tierDef ? Number(tierDef.price) || 0 : TIER_PRICES[tier];
+	if (!tierDef && price == null) {
+		return res.status(422).json({ error: "Invalid ticket tier." });
+	}
+	const tierCurrency = (tierDef?.currency || "").toUpperCase() || "USD";
 
 	const reference = genTicketReference();
 	const confirmationCode = ticketCode(tier);
@@ -515,7 +544,9 @@ router.post("/tickets/initialize", async (req, res) => {
 		});
 	}
 
-	const { amountInCents, currency: chargeCurrency } = await buildCharge(price);
+	const chargeCurrency = process.env.PAYSTACK_CURRENCY || "USD";
+	const converted = await convertCurrency(price, tierCurrency, chargeCurrency);
+	const amountInCents = Math.round(converted * 100);
 	const callbackUrl = `${return_origin || ""}/events?ticket=${reference}`;
 
 	let paystackRes;
