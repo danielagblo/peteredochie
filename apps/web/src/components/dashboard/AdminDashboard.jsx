@@ -20,6 +20,7 @@ const ALL_NAV = [
     { key: 'mentorship', label: 'Mentorship', icon: GraduationCap },
     { key: 'books', label: 'Books', icon: BookOpen },
     { key: 'inventory', label: 'Inventory', icon: Package },
+    { key: 'packages', label: 'Packages & Pricing', icon: Handshake },
     { key: 'orders', label: 'Sales & Orders', icon: ShoppingCart },
     { key: 'tracking', label: 'Stock Tracking', icon: TrendingDown },
     { key: 'employees', label: 'Employees', icon: UserCog },
@@ -93,6 +94,14 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [error, setError] = useState('');
     const [eventForm, setEventForm] = useState({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass' });
     const [newsForm, setNewsForm] = useState({ title: '', excerpt: '', category: '' });
+    const [sponsorPackages, setSponsorPackages] = useState([]);
+    const [distTiers, setDistTiers] = useState([]);
+    const [ticketEventId, setTicketEventId] = useState('');
+    const [ticketTierForm, setTicketTierForm] = useState({ key: '', name: '', price: '' });
+    const [tierForm, setTierForm] = useState({ name: '', min_units: '', max_units: '', discount: '', terms: '', enabled: true });
+    const [editingTierId, setEditingTierId] = useState(null);
+    const [sponsorPkgForm, setSponsorPkgForm] = useState({ name: '', tier: '', price: '', currency: 'USD', description: '', duration: '12 months', benefits: '', image: '', enabled: true, sort: '' });
+    const [editingSponsorPkgId, setEditingSponsorPkgId] = useState(null);
     const [productForm, setProductForm] = useState(emptyProductForm);
     const [bookForm, setBookForm] = useState(emptyBookForm);
     const [categoryForm, setCategoryForm] = useState(emptyCategoryForm);
@@ -130,6 +139,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             regions: () => apiCrud.list('regions', { sort: 'name' }).catch(() => []),
             bookCategories: () => apiCrud.list('book-categories', { sort: 'sort' }).catch(() => []),
             bookPreregs: () => apiCrud.list('book-preregistrations', { sort: '-created' }).catch(() => []),
+            sponsorPackages: () => apiCrud.list('sponsorship-packages', { sort: 'sort' }).catch(() => []),
+            distTiers: () => apiCrud.list('distributor-tiers', { sort: 'sort' }).catch(() => []),
         };
 
         const want = {
@@ -149,6 +160,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             regions: () => has('countries'),
             bookCategories: () => has('analytics') || has('books'),
             bookPreregs: () => has('analytics') || has('books'),
+            sponsorPackages: () => has('analytics') || has('sponsors') || has('sponsorships') || has('packages'),
+            distTiers: () => has('packages'),
         };
 
         try {
@@ -179,6 +192,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             setSponsorships(map.sponsorships);
             setCountries(map.countries);
             setRegions(map.regions);
+            setSponsorPackages(map.sponsorPackages || []);
+            setDistTiers(map.distTiers || []);
         } catch (_) {
             setError('Some administration data could not be loaded.');
         }
@@ -508,6 +523,137 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const setSponsorshipPayment = async (id, payment_status) => {
         try { await apiCrud.update('sponsorships', id, { payment_status }); load(); }
         catch (_) { setError('Could not update that payment.'); }
+    };
+
+    const toggleSponsorPkg = async (p) => {
+        try { await apiCrud.update('sponsorship-packages', p.id, { enabled: !p.enabled }); load(); }
+        catch (_) { setError('Could not toggle that package.'); }
+    };
+
+    const resetSponsorPkgForm = () => setSponsorPkgForm({ name: '', tier: '', price: '', currency: 'USD', description: '', duration: '12 months', benefits: '', image: '', enabled: true, sort: '' });
+
+    const saveSponsorPkg = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                name: sponsorPkgForm.name,
+                tier: sponsorPkgForm.tier,
+                price: sponsorPkgForm.price === '' ? 0 : Number(sponsorPkgForm.price),
+                currency: sponsorPkgForm.currency || 'USD',
+                description: sponsorPkgForm.description || '',
+                duration: sponsorPkgForm.duration || '',
+                benefits: sponsorPkgForm.benefits ? sponsorPkgForm.benefits.split('\n').map((b) => b.trim()).filter(Boolean) : [],
+                image: sponsorPkgForm.image || '',
+                enabled: !!sponsorPkgForm.enabled,
+                sort: sponsorPkgForm.sort === '' ? 0 : Number(sponsorPkgForm.sort),
+            };
+            if (editingSponsorPkgId) {
+                await apiCrud.update('sponsorship-packages', editingSponsorPkgId, payload);
+            } else {
+                await apiCrud.create('sponsorship-packages', payload);
+            }
+            setEditingSponsorPkgId(null);
+            resetSponsorPkgForm();
+            load();
+        } catch (_) { setError('Could not save that sponsorship package.'); }
+    };
+
+    const editSponsorPkg = (p) => {
+        setEditingSponsorPkgId(p.id);
+        setSponsorPkgForm({
+            name: p.name || '', tier: p.tier || '', price: p.price ?? '',
+            currency: p.currency || 'USD', description: p.description || '',
+            duration: p.duration || '12 months',
+            benefits: Array.isArray(p.benefits) ? p.benefits.join('\n') : '',
+            image: p.image || '', enabled: !!p.enabled, sort: p.sort ?? '',
+        });
+    };
+
+    const deleteSponsorPkg = async (id) => {
+        try {
+            await apiCrud.remove('sponsorship-packages', id);
+            if (editingSponsorPkgId === id) { setEditingSponsorPkgId(null); resetSponsorPkgForm(); }
+            load();
+        } catch (_) { setError('Could not delete that sponsorship package.'); }
+    };
+
+    const resetTierForm = () => setTierForm({ name: '', min_units: '', max_units: '', discount: '', terms: '', enabled: true });
+
+    const saveTier = async (e) => {
+        e.preventDefault();
+        try {
+            const payload = {
+                name: tierForm.name,
+                min_units: tierForm.min_units === '' ? null : Number(tierForm.min_units),
+                max_units: tierForm.max_units === '' ? null : Number(tierForm.max_units),
+                discount: tierForm.discount === '' ? 0 : Number(tierForm.discount),
+                terms: tierForm.terms || '',
+                enabled: !!tierForm.enabled,
+            };
+            if (editingTierId) {
+                await apiCrud.update('distributor-tiers', editingTierId, payload);
+            } else {
+                await apiCrud.create('distributor-tiers', payload);
+            }
+            setEditingTierId(null);
+            resetTierForm();
+            load();
+        } catch (_) { setError('Could not save that distributor tier.'); }
+    };
+
+    const editTier = (t) => {
+        setEditingTierId(t.id);
+        setTierForm({
+            name: t.name || '', min_units: t.min_units ?? '', max_units: t.max_units ?? '',
+            discount: t.discount ?? '', terms: t.terms || '', enabled: !!t.enabled,
+        });
+    };
+
+    const deleteTier = async (id) => {
+        try {
+            await apiCrud.remove('distributor-tiers', id);
+            if (editingTierId === id) { setEditingTierId(null); resetTierForm(); }
+            load();
+        } catch (_) { setError('Could not delete that distributor tier.'); }
+    };
+
+    const toggleTier = async (t) => {
+        try { await apiCrud.update('distributor-tiers', t.id, { enabled: !t.enabled }); load(); }
+        catch (_) { setError('Could not toggle that tier.'); }
+    };
+
+    const selectedTicketEvent = events.find((ev) => ev.id === ticketEventId);
+    const ticketTiers = Array.isArray(selectedTicketEvent?.ticket_tiers) ? selectedTicketEvent.ticket_tiers : [];
+
+    const addTicketTier = async (e) => {
+        e.preventDefault();
+        if (!ticketEventId || !ticketTierForm.name || ticketTierForm.price === '') return;
+        const next = [...ticketTiers, {
+            key: ticketTierForm.key || ticketTierForm.name.toLowerCase().replace(/\s+/g, '_'),
+            name: ticketTierForm.name,
+            price: Number(ticketTierForm.price) || 0,
+        }];
+        try {
+            await apiCrud.update('events', ticketEventId, { ticket_tiers: next });
+            setTicketTierForm({ key: '', name: '', price: '' });
+            load();
+        } catch (_) { setError('Could not add that ticket tier.'); }
+    };
+
+    const removeTicketTier = async (idx) => {
+        if (!ticketEventId) return;
+        const next = ticketTiers.filter((_, i) => i !== idx);
+        try {
+            await apiCrud.update('events', ticketEventId, { ticket_tiers: next });
+            load();
+        } catch (_) { setError('Could not remove that ticket tier.'); }
+    };
+
+    const updateTicketEventPrice = async (id, price) => {
+        try {
+            await apiCrud.update('events', id, { price: price === '' ? 0 : Number(price) });
+            load();
+        } catch (_) { setError('Could not update that event price.'); }
     };
 
     const createCountry = async (e) => {
@@ -1274,10 +1420,135 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                         </Panel>
                     ) : null}
 
+                    {tab === 'packages' ? (
+                        <>
+                            <Panel title="Sponsorship packages" lead="Pricing tiers shown to sponsors on the public sponsorship page. Each package maps to a tier that appears on applications.">
+                                <form onSubmit={saveSponsorPkg} className="grid gap-4 md:grid-cols-2">
+                                    <input required placeholder="Package name" value={sponsorPkgForm.name} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, name: e.target.value })} className={input} />
+                                    <input required placeholder="Tier key (e.g. gold)" value={sponsorPkgForm.tier} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, tier: e.target.value })} className={input} />
+                                    <input type="number" step="0.01" required placeholder="Price" value={sponsorPkgForm.price} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, price: e.target.value })} className={input} />
+                                    <input placeholder="Currency (e.g. USD)" value={sponsorPkgForm.currency} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, currency: e.target.value })} className={input} />
+                                    <input placeholder="Duration (e.g. 12 months)" value={sponsorPkgForm.duration} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, duration: e.target.value })} className={input} />
+                                    <input placeholder="Sort order" value={sponsorPkgForm.sort} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, sort: e.target.value })} className={input} />
+                                    <input placeholder="Image URL" value={sponsorPkgForm.image} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, image: e.target.value })} className={input} />
+                                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <input type="checkbox" checked={sponsorPkgForm.enabled} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                                        Enabled
+                                    </label>
+                                    <input placeholder="Description" value={sponsorPkgForm.description} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, description: e.target.value })} className={`${input} md:col-span-2`} />
+                                    <textarea placeholder="Benefits (one per line)" rows={3} value={sponsorPkgForm.benefits} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, benefits: e.target.value })} className={`${input} md:col-span-2`} />
+                                    <div className="flex gap-3 md:col-span-2">
+                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingSponsorPkgId ? 'Update package' : 'Add package'}</button>
+                                        {editingSponsorPkgId ? <button type="button" onClick={() => { setEditingSponsorPkgId(null); resetSponsorPkgForm(); }} className={smallBtn}>Cancel</button> : null}
+                                    </div>
+                                </form>
+                                <ul className="mt-8 divide-y divide-border">
+                                    {sponsorPackages.length === 0 ? <EmptyState>No sponsorship packages yet.</EmptyState> : null}
+                                    {sponsorPackages.map((p) => (
+                                        <li key={p.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
+                                            <div className="max-w-md">
+                                                <p className="font-display text-lg">{p.name} <span className="text-xs text-muted-foreground">({p.tier})</span></p>
+                                                <p className="mt-1 text-xs text-muted-foreground">{formatUSD(p.price)} {p.currency} · {p.duration || '—'} · {p.enabled ? 'Enabled' : 'Disabled'}</p>
+                                                {Array.isArray(p.benefits) && p.benefits.length ? (
+                                                    <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{p.benefits.map((b, i) => <li key={i}>• {b}</li>)}</ul>
+                                                ) : null}
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <button type="button" onClick={() => toggleSponsorPkg(p)} className={smallBtn}>{p.enabled ? 'Disable' : 'Enable'}</button>
+                                                <button type="button" onClick={() => editSponsorPkg(p)} className={smallBtn}>Edit</button>
+                                                <button type="button" onClick={() => deleteSponsorPkg(p.id)} className={dangerBtn}>Delete</button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Panel>
+
+                            <Panel title="Distributor pricing tiers" lead="Trade pricing bands offered to approved distributors. The discount is taken off each product's retail price during a bulk order.">
+                                <form onSubmit={saveTier} className="grid gap-4 md:grid-cols-4">
+                                    <input required placeholder="Tier name" value={tierForm.name} onChange={(e) => setTierForm({ ...tierForm, name: e.target.value })} className={`${input} md:col-span-2`} />
+                                    <input type="number" placeholder="Min units" value={tierForm.min_units} onChange={(e) => setTierForm({ ...tierForm, min_units: e.target.value })} className={input} />
+                                    <input type="number" placeholder="Max units (blank = open)" value={tierForm.max_units} onChange={(e) => setTierForm({ ...tierForm, max_units: e.target.value })} className={input} />
+                                    <input type="number" step="0.01" required placeholder="Discount %" value={tierForm.discount} onChange={(e) => setTierForm({ ...tierForm, discount: e.target.value })} className={input} />
+                                    <input placeholder="Terms" value={tierForm.terms} onChange={(e) => setTierForm({ ...tierForm, terms: e.target.value })} className={`${input} md:col-span-2`} />
+                                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <input type="checkbox" checked={tierForm.enabled} onChange={(e) => setTierForm({ ...tierForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" />
+                                        Enabled
+                                    </label>
+                                    <div className="flex gap-3 md:col-span-4">
+                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingTierId ? 'Update tier' : 'Add tier'}</button>
+                                        {editingTierId ? <button type="button" onClick={() => { setEditingTierId(null); resetTierForm(); }} className={smallBtn}>Cancel</button> : null}
+                                    </div>
+                                </form>
+                                <ul className="mt-8 divide-y divide-border">
+                                    {distTiers.length === 0 ? <EmptyState>No distributor tiers yet.</EmptyState> : null}
+                                    {distTiers.map((t) => (
+                                        <li key={t.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
+                                            <div>
+                                                <p className="font-display text-lg">{t.name}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                    {t.discount}% off retail · {t.min_units ?? 0}{t.max_units ? ` – ${t.max_units} units` : '+ units'} · {t.terms || '—'} · {t.enabled ? 'Enabled' : 'Disabled'}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <button type="button" onClick={() => toggleTier(t)} className={smallBtn}>{t.enabled ? 'Disable' : 'Enable'}</button>
+                                                <button type="button" onClick={() => editTier(t)} className={smallBtn}>Edit</button>
+                                                <button type="button" onClick={() => deleteTier(t.id)} className={dangerBtn}>Delete</button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Panel>
+
+                            <Panel title="Event ticket pricing" lead="Set the base ticket price and manage PSS Meet & Greet ticket tiers for each event. Ticket tiers are used by the Paystack checkout.">
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Event</label>
+                                        <select value={ticketEventId} onChange={(e) => setTicketEventId(e.target.value)} className={input}>
+                                            <option value="">Select an event</option>
+                                            {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Base ticket price (USD)</label>
+                                        <input type="number" step="0.01" value={selectedTicketEvent?.price ?? ''} onChange={(e) => updateTicketEventPrice(ticketEventId, e.target.value)} className={input} placeholder="e.g. 500" />
+                                    </div>
+                                </div>
+
+                                {ticketEventId ? (
+                                    <>
+                                        <div className="mt-6 border border-border">
+                                            <p className="px-5 py-3 text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Ticket tiers</p>
+                                            {ticketTiers.length === 0 ? (
+                                                <p className="px-5 pb-5 text-sm text-muted-foreground">No tiers yet. Add one below.</p>
+                                            ) : (
+                                                <ul className="divide-y divide-border">
+                                                    {ticketTiers.map((tt, i) => (
+                                                        <li key={i} className="flex items-center justify-between gap-4 px-5 py-3">
+                                                            <p className="text-sm">{tt.name} <span className="text-muted-foreground">({tt.key})</span></p>
+                                                            <div className="flex items-center gap-3">
+                                                                <p className="text-sm text-[hsl(var(--gold))]">{formatUSD(tt.price)}</p>
+                                                                <button type="button" onClick={() => removeTicketTier(i)} className={smallBtn}>Remove</button>
+                                                            </div>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+                                        <form onSubmit={addTicketTier} className="mt-4 grid gap-4 md:grid-cols-4">
+                                            <input required placeholder="Tier name (e.g. VIP)" value={ticketTierForm.name} onChange={(e) => setTicketTierForm({ ...ticketTierForm, name: e.target.value })} className={input} />
+                                            <input placeholder="Key (auto if blank)" value={ticketTierForm.key} onChange={(e) => setTicketTierForm({ ...ticketTierForm, key: e.target.value })} className={input} />
+                                            <input type="number" step="0.01" required placeholder="Price" value={ticketTierForm.price} onChange={(e) => setTicketTierForm({ ...ticketTierForm, price: e.target.value })} className={input} />
+                                            <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">Add tier</button>
+                                        </form>
+                                    </>
+                                ) : null}
+                            </Panel>
+                        </>
+                    ) : null}
+
                     {tab === 'countries' ? (
                         <>
-                            <Panel title="Countries & regions" lead="Manage the countries the platform operates in, their launch status and regional coordinators. Regions are seeded per country.">
-                                <form onSubmit={createCountry} className="grid gap-4 md:grid-cols-3">
+                            <Panel title="Countries & regions" lead="Manage the countries the platform operates in, their launch status and regional coordinators. Regions are seeded per country.">                                <form onSubmit={createCountry} className="grid gap-4 md:grid-cols-3">
                                     <input required placeholder="Country name" value={countryForm.name} onChange={(e) => setCountryForm({ ...countryForm, name: e.target.value })} className={input} />
                                     <input required placeholder="Code (e.g. KE)" value={countryForm.code} onChange={(e) => setCountryForm({ ...countryForm, code: e.target.value })} className={input} />
                                     <input placeholder="Currency (e.g. KES)" value={countryForm.currency} onChange={(e) => setCountryForm({ ...countryForm, currency: e.target.value })} className={input} />

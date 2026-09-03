@@ -402,13 +402,32 @@ model Sponsorship {
   currency         String?           @db.VarChar(8)
   message          String?           @db.VarChar(3000)
   status           String?           @default("pending") // pending | approved | rejected
-  paymentStatus    String?           @map("payment_status") // unpaid | paid | refunded
+  paymentStatus    String?           @map("payment_status") // unpaid | paid | refunded | pending
+  paymentReference String?           @map("payment_reference")
+  paystackAccessCode String?         @map("paystack_access_code")
   adminNotes       String?           @map("admin_notes") @db.VarChar(2000)
   country          String?           @db.VarChar(100)
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
 
   @@map("sponsorships")
+}
+
+// ─── Distributor Pricing Tiers ────────────────────────────────────────────────
+
+model DistributorTier {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(120)
+  minUnits  Int?     @map("min_units")
+  maxUnits  Int?     @map("max_units")
+  discount  Float?   // discount percentage off retail
+  terms     String?  @db.VarChar(300)
+  enabled   Boolean? @default(true)
+  sort      Int?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("distributor_tiers")
 }
 
 // ─── Mentorship Applications ──────────────────────────────────────────────────

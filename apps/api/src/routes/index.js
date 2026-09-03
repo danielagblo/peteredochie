@@ -22,6 +22,7 @@ import mentorshipMaterials from './mentorship-materials.js';
 import bookCategories from './book-categories.js';
 import bookPreregistrations from './book-preregistrations.js';
 import stockMovements from './stock-movements.js';
+import distributorTiers from './distributor-tiers.js';
 import newsletter from './newsletter.js';
 
 const router = Router();
@@ -50,6 +51,7 @@ export default () => {
 	router.use('/book-categories', bookCategories);
 	router.use('/book-preregistrations', bookPreregistrations);
 	router.use('/stock-movements', stockMovements);
+	router.use('/distributor-tiers', distributorTiers);
 	router.use('/paystack', paystack);
 
 	return router;

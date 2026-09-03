@@ -75,6 +75,9 @@ export const initializeTicket = async (payload) => {
 // Create a pending order + start a Paystack transaction.
 // Returns { configured, authorization_url, reference, order_id } or
 // { configured: false, order_id, reference } when Paystack is not set up.
+// Create a pending order + start a Paystack transaction.
+// Returns { configured, authorization_url, reference, order_id } or
+// { configured: false, order_id, reference } when Paystack is not set up.
 export const initializeOrder = async (payload) => {
     await requireVerified();
     const res = await apiServerClient.fetch('/paystack/initialize', {
@@ -87,6 +90,45 @@ export const initializeOrder = async (payload) => {
     // state — the order is still recorded as pending, so treat it as a result.
     if (!res.ok && data?.configured !== false) {
         const err = new Error(data?.message || data?.error || 'Could not start checkout.');
+        err.payload = data;
+        err.status = res.status;
+        throw err;
+    }
+    return data;
+};
+
+// Create a sponsorship application + start a Paystack transaction.
+// Returns { configured, authorization_url, reference, sponsorship_id } or
+// { configured: false, sponsorship_id, reference } when Paystack is not set up.
+export const initializeSponsorship = async (payload) => {
+    const res = await apiServerClient.fetch('/paystack/sponsorships/initialize', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok && data?.configured !== false) {
+        const err = new Error(data?.message || data?.error || 'Could not start sponsorship checkout.');
+        err.payload = data;
+        err.status = res.status;
+        throw err;
+    }
+    return data;
+};
+
+// Create a distributor bulk order + start a Paystack transaction.
+// Returns { configured, authorization_url, reference, order_id } or
+// { configured: false, order_id, reference } when Paystack is not set up.
+export const initializeDistributorOrder = async (payload) => {
+    await requireVerified();
+    const res = await apiServerClient.fetch('/paystack/distributors/initialize', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok && data?.configured !== false) {
+        const err = new Error(data?.message || data?.error || 'Could not start distributor checkout.');
         err.payload = data;
         err.status = res.status;
         throw err;

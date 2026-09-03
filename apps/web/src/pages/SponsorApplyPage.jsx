@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, Check, Send } from 'lucide-react';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatUSD } from '@/lib/commerce';
+import { formatUSD, initializeSponsorship } from '@/lib/commerce';
 import { COUNTRIES } from '@/lib/countries';
 import { apiCrud } from '@/lib/api';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
@@ -58,22 +58,8 @@ const SponsorApplyPage = () => {
         }
         const pkg = packages.find((p) => p.tier === form.package_tier);
         setSubmitting(true);
-        openWhatsApp(
-            composeWhatsApp('Sponsorship application', {
-                Company: form.company_name,
-                Industry: form.industry,
-                Contact: form.contact_person,
-                Email: form.email,
-                Phone: form.phone,
-                Website: form.website,
-                Country: form.country,
-                Package: pkg?.name || form.package_tier,
-                Message: form.message,
-            }),
-        );
         try {
-            await apiCrud.create('sponsorships', {
-                owner: user.id,
+            const result = await initializeSponsorship({
                 company_name: form.company_name,
                 industry: form.industry,
                 contact_person: form.contact_person,
@@ -81,17 +67,33 @@ const SponsorApplyPage = () => {
                 phone: form.phone,
                 website: form.website,
                 country: form.country,
+                package_id: pkg?.id || '',
                 package_tier: form.package_tier,
-                package: pkg?.id || '',
-                investment_amount: pkg?.price || 0,
-                currency: pkg?.currency || 'USD',
                 message: form.message,
-                status: 'pending',
-                payment_status: 'unpaid',
+                return_origin: window.location.origin,
             });
+            if (result?.authorization_url) {
+                window.location.assign(result.authorization_url);
+                return;
+            }
+            // Paystack not configured yet — record kept as pending; also open
+            // WhatsApp so the partnership team still receives the enquiry.
+            openWhatsApp(
+                composeWhatsApp('Sponsorship application', {
+                    Company: form.company_name,
+                    Industry: form.industry,
+                    Contact: form.contact_person,
+                    Email: form.email,
+                    Phone: form.phone,
+                    Website: form.website,
+                    Country: form.country,
+                    Package: pkg?.name || form.package_tier,
+                    Message: form.message,
+                }),
+            );
             setDone(true);
-        } catch (_) {
-            setDone(true);
+        } catch (err) {
+            setError(err?.message || 'Could not start your sponsorship application. Please try again.');
         } finally {
             setSubmitting(false);
         }
@@ -110,7 +112,7 @@ const SponsorApplyPage = () => {
                         <Check size={40} strokeWidth={1.2} className="mx-auto text-[hsl(var(--gold))]" />
                         <h1 className="mt-6 font-display text-4xl">Application received</h1>
                         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                            {existing ? 'Your sponsorship application is already on file.' : 'WhatsApp should have opened with your application for King Dawie Publishing.'} You can also track status from your sponsor dashboard.
+                            {existing ? 'Your sponsorship application is already on file.' : 'Your sponsorship application was recorded. A partnership director at King Dawie Publishing will review and contact you.'} You can also track status from your sponsor dashboard.
                         </p>
                         <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
                             Status: {rec.status || 'pending'}
@@ -216,10 +218,10 @@ const SponsorApplyPage = () => {
                                 className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60"
                             >
                                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} strokeWidth={1.6} />}
-                                Submit via WhatsApp
+                                Continue to payment
                             </button>
                             <p className="text-xs leading-relaxed text-muted-foreground">
-                                By submitting, you agree to be contacted by King Dawie Publishing about your sponsorship. Approval is at the discretion of the partnership team.
+                                You will be redirected to a secure Paystack payment page to confirm your investment. Approval is at the discretion of the partnership team.
                             </p>
                         </div>
                     </form>

@@ -38,6 +38,18 @@ function genTicketReference() {
 	return `PEL-MG-${stamp}-${rand}`;
 }
 
+function genSponsorshipReference() {
+	const stamp = Date.now().toString(36).toUpperCase();
+	const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+	return `PEL-SP-${stamp}-${rand}`;
+}
+
+function genDistributorReference() {
+	const stamp = Date.now().toString(36).toUpperCase();
+	const rand = Math.random().toString(36).slice(2, 8).toUpperCase();
+	return `PEL-DIS-${stamp}-${rand}`;
+}
+
 function ticketCode(tier) {
 	const prefix = tier === "vip" ? "MGV" : "MGS";
 	return `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
@@ -185,6 +197,43 @@ async function markTicketPaid(reference) {
 	}
 
 	return updatedTicket;
+}
+
+async function markSponsorshipPaid(reference) {
+	const sponsorship = await prisma.sponsorship.findFirst({
+		where: { paymentReference: reference },
+		include: { owner: true, package: true },
+	});
+	if (!sponsorship) return null;
+	if (sponsorship.paymentStatus === "paid") {
+		return sponsorship; // already processed
+	}
+	const updated = await prisma.sponsorship.update({
+		where: { id: sponsorship.id },
+		data: { paymentStatus: "paid" },
+	});
+
+	// Notify the sponsor that payment was received.
+	try {
+		const recipientEmail = sponsorship.email || sponsorship.owner?.email;
+		if (recipientEmail) {
+			const tier = (sponsorship.packageTier || sponsorship.package?.name || "Sponsorship").toUpperCase();
+			await sendEmail({
+				to: recipientEmail,
+				subject: `Payment received — ${tier} Sponsorship | The Pete Edochie Legacy`,
+				text: `Thank you! Your ${tier} sponsorship payment (reference ${reference}) has been received. Our team will contact you to finalise the partnership.`,
+				html: `<p>Thank you! Your <strong>${tier}</strong> sponsorship payment (reference <strong>${reference}</strong>) has been received.</p><p>Our team will contact you to finalise the partnership.</p>`,
+			});
+		}
+	} catch (err) {
+		logger.error("sponsorship payment email failed", err.message);
+	}
+
+	return updated;
+}
+
+function distributorTierForKey(tierKey) {
+	return prisma.distributorTier.findFirst({ where: { id: tierKey } });
 }
 
 // ─── Routes ──────────────────────────────────────────────────────────────
@@ -509,12 +558,310 @@ router.post("/tickets/initialize", async (req, res) => {
 	});
 });
 
+// POST /paystack/sponsorships/initialize
+// Creates a Sponsorship record and returns a Paystack authorization URL.
+router.post("/sponsorships/initialize", async (req, res) => {
+	const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+	const userId = token ? userIdFromToken(token) : null;
+
+	const {
+		company_name,
+		industry,
+		contact_person,
+		email,
+		phone,
+		website,
+		package_id,
+		package_tier,
+		message,
+		country,
+		return_origin,
+	} = req.body || {};
+
+	if (!company_name || !contact_person || !email) {
+		return res.status(422).json({ error: "Company name, contact person and email are required." });
+	}
+
+	let price = 0;
+	let currency = "USD";
+	let tier = package_tier || null;
+	let packageId = package_id || null;
+
+	if (packageId) {
+		const pkg = await prisma.sponsorshipPackage.findUnique({ where: { id: packageId } });
+		if (!pkg) return res.status(422).json({ error: "Selected sponsorship package was not found." });
+		if (!pkg.enabled) return res.status(422).json({ error: "Selected sponsorship package is unavailable." });
+		price = Number(pkg.price) || 0;
+		currency = pkg.currency || "USD";
+		tier = pkg.tier || tier;
+	}
+
+	if (price <= 0) {
+		return res.status(422).json({ error: "Please choose a sponsorship package with a valid investment amount." });
+	}
+
+	const reference = genSponsorshipReference();
+
+	let sponsorship;
+	try {
+		sponsorship = await prisma.sponsorship.create({
+			data: {
+				ownerId: userId || null,
+				companyName: company_name,
+				industry: industry || null,
+				contactPerson: contact_person,
+				email,
+				phone: phone || null,
+				website: website || null,
+				packageId: packageId || null,
+				packageTier: tier || null,
+				investmentAmount: price,
+				currency,
+				message: message || null,
+				status: "pending",
+				paymentStatus: "pending",
+				paymentReference: reference,
+				country: country || "",
+			},
+		});
+	} catch (err) {
+		logger.error("sponsorship create failed", err.message);
+		return res.status(500).json({ error: "Could not create your sponsorship application." });
+	}
+
+	if (!isIntegrationConfigured("PAYSTACK_SECRET_KEY")) {
+		return res.status(503).json({
+			error: "INTEGRATION_NOT_CONFIGURED",
+			integration: "Paystack",
+			envKeys: "PAYSTACK_SECRET_KEY",
+			configured: false,
+			sponsorship_id: sponsorship.id,
+			reference,
+			message: "Your sponsorship proposal is recorded. Payment will open once Paystack is connected.",
+		});
+	}
+
+	const amountInCents = Math.round(price * 100);
+	const callbackUrl = `${return_origin || ""}/sponsorships?reference=${reference}`;
+
+	let paystackRes;
+	try {
+		paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${getPaystackSecretKey()}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				email,
+				amount: amountInCents,
+				currency,
+				reference,
+				callback_url: callbackUrl,
+				metadata: {
+					sponsorship_id: sponsorship.id,
+					custom_fields: [
+						{ display_name: "Company", variable_name: "company", value: company_name },
+					],
+				},
+			}),
+		});
+	} catch (err) {
+		return res.status(502).json({ error: `Paystack initialize failed: ${err.message}` });
+	}
+
+	if (!paystackRes.ok) {
+		const body = await paystackRes.text();
+		return res.status(502).json({ error: `Paystack initialize failed: ${paystackRes.status} — ${body}` });
+	}
+
+	const data = await paystackRes.json();
+	if (!data.status || !data.data?.authorization_url) {
+		return res.status(502).json({ error: "Paystack initialize returned no authorization URL." });
+	}
+
+	try {
+		await prisma.sponsorship.update({
+			where: { id: sponsorship.id },
+			data: { paystackAccessCode: data.data.access_code || "" },
+		});
+	} catch (_) {
+		/* non-fatal */
+	}
+
+	res.json({
+		configured: true,
+		sponsorship_id: sponsorship.id,
+		reference,
+		authorization_url: data.data.authorization_url,
+		access_code: data.data.access_code,
+	});
+});
+
+// POST /paystack/distributors/initialize
+// Creates an Order for a distributor's bulk purchase at the selected tier's
+// discount and returns a Paystack authorization URL.
+router.post("/distributors/initialize", async (req, res) => {
+	const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+	const userId = token ? userIdFromToken(token) : null;
+	if (!userId) {
+		return res.status(401).json({ error: "Authentication required." });
+	}
+
+	const verifier = await prisma.user.findUnique({ where: { id: userId }, select: { verified: true } });
+	if (verifier && !verifier.verified) {
+		return res.status(403).json({ error: "Please verify your email address before placing an order." });
+	}
+
+	const {
+		product_id,
+		quantity,
+		tier_id,
+		email,
+		country,
+		return_origin,
+	} = req.body || {};
+
+	if (!product_id || !quantity || !tier_id || !email) {
+		return res.status(422).json({ error: "Product, quantity, pricing tier and email are required." });
+	}
+
+	const product = await prisma.product.findUnique({ where: { id: product_id } });
+	if (!product) return res.status(422).json({ error: "Product not found." });
+	if (!product.enabled) return res.status(422).json({ error: "This product is not currently available." });
+
+	const tier = await distributorTierForKey(tier_id);
+	if (!tier || !tier.enabled) return res.status(422).json({ error: "Selected pricing tier is not available." });
+
+	const qty = Math.max(parseInt(quantity, 10) || 0, 0);
+	if (qty <= 0) return res.status(422).json({ error: "Please enter a valid quantity." });
+	if (tier.minUnits && qty < tier.minUnits) {
+		return res.status(422).json({ error: `This tier requires a minimum of ${tier.minUnits} units.` });
+	}
+	if (tier.maxUnits && qty > tier.maxUnits) {
+		return res.status(422).json({ error: `This tier is limited to a maximum of ${tier.maxUnits} units.` });
+	}
+
+	const retail = Number(product.price) || 0;
+	const discount = Number(tier.discount) || 0;
+	const unit = Math.round((retail * (1 - discount / 100)) * 100) / 100;
+	const total = Math.round(unit * qty * 100) / 100;
+
+	const reference = genDistributorReference();
+	const summary = `${product.name} × ${qty} (${tier.name}, ${discount}% off retail)`;
+
+	let order;
+	try {
+		order = await prisma.order.create({
+			data: {
+				ownerId: userId,
+				email,
+				totalPrice: total,
+				currency: "USD",
+				shippingAddress: { country: country || "" },
+				paymentStatus: "pending",
+				paymentReference: reference,
+				orderStatus: "pending",
+				itemsSummary: summary,
+				confirmationSent: false,
+				country: country || "",
+				fulfillmentMethod: "distributor",
+				items: {
+					create: [
+						{
+							productId: product.id,
+							productName: product.name,
+							productFormat: product.format || null,
+							productEdition: product.edition || "",
+							quantity: qty,
+							unitPrice: unit,
+							totalPrice: total,
+						},
+					],
+				},
+			},
+		});
+	} catch (err) {
+		logger.error("distributor order create failed", err.message);
+		return res.status(500).json({ error: "Could not create your distributor order." });
+	}
+
+	if (!isIntegrationConfigured("PAYSTACK_SECRET_KEY")) {
+		return res.status(503).json({
+			error: "INTEGRATION_NOT_CONFIGURED",
+			integration: "Paystack",
+			envKeys: "PAYSTACK_SECRET_KEY",
+			configured: false,
+			order_id: order.id,
+			reference,
+			message: "Your bulk order is recorded. Payment will open once Paystack is connected.",
+		});
+	}
+
+	const amountInCents = Math.round(total * 100);
+	const callbackUrl = `${return_origin || ""}/dashboard?distributor_order=${reference}`;
+
+	let paystackRes;
+	try {
+		paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${getPaystackSecretKey()}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				email,
+				amount: amountInCents,
+				currency: "USD",
+				reference,
+				callback_url: callbackUrl,
+				metadata: {
+					order_id: order.id,
+					custom_fields: [
+						{ display_name: "Distributor Order", variable_name: "dist_order", value: reference },
+					],
+				},
+			}),
+		});
+	} catch (err) {
+		return res.status(502).json({ error: `Paystack initialize failed: ${err.message}` });
+	}
+
+	if (!paystackRes.ok) {
+		const body = await paystackRes.text();
+		return res.status(502).json({ error: `Paystack initialize failed: ${paystackRes.status} — ${body}` });
+	}
+
+	const data = await paystackRes.json();
+	if (!data.status || !data.data?.authorization_url) {
+		return res.status(502).json({ error: "Paystack initialize returned no authorization URL." });
+	}
+
+	try {
+		await prisma.order.update({
+			where: { id: order.id },
+			data: { paystackAccessCode: data.data.access_code || "" },
+		});
+	} catch (_) {
+		/* non-fatal */
+	}
+
+	res.json({
+		configured: true,
+		order_id: order.id,
+		reference,
+		authorization_url: data.data.authorization_url,
+		access_code: data.data.access_code,
+	});
+});
+
 // GET /paystack/verify?reference=...
 router.get("/verify", async (req, res) => {
 	const { reference } = req.query;
 	if (!reference) return res.status(422).json({ error: "reference is required" });
 
 	const isTicket = String(reference).startsWith("PEL-MG-");
+	const isSponsorship = String(reference).startsWith("PEL-SP-");
 
 	if (!isIntegrationConfigured("PAYSTACK_SECRET_KEY")) {
 		try {
@@ -554,7 +901,10 @@ router.get("/verify", async (req, res) => {
 
 	if (!success) {
 		try {
-			if (isTicket) {
+			if (isSponsorship) {
+				const s = await prisma.sponsorship.findFirst({ where: { paymentReference: reference } });
+				if (s) await prisma.sponsorship.update({ where: { id: s.id }, data: { paymentStatus: "failed" } });
+			} else if (isTicket) {
 				const t = await prisma.meetAndGreetTicket.findFirst({ where: { paymentReference: reference } });
 				if (t) await prisma.meetAndGreetTicket.update({ where: { id: t.id }, data: { paymentStatus: "failed" } });
 			} else {
@@ -562,7 +912,13 @@ router.get("/verify", async (req, res) => {
 				if (o) await prisma.order.update({ where: { id: o.id }, data: { paymentStatus: "failed" } });
 			}
 		} catch (_) { /* ignore */ }
-		return res.json({ configured: true, kind: isTicket ? "ticket" : "order", reference, payment_status: "failed" });
+		const kind = isSponsorship ? "sponsorship" : isTicket ? "ticket" : "order";
+		return res.json({ configured: true, kind, reference, payment_status: "failed" });
+	}
+
+	if (isSponsorship) {
+		const sponsorship = await markSponsorshipPaid(reference);
+		return res.json({ configured: true, kind: "sponsorship", sponsorship_id: sponsorship?.id, reference, payment_status: "paid" });
 	}
 
 	if (isTicket) {
@@ -599,7 +955,9 @@ router.post("/webhook", async (req, res) => {
 	if (event.event === "charge.success" && event.data?.status === "success") {
 		const ref = event.data.reference;
 		try {
-			if (ref && String(ref).startsWith("PEL-MG-")) {
+			if (ref && String(ref).startsWith("PEL-SP-")) {
+				await markSponsorshipPaid(ref);
+			} else if (ref && String(ref).startsWith("PEL-MG-")) {
 				await markTicketPaid(ref);
 			} else {
 				await markOrderPaid(ref);

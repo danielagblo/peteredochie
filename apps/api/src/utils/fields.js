@@ -246,6 +246,8 @@ const INPUT = {
 		message: 'message',
 		status: 'status',
 		payment_status: 'paymentStatus',
+		payment_reference: 'paymentReference',
+		paystack_access_code: 'paystackAccessCode',
 		admin_notes: 'adminNotes',
 		country: 'country',
 	},
@@ -285,6 +287,16 @@ const INPUT = {
 		new_stock: 'newStock',
 		reason: 'reason',
 		created_by: 'createdById',
+	},
+	distributorTier: {
+		id: 'id',
+		name: 'name',
+		min_units: 'minUnits',
+		max_units: 'maxUnits',
+		discount: 'discount',
+		terms: 'terms',
+		enabled: 'enabled',
+		sort: 'sort',
 	},
 };
 
@@ -414,6 +426,7 @@ export function mapModel(snakeModel) {
 		'mentorship-applications': 'mentorshipApplication',
 		'mentorship-materials': 'mentorshipMaterial',
 		'stock-movements': 'stockMovement',
+		'distributor-tiers': 'distributorTier',
 		'book-categories': 'bookCategory',
 		'book-preregistrations': 'bookPreregistration',
 	};

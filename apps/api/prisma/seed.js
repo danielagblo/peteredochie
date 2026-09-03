@@ -65,6 +65,12 @@ const PACKAGES = [
 	{ name: 'Bronze Partner', tier: 'bronze', price: 7500, currency: 'USD', sort: 4, benefits: ['Logo on website', 'Recognition'] },
 ];
 
+const DISTRIBUTOR_TIERS = [
+	{ name: 'Tier 1 — 50 to 249 units', minUnits: 50, maxUnits: 249, discount: 35, terms: 'Payment on order', sort: 1 },
+	{ name: 'Tier 2 — 250 to 999 units', minUnits: 250, maxUnits: 999, discount: 42, terms: '30-day terms on approval', sort: 2 },
+	{ name: 'Tier 3 — 1,000+ units', minUnits: 1000, maxUnits: null, discount: 50, terms: 'Negotiated terms and freight support', sort: 3 },
+];
+
 async function main() {
 	// Remove previously-seeded catalog/content so re-running keeps them fresh,
 	// but preserve users and employee roles so real accounts and passwords are not wiped.
@@ -152,6 +158,15 @@ async function main() {
 		});
 	}
 	console.log(`  sponsorship packages: ${PACKAGES.length}`);
+
+	for (const t of DISTRIBUTOR_TIERS) {
+		await prisma.distributorTier.upsert({
+			where: { id: `dist-tier-${t.sort}` },
+			update: { name: t.name, minUnits: t.minUnits, maxUnits: t.maxUnits, discount: t.discount, terms: t.terms, enabled: true },
+			create: { id: `dist-tier-${t.sort}`, name: t.name, minUnits: t.minUnits, maxUnits: t.maxUnits, discount: t.discount, terms: t.terms, enabled: true, sort: t.sort },
+		});
+	}
+	console.log(`  distributor tiers: ${DISTRIBUTOR_TIERS.length}`);
 
 	const CATEGORY_SEEDS = [
 		{ name: 'Hardcover Editions', slug: 'hardcover-editions', description: 'Cloth-bound and standard hardcover books from the Peter Edochie Legacy imprint.', sort: 1, enabled: true },
