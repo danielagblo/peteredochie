@@ -878,12 +878,12 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                                 {c.previewText && <p className="text-[0.68rem] text-muted-foreground truncate max-w-xs">{c.previewText}</p>}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground">
-                                                {c.targetInterest === 'all' && c.targetCountry === 'all'
+                                                {c.target_interest === 'all' && c.target_country === 'all'
                                                     ? 'All Subscribers'
-                                                    : `${c.targetInterest !== 'all' ? c.targetInterest : 'Any Interest'}${c.targetCountry !== 'all' ? ` (${c.targetCountry})` : ''}`}
+                                                    : `${c.target_interest !== 'all' && c.target_interest ? c.target_interest : 'Any Interest'}${c.target_country !== 'all' && c.target_country ? ` (${c.target_country})` : ''}`}
                                             </td>
                                             <td className="px-4 py-3 font-semibold text-foreground">
-                                                {c.recipientCount || 0}
+                                                {c.recipient_count || 0}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className="inline-block border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] uppercase tracking-wider text-emerald-400">
@@ -891,10 +891,10 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                                                {fmtDateTime(c.sentAt || c.createdAt)}
+                                                {fmtDateTime(c.sent_at || c.created)}
                                             </td>
                                             <td className="px-4 py-3 text-muted-foreground">
-                                                {c.sender?.name || c.sender?.email || 'Admin'}
+                                                {c.sent_by?.name || c.sent_by?.email || 'Admin'}
                                             </td>
                                         </tr>
                                     ))}
