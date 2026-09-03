@@ -3,7 +3,7 @@ import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, 
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
-import { formatUSD } from '@/lib/commerce';
+import { formatUSD, paystackStatus } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { emptyBookForm, emptyCategoryForm } from '@/lib/books';
 import ProductQrPanel from '@/components/ProductQrPanel';
@@ -87,6 +87,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [bookPreregistrations, setBookPreregistrations] = useState([]);
     const [enquiries, setEnquiries] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [paystackReady, setPaystackReady] = useState(false);
     const [movements, setMovements] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [orderItems, setOrderItems] = useState({});
@@ -201,6 +202,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     useEffect(() => {
         load();
     }, [load]);
+
+    useEffect(() => {
+        let active = true;
+        paystackStatus().then((ready) => { if (active) setPaystackReady(ready); }).catch(() => { if (active) setPaystackReady(false); });
+        return () => { active = false; };
+    }, []);
 
     // Load line items for each order (expanded into a map by order id).
     useEffect(() => {
@@ -1416,9 +1423,76 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     ) : null}
 
                     {tab === 'payments' ? (
-                        <Panel title="Payments & reconciliation" lead="Paystack transactions reconcile automatically. Add your Paystack secret key in the API server env to enable live payments.">
-                            <EmptyState>Payment reconciliation appears here once Paystack is connected and orders are paid.</EmptyState>
-                        </Panel>
+                        <>
+                            <Panel title="Payments & reconciliation" lead="Paid orders, sponsorships and ticket payments reconcile automatically via the Paystack webhook.">
+                                <div className={`mb-6 flex flex-wrap items-center justify-between gap-3 border px-5 py-4 ${paystackReady ? 'border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5' : 'border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/5'}`}>
+                                    <p className="text-sm text-foreground">
+                                        {paystackReady ? 'Live payments are configured and reconciled automatically.' : 'Paystack is not configured. Add PAYSTACK_SECRET_KEY to the API server env to enable live payments.'}
+                                    </p>
+                                    <span className={`text-[0.62rem] uppercase tracking-[0.2em] ${paystackReady ? 'text-[hsl(var(--gold))]' : 'text-[hsl(var(--destructive))]'}`}>
+                                        {paystackReady ? 'Connected' : 'Not configured'}
+                                    </span>
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <Stat label="Paid orders" value={orders.filter((o) => o.payment_status === 'paid').length} />
+                                    <Stat label="Paid sponsorships" value={sponsorships.filter((s) => s.payment_status === 'paid').length} />
+                                    <Stat label="Reconciled revenue" value={formatUSD(
+                                        orders.filter((o) => o.payment_status === 'paid').reduce((n, o) => n + (Number(o.total_price) || 0), 0) +
+                                        sponsorships.filter((s) => s.payment_status === 'paid').reduce((n, s) => n + (Number(s.investment_amount) || 0), 0),
+                                    )} />
+                                </div>
+                            </Panel>
+
+                            <Panel title="Payment ledger" lead="All successfully paid transactions, most recent first.">
+                                {(() => {
+                                    const ledger = [
+                                        ...orders
+                                            .filter((o) => o.payment_status === 'paid')
+                                            .map((o) => ({
+                                                id: o.id,
+                                                kind: 'Order',
+                                                label: o.items_summary || o.email || 'Order',
+                                                ref: o.payment_reference || o.id,
+                                                amount: o.total_price,
+                                                currency: o.currency || 'USD',
+                                                created: o.created,
+                                            })),
+                                        ...sponsorships
+                                            .filter((s) => s.payment_status === 'paid')
+                                            .map((s) => ({
+                                                id: s.id,
+                                                kind: 'Sponsorship',
+                                                label: s.company_name || 'Sponsorship',
+                                                ref: s.payment_reference || s.id,
+                                                amount: s.investment_amount || 0,
+                                                currency: s.currency || 'USD',
+                                                created: s.created,
+                                            })),
+                                    ].sort((a, b) => new Date(b.created) - new Date(a.created));
+
+                                    if (ledger.length === 0) {
+                                        return <EmptyState>No paid transactions yet. Completed Paystack payments will appear here automatically.</EmptyState>;
+                                    }
+
+                                    return (
+                                        <ul className="divide-y divide-border border border-border">
+                                            {ledger.map((tx) => (
+                                                <li key={tx.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-4">
+                                                    <div>
+                                                        <p className="font-mono text-[0.6rem] uppercase tracking-[0.15em] text-muted-foreground">{tx.ref}</p>
+                                                        <p className="mt-1 text-sm">{tx.label}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-display text-lg">{formatUSD(tx.amount)}</p>
+                                                        <p className="mt-1 text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{tx.kind} · {fmtDate(tx.created)}</p>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    );
+                                })()}
+                            </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'sponsorships' ? (
