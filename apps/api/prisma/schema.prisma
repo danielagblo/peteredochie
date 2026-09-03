@@ -53,6 +53,7 @@ model User {
   ownedEventRegistrations      EventRegistration[] @relation("EventRegOwner")
   distributedEventRegistrations EventRegistration[] @relation("EventRegDistributor")
   sentCampaigns          NewsletterCampaign[]
+  sentSmsLogs            SmsLog[]
 
   @@map("users")
 }
@@ -85,6 +86,7 @@ model Event {
   image          String?  @db.VarChar(500)
   eventType      String?  @map("event_type") // ghana_launch | masterclass | meet_and_greet
   invitationOnly Boolean? @map("invitation_only")
+  price          String?  @db.VarChar(60)
   ticketTiers    Json?    @map("ticket_tiers")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
@@ -507,4 +509,21 @@ model NewsletterCampaign {
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
   @@map("newsletter_campaigns")
+}
+
+// ─── SMS Logs ─────────────────────────────────────────────────────────────────
+
+model SmsLog {
+  id             String    @id @default(uuid())
+  recipientPhone String    @map("recipient_phone") @db.VarChar(40)
+  message        String    @db.VarChar(1000)
+  senderId       String?   @map("sender_id") @db.VarChar(20)
+  status         String    @default("sent") // sent | delivered | failed
+  context        String?   @db.VarChar(60) // broadcast | order | ticket | approval | mentorship
+  sentById       String?   @map("sent_by_id")
+  sentBy         User?     @relation(fields: [sentById], references: [id])
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("sms_logs")
 }

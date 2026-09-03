@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog, Smartphone } from 'lucide-react';
+import { BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, Handshake, Landmark, Mail, Package, ShoppingCart, TrendingDown, Truck, Users, GraduationCap, UserCog, Smartphone } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
@@ -29,7 +29,6 @@ const ALL_NAV = [
     { key: 'newsletter', label: 'Newsletter Campaigns', icon: Mail },
     { key: 'sms', label: 'SMS Broadcasts', icon: Smartphone },
     { key: 'payments', label: 'Payments', icon: CreditCard },
-    { key: 'reports', label: 'Reports', icon: BarChart3 },
 ];
 
 const ROLE_TABS = {
@@ -150,12 +149,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             users: () => has('users') || has('distributors') || has('countries'),
             events: () => has('analytics') || has('events') || has('countries'),
             news: () => has('analytics') || has('cms'),
-            products: () => has('analytics') || has('books') || has('inventory') || has('tracking') || has('orders') || has('reports'),
+            products: () => has('analytics') || has('books') || has('inventory') || has('tracking') || has('orders'),
             enquiries: () => has('analytics') || has('books') || has('cms'),
-            orders: () => has('analytics') || has('orders') || has('reports'),
+            orders: () => has('analytics') || has('orders'),
             movements: () => has('tracking'),
             employees: () => has('employees'),
-            subscribers: () => has('analytics') || has('newsletter') || has('reports'),
+            subscribers: () => has('analytics') || has('newsletter'),
             applications: () => has('mentorship'),
             materials: () => has('mentorship'),
             sponsorships: () => has('analytics') || has('sponsors') || has('sponsorships'),
