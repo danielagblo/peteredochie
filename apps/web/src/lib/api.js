@@ -89,9 +89,27 @@ export async function apiFetch(path, options = {}) {
 
 	const data = res.status === 204 ? null : await res.json().catch(() => null);
 	if (!res.ok) {
-		const err = new Error(data?.error || data?.message || `Request failed (${res.status})`);
+		const retryAfter = res.headers.get('Retry-After');
+		const seconds = retryAfter ? parseInt(retryAfter, 10) : null;
+		const retryHint = seconds ? ` Please wait ${seconds} second${seconds === 1 ? '' : 's'}.` : ' Please wait a moment and try again.';
+
+		if (res.status === 429) {
+			try {
+				const { toast } = await import('@/hooks/use-toast');
+				toast({
+					variant: 'destructive',
+					title: 'Rate limit reached',
+					description: `Too many requests have been made in a short time.${retryHint}`,
+				});
+			} catch (_) {
+				/* ignore toast error if not available */
+			}
+		}
+
+		const err = new Error(data?.error || data?.message || (res.status === 429 ? `Too many requests.${retryHint}` : `Request failed (${res.status})`));
 		err.status = res.status;
 		err.payload = data;
+		err.retryAfter = seconds;
 		if (res.status === 401) authStore.clear();
 		throw err;
 	}
