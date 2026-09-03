@@ -110,7 +110,7 @@ const EventCard = ({ event, onParticipate }) => {
                                 onClick={() => onParticipate(event)}
                                 className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black"
                             >
-                                Register now · {event.price || 'Free'}
+                                Register now
                             </button>
                         ) : (
                             <button

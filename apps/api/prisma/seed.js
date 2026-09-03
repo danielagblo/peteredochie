@@ -30,7 +30,7 @@ const EVENTS = [
 		title: 'The Journey Continues: Peter Edochie Book Launch – Accra',
 		city: 'Accra', venue: 'Accra International Conference Centre',
 		starts: new Date(), ends: new Date(), summary: 'An evening of stories, mentorship and celebration as we launch Peter Edochie\u2019s latest body of work in Ghana.',
-		category: 'launch', eventType: 'ghana_launch', invitationOnly: false, price: 'From GHS 150',
+		category: 'launch', eventType: 'ghana_launch', invitationOnly: false,
 		ticketTiers: [
 			{ name: 'Standard', price: 150, currency: 'GHS' },
 			{ name: 'VIP', price: 500, currency: 'GHS' },
@@ -40,7 +40,7 @@ const EVENTS = [
 		title: 'The Masterclass: Writing With Purpose',
 		city: 'Lagos', venue: 'Eko Hotel & Suites',
 		starts: new Date(), ends: new Date(), summary: 'A hands-on masterclass for aspiring writers, entrepreneurs and storytellers.',
-		category: 'masterclass', eventType: 'masterclass', invitationOnly: false, price: 'From NGN 50,000',
+		category: 'masterclass', eventType: 'masterclass', invitationOnly: false,
 		ticketTiers: [
 			{ name: 'Standard', price: 50000, currency: 'NGN' },
 			{ name: 'VIP', price: 150000, currency: 'NGN' },
@@ -50,7 +50,7 @@ const EVENTS = [
 		title: 'Meet & Greet: An Intimate Evening With Peter Edochie',
 		city: 'London', venue: 'The Cumberland, London',
 		starts: new Date(), ends: new Date(), summary: 'A limited-capacity meet and greet with behind-the-scenes stories, photo opportunities and a signed copy of the book.',
-		category: 'meet_and_greet', eventType: 'meet_and_greet', invitationOnly: true, price: 'From £80',
+		category: 'meet_and_greet', eventType: 'meet_and_greet', invitationOnly: true,
 		ticketTiers: [
 			{ name: 'standard', price: 80, currency: 'GBP' },
 			{ name: 'vip', price: 200, currency: 'GBP' },
@@ -143,7 +143,7 @@ async function main() {
 					title: ev.title, city: ev.city, venue: ev.venue,
 					starts: ev.starts, ends: ev.ends, summary: ev.summary,
 					category: ev.category, eventType: ev.eventType,
-					invitationOnly: ev.invitationOnly, price: ev.price, ticketTiers: ev.ticketTiers,
+					invitationOnly: ev.invitationOnly, ticketTiers: ev.ticketTiers,
 				},
 			});
 		}

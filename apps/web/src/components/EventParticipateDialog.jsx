@@ -445,7 +445,7 @@ const MasterclassRegister = ({
             <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Registering as</p>
             <p className="mt-2 font-display text-xl">{user?.name || user?.email}</p>
             <p className="mt-1 text-xs text-muted-foreground">{user?.email}</p>
-            <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">{event.price || 'Free'}</p>
+            <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">Free</p>
         </div>
         <div className="mt-6 border-t border-border pt-6">
             <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Country & pass collection</p>

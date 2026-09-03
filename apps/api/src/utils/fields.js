@@ -51,7 +51,6 @@ const INPUT = {
 		image: 'image',
 		event_type: 'eventType',
 		invitation_only: 'invitationOnly',
-		price: 'price',
 		ticket_tiers: 'ticketTiers',
 	},
 	news: {

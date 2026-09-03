@@ -85,7 +85,6 @@ model Event {
   image          String?  @db.VarChar(500)
   eventType      String?  @map("event_type") // ghana_launch | masterclass | meet_and_greet
   invitationOnly Boolean? @map("invitation_only")
-  price          String?  @db.VarChar(60)
   ticketTiers    Json?    @map("ticket_tiers")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

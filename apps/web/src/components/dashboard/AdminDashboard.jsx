@@ -689,13 +689,6 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         } catch (_) { setError('Could not remove that ticket tier.'); }
     };
 
-    const updateTicketEventPrice = async (id, price) => {
-        try {
-            await apiCrud.update('events', id, { price: price === '' ? 0 : Number(price) });
-            load();
-        } catch (_) { setError('Could not update that event price.'); }
-    };
-
     const createCountry = async (e) => {
         e.preventDefault();
         if (!countryForm.name || !countryForm.code) { setError('Country name and code are required.'); return; }
@@ -1671,19 +1664,13 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 </ul>
                             </Panel>
 
-                            <Panel title="Event ticket pricing" lead="Set the base ticket price and manage PSS Meet & Greet ticket tiers for each event. Ticket tiers are used by the Paystack checkout.">
-                                <div className="grid gap-4 md:grid-cols-2">
-                                    <div className="grid gap-2">
-                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Event</label>
-                                        <select value={ticketEventId} onChange={(e) => setTicketEventId(e.target.value)} className={input}>
-                                            <option value="">Select an event</option>
-                                            {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Base ticket price (USD)</label>
-                                        <input type="number" step="0.01" value={selectedTicketEvent?.price ?? ''} onChange={(e) => updateTicketEventPrice(ticketEventId, e.target.value)} className={input} placeholder="e.g. 500" />
-                                    </div>
+                            <Panel title="Event ticket pricing" lead="Manage ticket tiers for each event. Ticket tiers are used by the Paystack checkout.">
+                                <div className="grid gap-2">
+                                    <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Event</label>
+                                    <select value={ticketEventId} onChange={(e) => setTicketEventId(e.target.value)} className={input}>
+                                        <option value="">Select an event</option>
+                                        {events.map((ev) => <option key={ev.id} value={ev.id}>{ev.title}</option>)}
+                                    </select>
                                 </div>
 
                                 {ticketEventId ? (
