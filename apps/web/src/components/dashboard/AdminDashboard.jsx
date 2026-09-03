@@ -1793,21 +1793,6 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                             countries={countries}
                         />
                     ) : null}
-
-                    {tab === 'reports' ? (
-                        <Panel title="Reports & exports" lead="Export account, subscriber, order and event data.">
-                            <div className="grid gap-4 sm:grid-cols-3">
-                                <Stat label="Accounts" value={users.length} />
-                                <Stat label="Subscribers" value={subscribers.length} />
-                                <Stat label="Journal entries" value={news.length} />
-                            </div>
-                            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                                <Stat label="Products" value={products.length} />
-                                <Stat label="Orders" value={orders.length} />
-                                <Stat label="Paid orders" value={orders.filter((o) => o.payment_status === 'paid').length} />
-                            </div>
-                        </Panel>
-                    ) : null}
                 </>
             )}
         </DashboardShell>
