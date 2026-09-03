@@ -128,16 +128,20 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 		}
 
 		// Log each sent SMS into sms_logs database table
-		await prisma.smsLog.createMany({
-			data: uniqueRecipients.map((phone) => ({
-				recipientPhone: phone,
-				message: text,
-				senderId: ARKESEL_SENDER_ID,
-				status: 'sent',
-				context,
-				sentById: req.user?.id || null,
-			})),
-		});
+		try {
+			await prisma.smsLog.createMany({
+				data: uniqueRecipients.map((phone) => ({
+					recipientPhone: phone,
+					message: text,
+					senderId: ARKESEL_SENDER_ID,
+					status: 'sent',
+					context,
+					sentById: req.user?.id || null,
+				})),
+			});
+		} catch (logErr) {
+			logger.error('Failed to write to sms_logs table:', logErr);
+		}
 
 		res.json({
 			success: true,
@@ -150,7 +154,7 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 		});
 	} catch (err) {
 		logger.error('SMS broadcast error:', err);
-		res.status(500).json({ error: 'Could not complete SMS broadcast.' });
+		res.status(500).json({ error: err.message || 'Could not complete SMS broadcast.' });
 	}
 });
 
