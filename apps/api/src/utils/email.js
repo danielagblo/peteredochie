@@ -22,11 +22,34 @@ export function isEmailConfigured() {
 	return isGmailConfigured() || isSmtpConfigured();
 }
 
-// Build the message with nodemailer's MailComposer, then send it through the
-// Gmail API as a base64url-encoded RFC 822 / MIME message (over HTTPS, no SMTP).
 async function sendViaGmailApi({ to, from, replyTo, subject, text, html, attachments }) {
 	const { google } = await import('googleapis');
-	const { default: MailComposer } = await import('nodemailer/lib/mail-composer');
+	const { default: nodemailer } = await import('nodemailer');
+	const { default: MailComposer } = await import('nodemailer/lib/mail-composer/index.js').catch(async () => {
+		// Fallback for bundlers or different packaging layouts
+		const Mail = nodemailer.createTransport({ streamTransport: true });
+		return {
+			default: class {
+				constructor(opts) {
+					this.opts = opts;
+				}
+				compile() {
+					return {
+						build: () =>
+							new Promise((resolve, reject) => {
+								Mail.sendMail(this.opts, (err, info) => {
+									if (err) return reject(err);
+									const chunks = [];
+									info.message.on('data', (chunk) => chunks.push(chunk));
+									info.message.on('end', () => resolve(Buffer.concat(chunks)));
+									info.message.on('error', reject);
+								});
+							}),
+					};
+				}
+			},
+		};
+	});
 
 	const clientId = process.env.GMAIL_CLIENT_ID;
 	const clientSecret = process.env.GMAIL_CLIENT_SECRET;
