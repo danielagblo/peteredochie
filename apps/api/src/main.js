@@ -1,7 +1,17 @@
+import fs from 'node:fs';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+
+// Load .env locally if present; on cloud platforms like Railway, env vars are injected directly into process.env
+if (fs.existsSync('.env')) {
+	try {
+		process.loadEnvFile('.env');
+	} catch (_) {
+		/* ignore */
+	}
+}
 
 import routes from './routes/index.js';
 import { errorMiddleware } from './middleware/error.js';

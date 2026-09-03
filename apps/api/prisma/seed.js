@@ -1,5 +1,14 @@
+import fs from 'node:fs';
 import bcrypt from 'bcryptjs';
 import { createPrismaClient } from '../src/utils/prisma.js';
+
+if (fs.existsSync('.env')) {
+	try {
+		process.loadEnvFile('.env');
+	} catch (_) {
+		/* ignore */
+	}
+}
 
 const prisma = createPrismaClient();
 
