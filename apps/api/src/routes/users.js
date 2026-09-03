@@ -51,7 +51,9 @@ const controller = crudController(prisma.user, {
 		return data;
 	},
 	preUpdate: async (req, data) => {
-		const isPrivilegedStaff = ['super_admin', 'sales_manager', 'inventory_manager', 'fulfillment_officer', 'country_manager', 'sponsorship_manager'].includes(req.employeeRole);
+		const role = req.employeeRole || req.user?.staffRole || req.user?.role || req.user?.accountType;
+		const isPrivilegedStaff = ['super_admin', 'admin', 'sales_manager', 'inventory_manager', 'fulfillment_officer', 'country_manager', 'sponsorship_manager'].includes(role);
+		
 		if (!isPrivilegedStaff) {
 			// Non-staff users cannot change protected fields (role, approvalStatus, accountType)
 			// and can only edit their own profile.
@@ -59,7 +61,7 @@ const controller = crudController(prisma.user, {
 			if (req.user && req.params.id !== req.user.id) {
 				throw Object.assign(new Error('Not allowed'), { status: 403 });
 			}
-		} else if (req.employeeRole !== 'super_admin') {
+		} else if (role !== 'super_admin') {
 			// Staff managers can update approval status, but only super_admin can change staffRole
 			delete data.staffRole;
 		}
@@ -72,14 +74,22 @@ const controller = crudController(prisma.user, {
 	// 3. Send SMS & Email when a distributor or sponsor application is approved
 	postUpdate: async (req, updatedUser, incomingData) => {
 		const status = incomingData?.approvalStatus || incomingData?.approval_status;
+		logger.info(`[postUpdate user] id=${updatedUser?.id} incoming_status=${status} accountType=${updatedUser?.accountType}`);
+		
 		if (status === 'approved') {
-			const typeLabel = updatedUser.accountType === 'distributor' ? 'Distributor' : updatedUser.accountType === 'sponsor' ? 'Sponsor' : 'Member';
+			// Ensure we have the latest user record with phone & email
+			let userRecord = updatedUser;
+			if (!userRecord.phone || !userRecord.email) {
+				userRecord = (await prisma.user.findUnique({ where: { id: updatedUser.id } })) || updatedUser;
+			}
+
+			const typeLabel = userRecord.accountType === 'distributor' ? 'Distributor' : userRecord.accountType === 'sponsor' ? 'Sponsor' : 'Member';
 			
-			if (updatedUser.phone) {
-				logger.info(`[approval] Dispatching SMS to ${updatedUser.phone} for user ${updatedUser.id}`);
+			if (userRecord.phone) {
+				logger.info(`[approval] Dispatching SMS to ${userRecord.phone} for user ${userRecord.id}`);
 				try {
 					const smsRes = await sendSms({
-						to: updatedUser.phone,
+						to: userRecord.phone,
 						message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at peteredochie.com/dashboard to access trade pricing and tools.`,
 					});
 					logger.info('[approval sms result]', JSON.stringify(smsRes));
@@ -87,19 +97,19 @@ const controller = crudController(prisma.user, {
 					logger.error('[approval sms failed]', err.message);
 				}
 			} else {
-				logger.warn(`[approval] User ${updatedUser.id} (${updatedUser.email}) has no phone number on file. SMS skipped.`);
+				logger.warn(`[approval] User ${userRecord.id} (${userRecord.email}) has no phone number on file. SMS skipped.`);
 			}
 
-			if (updatedUser.email) {
-				logger.info(`[approval] Dispatching email to ${updatedUser.email}`);
+			if (userRecord.email) {
+				logger.info(`[approval] Dispatching email to ${userRecord.email}`);
 				try {
 					await sendEmail({
-						to: updatedUser.email,
+						to: userRecord.email,
 						subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
 						text: `Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
 						html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
 					});
-					logger.info(`[approval email sent] to=${updatedUser.email}`);
+					logger.info(`[approval email sent] to=${userRecord.email}`);
 				} catch (err) {
 					logger.error('[approval email failed]', err.message);
 				}
