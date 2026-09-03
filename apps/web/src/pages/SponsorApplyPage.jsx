@@ -99,7 +99,7 @@ const SponsorApplyPage = () => {
         }
     };
 
-    if (done || existing) {
+    if (done || (existing && existing.payment_status === 'paid')) {
         const rec = existing || {};
         return (
             <div className="pt-32 pb-28">
@@ -115,11 +115,68 @@ const SponsorApplyPage = () => {
                             {existing ? 'Your sponsorship application is already on file.' : 'Your sponsorship application was recorded. A partnership director at King Dawie Publishing will review and contact you.'} You can also track status from your sponsor dashboard.
                         </p>
                         <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
-                            Status: {rec.status || 'pending'}
+                            Status: {rec.status || 'pending'} · Payment: {rec.payment_status || 'unpaid'}
                         </p>
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
                             <Link to="/dashboard" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white">Go to dashboard</Link>
                             <Link to="/sponsors" className="border border-border px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground">Back to sponsors</Link>
+                        </div>
+                    </div>
+                </Section>
+            </div>
+        );
+    }
+
+    if (existing) {
+        const rec = existing;
+        const onResume = async () => {
+            setError('');
+            setSubmitting(true);
+            try {
+                const result = await initializeSponsorship({
+                    sponsorship_id: rec.id,
+                    company_name: rec.company_name,
+                    contact_person: rec.contact_person,
+                    email: rec.email,
+                    package_id: typeof rec.package === 'object' ? rec.package?.id : rec.package_id,
+                    package_tier: rec.package_tier,
+                    return_origin: window.location.origin,
+                });
+                if (result?.authorization_url) {
+                    window.location.assign(result.authorization_url);
+                    return;
+                }
+                setDone(true);
+            } catch (err) {
+                setError(err?.message || 'Could not start payment. Please try again.');
+            } finally {
+                setSubmitting(false);
+            }
+        };
+        return (
+            <div className="pt-32 pb-28">
+                <PageHead
+                    title="Resume sponsorship payment | The Peter Edochie Legacy"
+                    description="Finish payment for your pending sponsorship application."
+                />
+                <Section width="max-w-[48rem]">
+                    <div className="border border-border bg-card p-10 text-center">
+                        <Loader2 size={40} strokeWidth={1.2} className="mx-auto text-[hsl(var(--gold))]" />
+                        <h1 className="mt-6 font-display text-4xl">Resume payment</h1>
+                        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                            You have a sponsorship application on file for <span className="text-foreground">{rec.company_name}</span> that is not yet paid.
+                            Complete payment to confirm your partnership.
+                        </p>
+                        <p className="mt-4 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
+                            Investment: {formatUSD(rec.investment_amount)} · Status: {rec.payment_status || 'unpaid'}
+                        </p>
+                        {error ? <p className="mt-4 text-xs text-[hsl(var(--primary))]">{error}</p> : null}
+                        <div className="mt-8 flex flex-wrap justify-center gap-3">
+                            <button type="button" onClick={onResume} disabled={submitting} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60">
+                                {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
+                                {submitting ? 'Starting…' : 'Pay now'}
+                            </button>
+                            <Link to="/dashboard" className="border border-border px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground">Go to dashboard</Link>
                         </div>
                     </div>
                 </Section>

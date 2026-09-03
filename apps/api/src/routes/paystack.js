@@ -565,6 +565,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 	const userId = token ? userIdFromToken(token) : null;
 
 	const {
+		sponsorship_id,
 		company_name,
 		industry,
 		contact_person,
@@ -577,10 +578,6 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		country,
 		return_origin,
 	} = req.body || {};
-
-	if (!company_name || !contact_person || !email) {
-		return res.status(422).json({ error: "Company name, contact person and email are required." });
-	}
 
 	let price = 0;
 	let currency = "USD";
@@ -600,34 +597,77 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		return res.status(422).json({ error: "Please choose a sponsorship package with a valid investment amount." });
 	}
 
-	const reference = genSponsorshipReference();
-
+	// Resume path: re-initialise payment for an existing (unpaid) application
+	// instead of creating a duplicate. Ownership is enforced so users can only
+	// pay for their own application.
 	let sponsorship;
-	try {
-		sponsorship = await prisma.sponsorship.create({
-			data: {
-				ownerId: userId || null,
-				companyName: company_name,
-				industry: industry || null,
-				contactPerson: contact_person,
-				email,
-				phone: phone || null,
-				website: website || null,
-				packageId: packageId || null,
-				packageTier: tier || null,
-				investmentAmount: price,
-				currency,
-				message: message || null,
-				status: "pending",
-				paymentStatus: "pending",
-				paymentReference: reference,
-				country: country || "",
-			},
-		});
-	} catch (err) {
-		logger.error("sponsorship create failed", err.message);
-		return res.status(500).json({ error: "Could not create your sponsorship application." });
+	if (sponsorship_id) {
+		const existing = await prisma.sponsorship.findUnique({ where: { id: sponsorship_id } });
+		if (!existing) return res.status(404).json({ error: "Sponsorship application not found." });
+		if (existing.paymentStatus === "paid") {
+			return res.status(422).json({ error: "This sponsorship has already been paid." });
+		}
+		if (userId && existing.ownerId && existing.ownerId !== userId) {
+			return res.status(403).json({ error: "You are not authorised to pay for this sponsorship." });
+		}
+		if (!userId && existing.email && email && String(email).toLowerCase() !== String(existing.email).toLowerCase()) {
+			return res.status(403).json({ error: "This sponsorship is associated with a different email." });
+		}
+
+		const reference = genSponsorshipReference();
+		sponsorship = existing;
+		try {
+			sponsorship = await prisma.sponsorship.update({
+				where: { id: existing.id },
+				data: {
+					packageId: packageId || existing.packageId,
+					packageTier: tier || existing.packageTier,
+					investmentAmount: price,
+					currency,
+					paymentStatus: "pending",
+					status: existing.status || "pending",
+					paymentReference: reference,
+					country: country || existing.country || "",
+				},
+			});
+		} catch (err) {
+			logger.error("sponsorship resume failed", err.message);
+			return res.status(500).json({ error: "Could not resume your sponsorship payment." });
+		}
+	} else {
+		if (!company_name || !contact_person || !email) {
+			return res.status(422).json({ error: "Company name, contact person and email are required." });
+		}
+
+		try {
+			sponsorship = await prisma.sponsorship.create({
+				data: {
+					ownerId: userId || null,
+					companyName: company_name,
+					industry: industry || null,
+					contactPerson: contact_person,
+					email,
+					phone: phone || null,
+					website: website || null,
+					packageId: packageId || null,
+					packageTier: tier || null,
+					investmentAmount: price,
+					currency,
+					message: message || null,
+					status: "pending",
+					paymentStatus: "pending",
+					paymentReference: genSponsorshipReference(),
+					country: country || "",
+				},
+			});
+		} catch (err) {
+			logger.error("sponsorship create failed", err.message);
+			return res.status(500).json({ error: "Could not create your sponsorship application." });
+		}
 	}
+
+	const reference = sponsorship.paymentReference;
+	const companyNameForMeta = sponsorship.companyName || company_name || "";
 
 	if (!isIntegrationConfigured("PAYSTACK_SECRET_KEY")) {
 		return res.status(503).json({
@@ -642,7 +682,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 	}
 
 	const amountInCents = Math.round(price * 100);
-	const callbackUrl = `${return_origin || ""}/sponsorships?reference=${reference}`;
+	const callbackUrl = `${return_origin || ""}/dashboard?sponsor_payment=${reference}`;
 
 	let paystackRes;
 	try {
@@ -653,7 +693,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				email,
+				email: sponsorship.email || email,
 				amount: amountInCents,
 				currency,
 				reference,
@@ -661,7 +701,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 				metadata: {
 					sponsorship_id: sponsorship.id,
 					custom_fields: [
-						{ display_name: "Company", variable_name: "company", value: company_name },
+						{ display_name: "Company", variable_name: "company", value: companyNameForMeta },
 					],
 				},
 			}),

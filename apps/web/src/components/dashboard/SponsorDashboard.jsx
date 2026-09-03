@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BadgeCheck, CalendarDays, Gauge, Image, Mail, Receipt, ShieldCheck } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { BadgeCheck, CalendarDays, Gauge, Image, Loader2, Mail, Receipt, ShieldCheck } from 'lucide-react';
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import { useAuth } from '@/contexts/AuthContext';
 import { PUBLISHER } from '@/lib/content';
-import { formatUSD } from '@/lib/commerce';
+import { formatUSD, initializeSponsorship, verifyOrder } from '@/lib/commerce';
 import { countryName } from '@/lib/countries';
 import { apiCrud } from '@/lib/api';
 
@@ -22,13 +22,17 @@ const TIER_LABEL = { platinum: 'Platinum', gold: 'Gold', silver: 'Silver', bronz
 
 const SponsorDashboard = () => {
     const { user } = useAuth();
+    const location = useLocation();
     const [sponsorship, setSponsorship] = useState(null);
     const [pkg, setPkg] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [paying, setPaying] = useState(false);
+    const [payError, setPayError] = useState('');
+    const [payDone, setPayDone] = useState(false);
 
     useEffect(() => {
         if (!user?.id) return;
-        apiCrud
+        const loadSponsorship = () => apiCrud
             .list('sponsorships', { filter: `owner = "${user.id}"` })
             .then((recs) => {
                 const rec = recs[0] || null;
@@ -40,11 +44,61 @@ const SponsorDashboard = () => {
                 setPkg(null);
             })
             .finally(() => setLoading(false));
-    }, [user]);
+        loadSponsorship();
+
+        // If the user is returning from Paystack for a sponsorship payment,
+        // verify and refresh the record so they see the updated status.
+        const params = new URLSearchParams(location.search);
+        const payRef = params.get('sponsor_payment');
+        if (payRef) {
+            verifyOrder(payRef)
+                .then(() => loadSponsorship())
+                .catch(() => {});
+        }
+    }, [user, location.search]);
+
+    const payNow = async () => {
+        setPayError('');
+        setPaying(true);
+        try {
+            const result = await initializeSponsorship({
+                sponsorship_id: sponsorship?.id,
+                company_name: sponsorship?.company_name,
+                contact_person: sponsorship?.contact_person,
+                email: sponsorship?.email,
+                package_id: typeof sponsorship?.package === 'object' ? sponsorship.package?.id : sponsorship?.package_id,
+                package_tier: sponsorship?.package_tier,
+                return_origin: window.location.origin,
+            });
+            if (result?.authorization_url) {
+                window.location.assign(result.authorization_url);
+                return;
+            }
+            setPayDone(true);
+        } catch (err) {
+            setPayError(err?.message || 'Could not start payment. Please try again.');
+            setPaying(false);
+        }
+    };
 
     const approved = sponsorship?.status === 'approved';
+    const unpaid = !!sponsorship && (sponsorship.payment_status || 'unpaid') !== 'paid';
     const benefits = Array.isArray(pkg?.benefits) ? pkg.benefits : Array.isArray(sponsorship?.benefits) ? sponsorship.benefits : [];
     const deliverables = Array.isArray(pkg?.deliverables) ? pkg.deliverables : [];
+
+    const payButton = (align = 'left') => (
+        <div className={align === 'right' ? 'flex flex-col items-end gap-2' : ''}>
+            {payDone ? (
+                <p className="text-sm text-[hsl(var(--gold))]">Your application is recorded. Payment will open once Paystack is connected.</p>
+            ) : (
+                <button type="button" onClick={payNow} disabled={paying} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.62rem] uppercase tracking-[0.2em] text-white disabled:opacity-60">
+                    {paying ? <Loader2 size={14} className="animate-spin" /> : null}
+                    {paying ? 'Starting…' : 'Pay now'}
+                </button>
+            )}
+            {payError ? <p className="mt-1 text-xs text-[hsl(var(--primary))]">{payError}</p> : null}
+        </div>
+    );
 
     // Fail-closed: a sponsor with no application on file only sees status/package/contact.
     // Unapproved sponsors see those plus nothing locked behind approval; invoices,
@@ -93,12 +147,23 @@ const SponsorDashboard = () => {
                             ) : null}
 
                             {tab === 'overview' ? (
-                                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                    <Stat label="Sponsorship status" value={sponsorship.status || 'pending'} hint={sponsorship.company_name} />
-                                    <Stat label="Package" value={pkg?.name || TIER_LABEL[sponsorship.package_tier] || '—'} hint={pkg?.duration || '12 months'} />
-                                    <Stat label="Investment" value={formatUSD(sponsorship.investment_amount || pkg?.price)} hint={sponsorship.currency || 'USD'} />
-                                    <Stat label="Payment" value={sponsorship.payment_status || 'unpaid'} hint={approved ? 'Invoice ready' : 'Pending approval'} />
-                                </div>
+                                <>
+                                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                        <Stat label="Sponsorship status" value={sponsorship.status || 'pending'} hint={sponsorship.company_name} />
+                                        <Stat label="Package" value={pkg?.name || TIER_LABEL[sponsorship.package_tier] || '—'} hint={pkg?.duration || '12 months'} />
+                                        <Stat label="Investment" value={formatUSD(sponsorship.investment_amount || pkg?.price)} hint={sponsorship.currency || 'USD'} />
+                                        <Stat label="Payment" value={sponsorship.payment_status || 'unpaid'} hint={approved ? 'Invoice ready' : 'Pending approval'} />
+                                    </div>
+                                    {unpaid ? (
+                                        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-5">
+                                            <div>
+                                                <p className="text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--primary))]">Payment required</p>
+                                                <p className="mt-1 text-sm text-muted-foreground">Your sponsorship is recorded but not yet paid. Complete payment to confirm your partnership.</p>
+                                            </div>
+                                            {payButton()}
+                                        </div>
+                                    ) : null}
+                                </>
                             ) : null}
 
                             {tab === 'package' ? (
@@ -163,6 +228,7 @@ const SponsorDashboard = () => {
                                                 <button type="button" onClick={downloadInvoice} className="border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                                     Download invoice
                                                 </button>
+                                                {unpaid ? payButton('right') : null}
                                             </div>
                                         </div>
                                     </div>
