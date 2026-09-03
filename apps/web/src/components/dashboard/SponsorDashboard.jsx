@@ -46,9 +46,14 @@ const SponsorDashboard = () => {
     const benefits = Array.isArray(pkg?.benefits) ? pkg.benefits : Array.isArray(sponsorship?.benefits) ? sponsorship.benefits : [];
     const deliverables = Array.isArray(pkg?.deliverables) ? pkg.deliverables : [];
 
-    // Fail-closed: unapproved sponsors only see status/package/contact — invoices,
-    // assets and invitations stay locked away until the partnership is approved.
-    const visibleNav = approved ? NAV : NAV.filter((n) => ['overview', 'package', 'contact'].includes(n.key));
+    // Fail-closed: a sponsor with no application on file only sees status/package/contact.
+    // Unapproved sponsors see those plus nothing locked behind approval; invoices,
+    // assets and invitations stay hidden until the partnership data exists and is approved.
+    const visibleNav = !sponsorship
+        ? NAV.filter((n) => ['overview', 'package', 'contact'].includes(n.key))
+        : approved
+            ? NAV
+            : NAV.filter((n) => ['overview', 'package', 'contact'].includes(n.key));
 
     const downloadInvoice = () => {
         if (!sponsorship) return;

@@ -61,11 +61,14 @@ export const INTEREST_OPTIONS = [
     'General newsletter',
 ];
 
+const VALID_ACCOUNT_TYPES = ['subscriber', 'distributor', 'sponsor', 'admin'];
+
 export const accountTypeOf = (user) => {
     if (!user) return 'subscriber';
-    if (user.account_type) return user.account_type;
+    if (VALID_ACCOUNT_TYPES.includes(user.account_type)) return user.account_type;
     if (user.role === 'admin') return 'admin';
     if (user.role === 'sponsor') return 'sponsor';
+    if (user.role === 'distributor') return 'distributor';
     return 'subscriber';
 };
 

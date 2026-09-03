@@ -147,11 +147,19 @@ const SubscriberDashboard = () => {
         return item.url || item.video_url || '';
     };
 
+    const nav = NAV.filter((n) => {
+        if (n.key === 'tickets') return tickets.length > 0;
+        if (n.key === 'registrations') return registrations.length > 0;
+        if (n.key === 'mentorship') return !!mentorship;
+        if (n.key === 'orders') return orders.length > 0;
+        return true;
+    });
+
     return (
         <DashboardShell
             title="Subscriber dashboard | The Peter Edochie Legacy"
             description="Your Meet & Greet tickets, MasterClass registrations, mentorship application, book orders, notifications and newsletter preferences on the Peter Edochie Legacy platform."
-            nav={NAV}
+            nav={nav}
         >
             {(tab) => (
                 <>
