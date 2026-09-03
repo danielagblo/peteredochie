@@ -51,13 +51,17 @@ const controller = crudController(prisma.user, {
 		return data;
 	},
 	preUpdate: async (req, data) => {
-		if (req.employeeRole !== 'super_admin') {
-			// Non-admins cannot change their own role/approval-status/account-type,
-			// and can only edit their own record.
+		const isPrivilegedStaff = ['super_admin', 'sales_manager', 'inventory_manager', 'fulfillment_officer', 'country_manager', 'sponsorship_manager'].includes(req.employeeRole);
+		if (!isPrivilegedStaff) {
+			// Non-staff users cannot change protected fields (role, approvalStatus, accountType)
+			// and can only edit their own profile.
 			for (const key of PROTECTED_FIELDS) delete data[key];
 			if (req.user && req.params.id !== req.user.id) {
 				throw Object.assign(new Error('Not allowed'), { status: 403 });
 			}
+		} else if (req.employeeRole !== 'super_admin') {
+			// Staff managers can update approval status, but only super_admin can change staffRole
+			delete data.staffRole;
 		}
 		if (data.password) {
 			data.passwordHash = await bcrypt.hash(String(data.password), 10);
@@ -67,22 +71,38 @@ const controller = crudController(prisma.user, {
 	},
 	// 3. Send SMS & Email when a distributor or sponsor application is approved
 	postUpdate: async (req, updatedUser, incomingData) => {
-		if (incomingData?.approvalStatus === 'approved' || incomingData?.approval_status === 'approved') {
+		const status = incomingData?.approvalStatus || incomingData?.approval_status;
+		if (status === 'approved') {
 			const typeLabel = updatedUser.accountType === 'distributor' ? 'Distributor' : updatedUser.accountType === 'sponsor' ? 'Sponsor' : 'Member';
 			
 			if (updatedUser.phone) {
-				await sendSms({
-					to: updatedUser.phone,
-					message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at peteredochie.com/dashboard to access trade pricing and tools.`,
-				}).catch(() => {});
+				logger.info(`[approval] Dispatching SMS to ${updatedUser.phone} for user ${updatedUser.id}`);
+				try {
+					const smsRes = await sendSms({
+						to: updatedUser.phone,
+						message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at peteredochie.com/dashboard to access trade pricing and tools.`,
+					});
+					logger.info('[approval sms result]', JSON.stringify(smsRes));
+				} catch (err) {
+					logger.error('[approval sms failed]', err.message);
+				}
+			} else {
+				logger.warn(`[approval] User ${updatedUser.id} (${updatedUser.email}) has no phone number on file. SMS skipped.`);
 			}
+
 			if (updatedUser.email) {
-				await sendEmail({
-					to: updatedUser.email,
-					subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
-					text: `Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
-					html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
-				}).catch(() => {});
+				logger.info(`[approval] Dispatching email to ${updatedUser.email}`);
+				try {
+					await sendEmail({
+						to: updatedUser.email,
+						subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
+						text: `Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
+						html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
+					});
+					logger.info(`[approval email sent] to=${updatedUser.email}`);
+				} catch (err) {
+					logger.error('[approval email failed]', err.message);
+				}
 			}
 		}
 	},
