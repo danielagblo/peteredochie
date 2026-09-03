@@ -77,9 +77,13 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
 
     const tiers = useMemo(() => {
         const raw = Array.isArray(event?.ticket_tiers) ? event.ticket_tiers : [];
-        if (raw.length) return raw;
-        return isMeetGreet ? [{ tier: 'vip', price: 1000 }, { tier: 'standard', price: 500 }] : [];
-    }, [event, isMeetGreet]);
+        return raw.map((t) => ({
+            tier: String(t.tier || t.name || '').toLowerCase(),
+            price: t.price,
+            currency: (t.currency || '').toUpperCase() || 'USD',
+            label: t.tier || t.name || '',
+        }));
+    }, [event]);
 
     const reset = () => {
         setStep('select');
@@ -185,6 +189,13 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
     // and shows the confirmation view directly.
     const resolvedTicket = paidTicket || (step === 'done' ? ticket : null);
 
+    const selectedTier = tiers.find((t) => t.tier === tier) || {
+        tier,
+        price: 0,
+        currency: 'USD',
+        label: TIER_META[tier]?.label || 'Standard',
+    };
+
     return (
         <Dialog open={open} onOpenChange={(o) => !o && close()}>
             <DialogContent className="max-w-lg border-border bg-card p-0 md:max-w-xl">
@@ -248,6 +259,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                         <PaymentReview
                             event={event}
                             tier={tier}
+                            tierMeta={selectedTier}
                             country={country}
                             region={region}
                             fulfillmentMethod={fulfillmentMethod}
@@ -266,7 +278,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
     );
 };
 
-const TierCard = ({ active, onClick, label, price, headline, perks, badge }) => (
+const TierCard = ({ active, onClick, label, price, currency = 'USD', headline, perks, badge }) => (
     <button
         type="button"
         onClick={onClick}
@@ -276,7 +288,7 @@ const TierCard = ({ active, onClick, label, price, headline, perks, badge }) => 
     >
         <div className="flex items-center justify-between">
             <span className="font-display text-2xl">{label}</span>
-            <span className="font-display text-2xl text-[hsl(var(--gold))]">USD {price.toLocaleString()}</span>
+            <span className="font-display text-2xl text-[hsl(var(--gold))]">{currency} {price.toLocaleString()}</span>
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{headline}</p>
         {badge ? (
@@ -304,7 +316,7 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
                 .slice()
                 .sort((a, b) => b.price - a.price)
                 .map((t) => {
-                    const meta = TIER_META[t.tier] || TIER_META.standard;
+                    const meta = TIER_META[t.tier] || { ...TIER_META.standard, label: t.label || 'Standard' };
                     return (
                         <TierCard
                             key={t.tier}
@@ -312,6 +324,7 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
                             onClick={() => onTier(t.tier)}
                             label={meta.label}
                             price={t.price}
+                            currency={t.currency}
                             headline={meta.headline}
                             perks={meta.perks}
                             badge={t.tier === 'vip' ? 'Limited slots' : null}
@@ -332,6 +345,7 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
 const PaymentReview = ({
     event,
     tier,
+    tierMeta,
     country,
     region,
     fulfillmentMethod,
@@ -344,15 +358,18 @@ const PaymentReview = ({
     onPay,
 }) => {
     const meta = TIER_META[tier] || TIER_META.standard;
+    const price = tierMeta?.price ?? meta.price;
+    const currency = tierMeta?.currency || 'USD';
+    const label = tierMeta?.label ? (tierMeta.label.toUpperCase() === 'VIP' ? 'VIP' : tierMeta.label) : meta.label;
     return (
         <div>
             <p className="eyebrow">Secure checkout</p>
             <div className="mt-5 flex items-center justify-between border border-border p-5">
                 <div>
-                    <p className="font-display text-xl">{meta.label} — Meet & Greet</p>
+                    <p className="font-display text-xl">{label} — Meet & Greet</p>
                     <p className="mt-1 text-xs text-muted-foreground">{event.venue} · {event.city}</p>
                 </div>
-                <p className="font-display text-2xl text-[hsl(var(--gold))]">USD {meta.price.toLocaleString()}</p>
+                <p className="font-display text-2xl text-[hsl(var(--gold))]">{currency} {price.toLocaleString()}</p>
             </div>
 
             <ul className="mt-5 space-y-2">

@@ -67,28 +67,34 @@ const EventCard = ({ event, onParticipate }) => {
                             {tiers
                                 .slice()
                                 .sort((a, b) => b.price - a.price)
-                                .map((t) => (
-                                    <div key={t.tier} className="bg-background p-6">
-                                        <div className="flex items-center justify-between">
-                                            <p className="font-display text-xl">{t.tier === 'vip' ? 'VIP' : 'Standard'}</p>
-                                            <p className="font-display text-xl text-[hsl(var(--gold))]">USD {t.price.toLocaleString()}</p>
+                                .map((t) => {
+                                    const key = (t.tier || t.name || '').toLowerCase();
+                                    const isVip = key === 'vip';
+                                    const currency = (t.currency || '').toUpperCase() || 'USD';
+                                    const label = (t.tier || t.name || '').toUpperCase();
+                                    return (
+                                        <div key={`${t.tier || t.name || t.key}-${t.price}`} className="bg-background p-6">
+                                            <div className="flex items-center justify-between">
+                                                <p className="font-display text-xl">{isVip ? 'VIP' : label || 'Standard'}</p>
+                                                <p className="font-display text-xl text-[hsl(var(--gold))]">{currency} {t.price.toLocaleString()}</p>
+                                            </div>
+                                            <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
+                                                {isVip ? (
+                                                    <>
+                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Pete</li>
+                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> Professional photographer on standby</li>
+                                                        <li>Photos included · limited slots</li>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <li>General address and conversation by Pete</li>
+                                                        <li>Group setting · more slots available</li>
+                                                    </>
+                                                )}
+                                            </ul>
                                         </div>
-                                        <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
-                                            {t.tier === 'vip' ? (
-                                                <>
-                                                    <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Pete</li>
-                                                    <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> Professional photographer on standby</li>
-                                                    <li>Photos included · limited slots</li>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <li>General address and conversation by Pete</li>
-                                                    <li>Group setting · more slots available</li>
-                                                </>
-                                            )}
-                                        </ul>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                         </div>
                     ) : null}
 
