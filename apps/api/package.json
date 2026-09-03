@@ -8,6 +8,7 @@
 		"start": "node src/main.js",
 		"build": "prisma generate",
 		"postinstall": "prisma generate",
+		"migrate": "prisma migrate deploy || prisma db push",
 		"lint": "eslint . --quiet",
 		"db:seed": "node prisma/seed.js",
 		"db:migrate": "prisma migrate deploy"

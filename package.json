@@ -9,6 +9,7 @@
     "dev:api": "npm run dev -w api",
     "build": "npm run build -w web",
     "start": "npm run start -w api",
+    "migrate": "npm run migrate -w api",
     "lint": "concurrently --raw \"npm run lint -w web\" \"npm run lint -w api\""
   },
   "devDependencies": {
