@@ -119,6 +119,7 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 		logger.info(`Starting newsletter broadcast "${subject}" to ${recipients.length} subscriber(s)...`);
 
 		// Record campaign in database
+		const recipientsSnapshot = recipients.map((s) => ({ name: s.name || '', email: s.email }));
 		const campaign = await prisma.newsletterCampaign.create({
 			data: {
 				subject,
@@ -127,6 +128,7 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 				targetInterest: targetInterest === 'all' ? null : targetInterest,
 				targetCountry: targetCountry === 'all' ? null : targetCountry,
 				recipientCount: recipients.length,
+				recipients: recipientsSnapshot,
 				status: 'sent',
 				sentById: req.user?.id || null,
 			},
@@ -210,6 +212,7 @@ router.get('/campaigns', requireAuth, requireRole('super_admin'), async (req, re
 				target_interest: c.targetInterest,
 				target_country: c.targetCountry,
 				recipient_count: c.recipientCount,
+				recipients: c.recipients || [],
 				status: c.status,
 				sent_at: c.sentAt,
 				created: c.createdAt,

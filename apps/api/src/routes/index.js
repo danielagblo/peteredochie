@@ -24,6 +24,7 @@ import bookPreregistrations from './book-preregistrations.js';
 import stockMovements from './stock-movements.js';
 import distributorTiers from './distributor-tiers.js';
 import newsletter from './newsletter.js';
+import smsBroadcast from './sms-broadcast.js';
 
 const router = Router();
 
@@ -37,6 +38,7 @@ export default () => {
 	router.use('/enquiries', enquiries);
 	router.use('/subscribers', subscribers);
 	router.use('/newsletter', newsletter);
+	router.use('/sms', smsBroadcast);
 	router.use('/countries', countries);
 	router.use('/regions', regions);
 	router.use('/products', products);

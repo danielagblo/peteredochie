@@ -498,6 +498,7 @@ model NewsletterCampaign {
   targetInterest String?   @map("target_interest") @db.VarChar(100)
   targetCountry  String?   @map("target_country") @db.VarChar(100)
   recipientCount Int       @default(0) @map("recipient_count")
+  recipients     Json?     // [{ name, email }] snapshot of who was sent to
   status         String    @default("sent") // sent | draft | failed
   sentAt         DateTime  @default(now()) @map("sent_at")
   sentById       String?   @map("sent_by_id")

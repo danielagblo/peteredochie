@@ -883,7 +883,22 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                                     : `${c.target_interest !== 'all' && c.target_interest ? c.target_interest : 'Any Interest'}${c.target_country !== 'all' && c.target_country ? ` (${c.target_country})` : ''}`}
                                             </td>
                                             <td className="px-4 py-3 font-semibold text-foreground">
-                                                {c.recipient_count || 0}
+                                                {Array.isArray(c.recipients) && c.recipients.length
+                                                    ? (() => {
+                                                        const names = c.recipients.map((r) => r.name || r.email).filter(Boolean);
+                                                        const shown = names.slice(0, 3);
+                                                        const rest = names.length - shown.length;
+                                                        return (
+                                                            <span className="block max-w-56">
+                                                                {shown.join(', ')}
+                                                                {rest > 0 ? ` +${rest} more` : ''}
+                                                                <span className="block text-[0.62rem] font-normal text-muted-foreground">
+                                                                    {c.recipients.length} recipient{c.recipients.length === 1 ? '' : 's'}
+                                                                </span>
+                                                            </span>
+                                                        );
+                                                    })()
+                                                    : (c.recipient_count || 0)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className="inline-block border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] uppercase tracking-wider text-emerald-400">
