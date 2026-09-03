@@ -699,7 +699,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		});
 	}
 
-	const { amountInCents, currency: chargeCurrency } = await buildCharge(price, currency);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(price);
 	const callbackUrl = `${return_origin || ""}/dashboard?sponsor_payment=${reference}`;
 
 	let paystackRes;
