@@ -241,11 +241,6 @@ export function renderNewsletterHtml({
 			<td align="center" bgcolor="#f4f4f5" style="padding: 40px 16px; background-color: #f4f4f5;">
 				<!-- Container -->
 				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" class="container" bgcolor="#ffffff" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e4e4e7;">
-					<!-- Top Gold Line -->
-					<tr>
-						<td height="3" bgcolor="#18181b" style="background-color: #18181b; font-size: 0; line-height: 0;">&nbsp;</td>
-					</tr>
-
 					<!-- Header / Crest -->
 					<tr>
 						<td align="center" bgcolor="#ffffff" style="padding: 36px 32px 24px; border-bottom: 1px solid #ececef; background-color: #ffffff;">

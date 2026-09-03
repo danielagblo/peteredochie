@@ -620,9 +620,6 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                 previewDevice === 'mobile' ? 'max-w-[360px]' : 'max-w-[620px]'
                             }`}
                         >
-                            {/* Top Gold Accent Strip */}
-                            <div className="h-1.5 w-full bg-[#18181b]" />
-
                             {/* Letterhead Header / Crest */}
                             <div className="border-b border-[#ececef] px-6 py-6 text-center select-none">
                                 <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#18181b]">
@@ -666,13 +663,13 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                         onMouseUp={updateActiveStates}
                                         className="min-h-[260px] text-xs sm:text-sm leading-relaxed outline-none text-[#3f3f46] font-sans
                                             [&_h1]:text-xl [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-[#18181b] [&_h1]:my-3
-                                            [&_h2]:text-lg [&_h2]:font-serif [&_h2]:font-semibold [&_h2]:text-[#B8860B] [&_h2]:my-3
-                                            [&_h3]:text-base [&_h3]:font-serif [&_h3]:font-semibold [&_h3]:text-[#B8860B] [&_h3]:my-2
+                                            [&_h2]:text-lg [&_h2]:font-serif [&_h2]:font-semibold [&_h2]:text-[#18181b] [&_h2]:my-3
+                                            [&_h3]:text-base [&_h3]:font-serif [&_h3]:font-semibold [&_h3]:text-[#18181b] [&_h3]:my-2
                                             [&_p]:mb-2.5 [&_p]:leading-relaxed
-                                            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2.5 [&_ul]:text-[#B8860B] [&_ul_li]:text-[#3f3f46] [&_ul_li]:mb-1
-                                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2.5 [&_ol]:text-[#B8860B] [&_ol_li]:text-[#3f3f46] [&_ol_li]:mb-1
-                                            [&_blockquote]:border-l-2 [&_blockquote]:border-[#B8860B] [&_blockquote]:bg-zinc-100 [&_blockquote]:py-2 [&_blockquote]:px-3.5 [&_blockquote]:my-3 [&_blockquote]:italic [&_blockquote]:text-[#3f3f46]
-                                            [&_a]:text-[#B8860B] [&_a]:underline [&_a]:font-semibold
+                                            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2.5 [&_ul]:text-[#18181b] [&_ul_li]:text-[#3f3f46] [&_ul_li]:mb-1
+                                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2.5 [&_ol]:text-[#18181b] [&_ol_li]:text-[#3f3f46] [&_ol_li]:mb-1
+                                            [&_blockquote]:border-l-2 [&_blockquote]:border-[#18181b] [&_blockquote]:bg-zinc-100 [&_blockquote]:py-2 [&_blockquote]:px-3.5 [&_blockquote]:my-3 [&_blockquote]:italic [&_blockquote]:text-[#3f3f46]
+                                            [&_a]:text-[#18181b] [&_a]:underline [&_a]:font-semibold
                                             [&_strong]:text-[#18181b] [&_strong]:font-bold
                                             [&_b]:text-[#18181b] [&_b]:font-bold
                                             [&_em]:italic [&_em]:text-[#3f3f46]"
@@ -697,7 +694,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                             onClick={(e) => e.preventDefault()}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-block bg-[#18181b] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#18181b] shadow-md hover:opacity-95"
+                                            className="inline-block bg-[#18181b] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-white shadow-md hover:opacity-95"
                                         >
                                             {form.ctaText}
                                         </a>
