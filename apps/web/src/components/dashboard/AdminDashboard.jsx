@@ -97,7 +97,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [sponsorPackages, setSponsorPackages] = useState([]);
     const [distTiers, setDistTiers] = useState([]);
     const [ticketEventId, setTicketEventId] = useState('');
-    const [ticketTierForm, setTicketTierForm] = useState({ key: '', name: '', price: '' });
+    const [ticketTierForm, setTicketTierForm] = useState({ key: '', name: '', price: '', currency: 'USD' });
     const [tierForm, setTierForm] = useState({ name: '', min_units: '', max_units: '', discount: '', terms: '', enabled: true });
     const [editingTierId, setEditingTierId] = useState(null);
     const [sponsorPkgForm, setSponsorPkgForm] = useState({ name: '', tier: '', price: '', currency: 'USD', description: '', duration: '12 months', benefits: '', image: '', enabled: true, sort: '' });
@@ -638,10 +638,11 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             key: ticketTierForm.key || ticketTierForm.name.toLowerCase().replace(/\s+/g, '_'),
             name: ticketTierForm.name,
             price: Number(ticketTierForm.price) || 0,
+            currency: (ticketTierForm.currency || 'USD').toUpperCase(),
         }];
         try {
             await apiCrud.update('events', ticketEventId, { ticket_tiers: next });
-            setTicketTierForm({ key: '', name: '', price: '' });
+            setTicketTierForm({ key: '', name: '', price: '', currency: 'USD' });
             load();
         } catch (_) { setError('Could not add that ticket tier.'); }
     };
@@ -1653,7 +1654,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                         <li key={i} className="flex items-center justify-between gap-4 px-5 py-3">
                                                             <p className="text-sm">{tt.name} <span className="text-muted-foreground">({tt.key})</span></p>
                                                             <div className="flex items-center gap-3">
-                                                                <p className="text-sm text-[hsl(var(--gold))]">{formatUSD(tt.price)}</p>
+                                                                <p className="text-sm text-[hsl(var(--gold))]">{(tt.currency || 'USD').toUpperCase()} {Number(tt.price || 0).toLocaleString()}</p>
                                                                 <button type="button" onClick={() => removeTicketTier(i)} className={smallBtn}>Remove</button>
                                                             </div>
                                                         </li>
@@ -1661,10 +1662,11 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                 </ul>
                                             )}
                                         </div>
-                                        <form onSubmit={addTicketTier} className="mt-4 grid gap-4 md:grid-cols-4">
+                                        <form onSubmit={addTicketTier} className="mt-4 grid gap-4 md:grid-cols-5">
                                             <input required placeholder="Tier name (e.g. VIP)" value={ticketTierForm.name} onChange={(e) => setTicketTierForm({ ...ticketTierForm, name: e.target.value })} className={input} />
                                             <input placeholder="Key (auto if blank)" value={ticketTierForm.key} onChange={(e) => setTicketTierForm({ ...ticketTierForm, key: e.target.value })} className={input} />
                                             <input type="number" step="0.01" required placeholder="Price" value={ticketTierForm.price} onChange={(e) => setTicketTierForm({ ...ticketTierForm, price: e.target.value })} className={input} />
+                                            <input placeholder="Currency (e.g. GBP)" value={ticketTierForm.currency} onChange={(e) => setTicketTierForm({ ...ticketTierForm, currency: e.target.value })} className={input} />
                                             <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">Add tier</button>
                                         </form>
                                     </>
