@@ -161,7 +161,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             bookCategories: () => has('analytics') || has('books'),
             bookPreregs: () => has('analytics') || has('books'),
             sponsorPackages: () => has('analytics') || has('sponsors') || has('sponsorships') || has('packages'),
-            distTiers: () => has('packages'),
+            distTiers: () => has('packages') || has('distributors'),
         };
 
         try {
@@ -217,8 +217,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         return () => { active = false; };
     }, [orders]);
 
-    const setApproval = async (id, status) => {
-        try { await apiCrud.update('users', id, { approval_status: status }); load(); }
+    const setApproval = async (id, status, extra = {}) => {
+        try { await apiCrud.update('users', id, { approval_status: status, ...extra }); load(); }
         catch (_) { setError('Could not update that account.'); }
     };
 
@@ -1114,7 +1114,42 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                         <Panel title="Distributor management" lead="Approve applications, assign territories and manage trade pricing.">
                             <ul className="divide-y divide-border">
                                 {byType('distributor').length === 0 ? <EmptyState>No distributor applications.</EmptyState> : null}
-                                {byType('distributor').map(approvalRow)}
+                                {byType('distributor').map((u) => (
+                                    <li key={u.id} className="flex flex-wrap items-center justify-between gap-4 py-5">
+                                        <div className="max-w-md">
+                                            <p className="font-display text-lg">{u.name || u.email}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {u.organisation || u.email} · {u.country || 'Country not set'} · {u.phone || 'No phone'}
+                                            </p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <span className="text-[0.58rem] uppercase tracking-[0.18em] text-[hsl(var(--gold))]">
+                                                    Territory: {u.territory || 'Unassigned'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <input
+                                                type="text"
+                                                placeholder="Assign territory (e.g. Ghana)"
+                                                defaultValue={u.territory || ''}
+                                                id={`territory-${u.id}`}
+                                                className="border border-border bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-[hsl(var(--gold))]"
+                                            />
+                                            <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{u.approval_status || 'pending'}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const territoryVal = document.getElementById(`territory-${u.id}`)?.value || u.territory;
+                                                    setApproval(u.id, 'approved', { territory: territoryVal });
+                                                }}
+                                                className={smallBtn}
+                                            >
+                                                Approve
+                                            </button>
+                                            <button type="button" onClick={() => setApproval(u.id, 'rejected')} className={dangerBtn}>Decline</button>
+                                        </div>
+                                    </li>
+                                ))}
                             </ul>
                         </Panel>
                     ) : null}

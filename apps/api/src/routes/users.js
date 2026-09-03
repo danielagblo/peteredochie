@@ -84,13 +84,14 @@ const controller = crudController(prisma.user, {
 			}
 
 			const typeLabel = userRecord.accountType === 'distributor' ? 'Distributor' : userRecord.accountType === 'sponsor' ? 'Sponsor' : 'Member';
+			const territoryInfo = userRecord.territory ? ` for ${userRecord.territory}` : '';
 			
 			if (userRecord.phone) {
 				logger.info(`[approval] Dispatching SMS to ${userRecord.phone} for user ${userRecord.id}`);
 				try {
 					const smsRes = await sendSms({
 						to: userRecord.phone,
-						message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at peteredochie.com/dashboard to access trade pricing and tools.`,
+						message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at peteredochie.com/dashboard to access your wholesale portal and trade tools.`,
 					});
 					logger.info('[approval sms result]', JSON.stringify(smsRes));
 				} catch (err) {
@@ -106,8 +107,8 @@ const controller = crudController(prisma.user, {
 					await sendEmail({
 						to: userRecord.email,
 						subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
-						text: `Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
-						html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
+						text: `Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
+						html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved${territoryInfo ? ` for <strong>${userRecord.territory}</strong>` : ''} by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
 					});
 					logger.info(`[approval email sent] to=${userRecord.email}`);
 				} catch (err) {
