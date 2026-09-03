@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { PrismaClient } from '@prisma/client';
+import pkg from '@prisma/client';
 import logger from './logger.js';
+
+const PrismaClient = pkg.PrismaClient || pkg?.default?.PrismaClient || pkg;
 
 // Load .env locally if present; on cloud platforms like Railway, env vars are injected directly into process.env
 if (fs.existsSync('.env')) {
