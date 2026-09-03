@@ -62,7 +62,7 @@ const EventCard = ({ event, onParticipate }) => {
                         />
                     </div>
 
-                    {event.event_type === 'meet_and_greet' && tiers.length ? (
+                    {tiers.length ? (
                         <div className="mt-7 grid gap-px border border-border bg-border sm:grid-cols-2">
                             {tiers
                                 .slice()
