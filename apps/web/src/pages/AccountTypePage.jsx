@@ -1,14 +1,15 @@
 import React from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Building2, Check, Truck, User } from 'lucide-react';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import Reveal from '@/components/Reveal';
-import { ACCOUNT_TYPES } from '@/lib/accounts';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_MAP } from '@/lib/accounts';
 
 const ICONS = { user: User, truck: Truck, building: Building2 };
 
 const AccountTypePage = () => {
     const [params] = useSearchParams();
+    const type = params.get('type');
     const next = params.get('next');
     const email = params.get('email');
     const suffix = [
@@ -18,6 +19,10 @@ const AccountTypePage = () => {
         .filter(Boolean)
         .map((p) => `&${p}`)
         .join('');
+
+    if (type && ACCOUNT_TYPE_MAP[type]) {
+        return <Navigate to={`/signup?type=${type}${suffix}`} replace />;
+    }
 
     return (
         <div className="pt-32 pb-28">

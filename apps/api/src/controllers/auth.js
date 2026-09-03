@@ -49,7 +49,20 @@ function sanitizeUser(user) {
 }
 
 export async function register(req, res) {
-	const { email, password, name, phone, organisation, country, interests } = req.body || {};
+	const {
+		email,
+		password,
+		name,
+		phone,
+		organisation,
+		country,
+		territory,
+		interests,
+		account_type,
+		accountType,
+		role,
+		newsletter,
+	} = req.body || {};
 
 	if (!email || !password) {
 		return res.status(422).json({ error: 'Email and password are required.' });
@@ -67,6 +80,11 @@ export async function register(req, res) {
 
 	const passwordHash = await bcrypt.hash(password, 10);
 
+	const selectedAccountType = account_type || accountType || 'subscriber';
+	const validAccountType = ACCOUNT_TYPES.includes(selectedAccountType) ? selectedAccountType : 'subscriber';
+	const validRole = USER_ROLES.includes(role) ? role : (validAccountType === 'sponsor' ? 'sponsor' : 'supporter');
+	const approvalStatus = (validAccountType === 'distributor' || validAccountType === 'sponsor') ? 'pending' : 'not_required';
+
 	let user;
 	try {
 		user = await prisma.user.create({
@@ -77,8 +95,12 @@ export async function register(req, res) {
 				phone: phone || null,
 				organisation: organisation || null,
 				country: country || null,
+				territory: territory || null,
+				accountType: validAccountType,
+				role: validRole,
+				newsletter: typeof newsletter === 'boolean' ? newsletter : true,
 				interests: interests || undefined,
-				approvalStatus: 'not_required',
+				approvalStatus,
 			},
 		});
 	} catch (err) {
