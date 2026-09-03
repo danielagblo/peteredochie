@@ -15,13 +15,17 @@ router.get('/status', requireAuth, (req, res, next) => {
 		const configured = isArkeselConfigured();
 
 		// Count users with valid phone numbers by group
-		const [subscribersCount, distributorsCount, sponsorsCount, allUsersCount, totalSmsLogsCount] = await Promise.all([
-			prisma.subscriber.count({ where: { phone: { not: null } } }),
-			prisma.user.count({ where: { accountType: 'distributor', phone: { not: null } } }),
-			prisma.user.count({ where: { accountType: 'sponsor', phone: { not: null } } }),
-			prisma.user.count({ where: { phone: { not: null } } }),
-			prisma.smsLog.count(),
+		const [subscribersCount, distributorsCount, sponsorsCount, allUsersCount] = await Promise.all([
+			prisma.subscriber.count({ where: { phone: { not: null } } }).catch(() => 0),
+			prisma.user.count({ where: { accountType: 'distributor', phone: { not: null } } }).catch(() => 0),
+			prisma.user.count({ where: { accountType: 'sponsor', phone: { not: null } } }).catch(() => 0),
+			prisma.user.count({ where: { phone: { not: null } } }).catch(() => 0),
 		]);
+
+		let totalSmsLogsCount = 0;
+		if (prisma.smsLog) {
+			totalSmsLogsCount = await prisma.smsLog.count().catch(() => 0);
+		}
 
 		res.json({
 			configured,
@@ -37,7 +41,7 @@ router.get('/status', requireAuth, (req, res, next) => {
 		});
 	} catch (err) {
 		logger.error('SMS status fetch failed:', err);
-		res.status(500).json({ error: 'Could not fetch SMS configuration status.' });
+		res.status(500).json({ error: err.message || 'Could not fetch SMS configuration status.' });
 	}
 });
 
@@ -47,6 +51,10 @@ router.get('/logs', requireAuth, (req, res, next) => {
 	return res.status(403).json({ error: 'Super admin access required.' });
 }, async (req, res) => {
 	try {
+		if (!prisma.smsLog) {
+			return res.json({ items: [] });
+		}
+
 		const logs = await prisma.smsLog.findMany({
 			orderBy: { createdAt: 'desc' },
 			take: 100,
@@ -55,6 +63,9 @@ router.get('/logs', requireAuth, (req, res, next) => {
 					select: { id: true, name: true, email: true },
 				},
 			},
+		}).catch((err) => {
+			logger.warn('smsLog.findMany query failed (table may not exist yet on remote db):', err.message);
+			return [];
 		});
 
 		res.json({
@@ -71,7 +82,7 @@ router.get('/logs', requireAuth, (req, res, next) => {
 		});
 	} catch (err) {
 		logger.error('SMS logs fetch failed:', err);
-		res.status(500).json({ error: 'Could not fetch SMS logs.' });
+		res.status(500).json({ error: err.message || 'Could not fetch SMS logs.' });
 	}
 });
 
