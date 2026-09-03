@@ -621,11 +621,11 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                             }`}
                         >
                             {/* Top Gold Accent Strip */}
-                            <div className="h-1.5 w-full bg-[#D4AF37]" />
+                            <div className="h-1.5 w-full bg-[#18181b]" />
 
                             {/* Letterhead Header / Crest */}
                             <div className="border-b border-[#ececef] px-6 py-6 text-center select-none">
-                                <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]">
+                                <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#18181b]">
                                     THE PETE EDOCHIE LEGACY
                                 </p>
                                 <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-[#71717a]">
@@ -642,7 +642,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                         placeholder="Click here to type a letter headline (e.g. A Word on Legacy)..."
                                         value={form.headline}
                                         onChange={(e) => setForm({ ...form, headline: e.target.value })}
-                                        className="w-full font-serif text-xl sm:text-2xl font-semibold text-[#18181b] bg-transparent outline-none border-b border-transparent focus:border-[#D4AF37] placeholder:text-zinc-400 transition-colors pb-1"
+                                        className="w-full font-serif text-xl sm:text-2xl font-semibold text-[#18181b] bg-transparent outline-none border-b border-transparent focus:border-[#18181b] placeholder:text-zinc-400 transition-colors pb-1"
                                     />
                                 </div>
 
@@ -697,7 +697,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                             onClick={(e) => e.preventDefault()}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-block bg-[#D4AF37] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#18181b] shadow-md hover:opacity-95"
+                                            className="inline-block bg-[#18181b] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#18181b] shadow-md hover:opacity-95"
                                         >
                                             {form.ctaText}
                                         </a>
