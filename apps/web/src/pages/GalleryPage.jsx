@@ -25,7 +25,7 @@ const GalleryPage = () => {
     return (
         <div>
             <PageHead
-                title="Gallery — The Peter Edochie Photographic Archive"
+                title="Gallery — The Pete Edochie Photographic Archive"
                 description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
             />
             <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images from six decades, held and captioned like a collection." image={IMG.family} />
@@ -38,7 +38,7 @@ const GalleryPage = () => {
                             type="button"
                             onClick={() => setFilter(c)}
                             className={`px-4 py-2 text-[0.66rem] uppercase tracking-[0.2em] transition-colors ${
-                                filter === c ? 'bg-[hsl(var(--gold))] text-black' : 'border border-border text-muted-foreground hover:text-foreground'
+                                filter === c ? 'bg-[hsl(var(--gold))] text-white' : 'border border-border text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             {c}

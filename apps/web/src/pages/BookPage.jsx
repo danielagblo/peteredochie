@@ -80,8 +80,8 @@ const BookPage = () => {
     return (
         <div>
             <PageHead
-                title="The Autobiography — Preorder | Peter Edochie | King Dawie Publishing"
-                description="Preorder the official Peter Edochie autobiography: signed hardcover, standard hardcover, audiobook and e-book. Published by King Dawie Publishing."
+                title="The Autobiography — Preorder | Pete Edochie | King Dawie Publishing"
+                description="Preorder the official Pete Edochie autobiography: signed hardcover, standard hardcover, audiobook and e-book. Published by King Dawie Publishing."
             />
             <PageHero
                 eyebrow="The Autobiography"
@@ -177,7 +177,7 @@ const BookPage = () => {
                         <p className="mt-3 font-display text-2xl text-[hsl(var(--gold))]">{PUBLISHER.name}</p>
                         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                             The autobiography is published and distributed worldwide by {PUBLISHER.name}, the official publisher
-                            and rights holder of the Peter Edochie Legacy. All editions carry the {PUBLISHER.name} imprint.
+                            and rights holder of the Pete Edochie Legacy. All editions carry the {PUBLISHER.name} imprint.
                             Rights, licensing and bulk-order inquiries are handled by the publishing office.
                         </p>
                         <Link to="/contact" className="mt-5 inline-block text-[0.7rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))]">

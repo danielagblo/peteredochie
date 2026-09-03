@@ -56,8 +56,8 @@ const ShopPage = () => {
     return (
         <div>
             <PageHead
-                title="Shop — Official Merchandise | Peter Edochie Legacy | King Dawie Publishing"
-                description="Official Peter Edochie Legacy merchandise: premium T-shirts, framed and limited-edition prints, tote bags, caps and homeware. Published by King Dawie Publishing."
+                title="Shop — Official Merchandise | Pete Edochie Legacy | King Dawie Publishing"
+                description="Official Pete Edochie Legacy merchandise: premium T-shirts, framed and limited-edition prints, tote bags, caps and homeware. Published by King Dawie Publishing."
             />
             <PageHero
                 eyebrow="The Shop"
@@ -163,7 +163,7 @@ const ShopPage = () => {
                     </p>
                     <Link
                         to="/checkout"
-                        className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black"
+                        className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
                     >
                         <Check size={13} strokeWidth={1.6} /> View cart & checkout
                     </Link>

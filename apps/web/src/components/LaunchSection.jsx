@@ -74,7 +74,7 @@ const LaunchSection = () => (
             <Reveal delay={0.12}>
                 <img
                     src={IMG.stage}
-                    alt="Peter Edochie legacy launch"
+                    alt="Pete Edochie legacy launch"
                     className="mt-14 w-full object-cover [filter:brightness(0.85)]"
                 />
             </Reveal>

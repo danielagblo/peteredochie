@@ -8,8 +8,8 @@ import { whatsappHref } from '@/lib/whatsapp';
 const FaqPage = () => (
     <div>
         <PageHead
-            title="Frequently Asked Questions | The Peter Edochie Legacy | King Dawie Publishing"
-            description="Answers about the Peter Edochie Legacy platform — the autobiography, events, mentorship, orders, accounts and publishing enquiries."
+            title="Frequently Asked Questions | The Pete Edochie Legacy | King Dawie Publishing"
+            description="Answers about the Pete Edochie Legacy platform — the autobiography, events, mentorship, orders, accounts and publishing enquiries."
         />
         <PageHero
             eyebrow="Help"
@@ -60,7 +60,7 @@ const FaqPage = () => (
                         Contact the office
                     </Link>
                     <a
-                        href={whatsappHref(`Hello ${PUBLISHER.name}. I have a question about the Peter Edochie Legacy platform.`)}
+                        href={whatsappHref(`Hello ${PUBLISHER.name}. I have a question about the Pete Edochie Legacy platform.`)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block bg-[hsl(var(--primary))] px-6 py-3 text-[0.68rem] uppercase tracking-[0.2em] text-white"

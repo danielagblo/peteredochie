@@ -369,7 +369,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             edition: p.edition || '',
             description: p.description || '',
             excerpt: p.excerpt || '',
-            author: p.author || 'Peter Edochie',
+            author: p.author || 'Pete Edochie',
             isbn: p.isbn || '',
             pages: p.pages ?? '',
             language: p.language || 'English',
@@ -826,7 +826,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     return (
         <DashboardShell
             title="Administrator dashboard | King Dawie Publishing"
-            description="Inventory, sales, orders, stock tracking, employee access and platform administration for the Peter Edochie Legacy commerce system."
+            description="Inventory, sales, orders, stock tracking, employee access and platform administration for the Pete Edochie Legacy commerce system."
             nav={nav}
         >
             {(tab) => (

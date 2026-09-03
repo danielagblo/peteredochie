@@ -46,8 +46,8 @@ const BookProductPage = () => {
     return (
         <div className="pt-28">
             <PageHead
-                title={`${title} — Book details | Peter Edochie Legacy`}
-                description={product?.excerpt || product?.description || 'View details and pre-register for this Peter Edochie autobiography edition.'}
+                title={`${title} — Book details | Pete Edochie Legacy`}
+                description={product?.excerpt || product?.description || 'View details and pre-register for this Pete Edochie autobiography edition.'}
             />
             <Section className="py-16 md:py-24" width="max-w-[80rem]">
                 {loading ? (

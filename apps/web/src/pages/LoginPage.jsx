@@ -36,8 +36,8 @@ const LoginPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title="Sign in | The Peter Edochie Legacy"
-                description="Sign in to your Peter Edochie Legacy account to access tickets, orders, the screening room and your dashboard."
+                title="Sign in | The Pete Edochie Legacy"
+                description="Sign in to your Pete Edochie Legacy account to access tickets, orders, the screening room and your dashboard."
             />
             <div className="relative hidden md:block">
                 <img src={IMG.portrait} alt="" className="h-full w-full object-cover" />

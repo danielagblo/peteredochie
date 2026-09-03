@@ -157,8 +157,8 @@ const SubscriberDashboard = () => {
 
     return (
         <DashboardShell
-            title="Subscriber dashboard | The Peter Edochie Legacy"
-            description="Your Meet & Greet tickets, MasterClass registrations, mentorship application, book orders, notifications and newsletter preferences on the Peter Edochie Legacy platform."
+            title="Subscriber dashboard | The Pete Edochie Legacy"
+            description="Your Meet & Greet tickets, MasterClass registrations, mentorship application, book orders, notifications and newsletter preferences on the Pete Edochie Legacy platform."
             nav={nav}
         >
             {(tab) => (

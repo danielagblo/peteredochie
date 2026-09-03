@@ -83,8 +83,8 @@ const OrderPage = () => {
     return (
         <div className="pt-28">
             <Helmet>
-                <title>Order confirmation | Peter Edochie Legacy | King Dawie Publishing</title>
-                <meta name="description" content="Your order confirmation and payment status on the Peter Edochie Legacy platform." />
+                <title>Order confirmation | Pete Edochie Legacy | King Dawie Publishing</title>
+                <meta name="description" content="Your order confirmation and payment status on the Pete Edochie Legacy platform." />
             </Helmet>
             <div className="mx-auto max-w-[52rem] px-5 py-12 md:px-10">
                 {meta ? (

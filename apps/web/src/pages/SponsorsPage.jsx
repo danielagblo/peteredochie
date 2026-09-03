@@ -26,8 +26,8 @@ const SponsorsPage = () => {
     return (
         <div>
             <PageHead
-                title="Sponsors & Partners | The Peter Edochie Legacy | King Dawie Publishing"
-                description="Partnership opportunities with the Peter Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
+                title="Sponsors & Partners | The Pete Edochie Legacy | King Dawie Publishing"
+                description="Partnership opportunities with the Pete Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
             />
             <PageHero eyebrow="Sponsors & Partners" title="Institutions that carry this forward" lead="The archive, the events and the mentorship cohorts are sustained by partners who think in decades. Choose a package and apply to partner with the legacy." image={IMG.podium} />
 
@@ -46,7 +46,7 @@ const SponsorsPage = () => {
                 <Section width="max-w-[90rem]">
                     <div className="flex flex-wrap items-end justify-between gap-6">
                         <SectionTitle eyebrow="Partnership" title="Four sponsorship packages" />
-                        <Link to={applyTo} className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black">
+                        <Link to={applyTo} className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white">
                             Become a sponsor <ArrowRight size={14} strokeWidth={1.6} />
                         </Link>
                     </div>
@@ -108,7 +108,7 @@ const SponsorsPage = () => {
                     <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
                         For founding-institution and archive-naming partnerships, or multi-country underwriting, our partnership team will design a bespoke package with you.
                     </p>
-                    <Link to="/contact" className="mt-7 inline-block border border-[hsl(var(--gold))]/60 px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black">
+                    <Link to="/contact" className="mt-7 inline-block border border-[hsl(var(--gold))]/60 px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white">
                         Contact the partnership team
                     </Link>
                 </div>

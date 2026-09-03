@@ -74,8 +74,8 @@ const SignupPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title={`Create your ${meta.title} account | The Peter Edochie Legacy`}
-                description={`Register a ${meta.title} account on the Peter Edochie Legacy platform, operated by King Dawie Publishing.`}
+                title={`Create your ${meta.title} account | The Pete Edochie Legacy`}
+                description={`Register a ${meta.title} account on the Pete Edochie Legacy platform, operated by King Dawie Publishing.`}
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">

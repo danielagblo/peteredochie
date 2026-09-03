@@ -16,13 +16,13 @@ const HomePage = () => {
     apiCrud.list('events', { sort: 'starts', page: 1, perPage: 3 }).then(setEvents).catch(() => setEvents([]));
   }, []);
   return <div>
-            <PageHead title="Peter Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Peter Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
-            <Seo title="Peter Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Peter Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Peter Edochie Legacy — King Dawie Publishing" />
+            <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
+            <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
             {/* HERO */}
             <section className="relative flex min-h-[100svh] flex-col justify-end">
                 <div className="absolute inset-0 overflow-hidden">
-                    <motion.img src={IMG.stage} alt="Peter Edochie standing under a single spotlight on an empty theatre stage" initial={{
+                    <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
         scale: 1.08,
         opacity: 0
       }} animate={{
@@ -94,7 +94,7 @@ const HomePage = () => {
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
                 <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
                     {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'Meet & Greet with Peter Edochie'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'Meet & Greet with Pete Edochie'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
                                         {t}
                                         <span className="text-[hsl(var(--gold))]">◆</span>
                                     </span>)}
@@ -109,7 +109,7 @@ const HomePage = () => {
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
                     <div className="relative">
-                        <img src={IMG.portrait} alt="Portrait of Peter Edochie" className="w-full object-cover" />
+                        <img src={IMG.portrait} alt="Portrait of Pete Edochie" className="w-full object-cover" />
                         <div className="absolute -bottom-6 -right-4 hidden bg-background px-6 py-5 md:block">
                             <p className="font-display text-4xl text-[hsl(var(--gold))]">
                                 <CountUp value={60} suffix="+" />
@@ -186,7 +186,7 @@ const HomePage = () => {
                     <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
                         {MERCH_PREVIEW.map((src, i) => <Reveal key={src} delay={i * 0.06}>
                                 <Link to="/shop" className="group block overflow-hidden">
-                                    <img src={src} alt="Official Peter Edochie Legacy merchandise" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                                    <img src={src} alt="Official Pete Edochie Legacy merchandise" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
                                 </Link>
                             </Reveal>)}
                     </div>
@@ -263,7 +263,7 @@ const HomePage = () => {
                 <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
                     {[IMG.award, IMG.family, IMG.podium, IMG.artifact].map((src, i) => <Reveal key={src} delay={i * 0.06}>
                             <div className="group overflow-hidden">
-                                <img src={src} alt="Archive photograph from the Peter Edochie collection" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
+                                <img src={src} alt="Archive photograph from the Pete Edochie collection" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
                             </div>
                         </Reveal>)}
                 </div>

@@ -108,7 +108,7 @@ const EventCard = ({ event, onParticipate }) => {
                             <button
                                 type="button"
                                 onClick={() => onParticipate(event)}
-                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-black"
+                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
                             >
                                 Register now
                             </button>
@@ -215,13 +215,13 @@ const EventsPage = () => {
     return (
         <div>
             <PageHead
-                title="Events, Meet & Greet & Mentorship | The Peter Edochie Legacy"
+                title="Events, Meet & Greet & Mentorship | The Pete Edochie Legacy"
                 description="The Ghana Launch (by invitation), an open MasterClass & Lecture, a ticketed Meet & Greet with VIP and Standard tiers, and the African Youth Mentorship Initiative — 2027 cohort."
             />
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="The Ghana Launch, an open masterclass, a ticketed Meet & Greet with Peter Edochie, and the African Youth Mentorship Initiative. Every registration and ticket carries a QR pass in your dashboard."
+                lead="The Ghana Launch, an open masterclass, a ticketed Meet & Greet with Pete Edochie, and the African Youth Mentorship Initiative. Every registration and ticket carries a QR pass in your dashboard."
                 image={IMG.theatre}
             />
 

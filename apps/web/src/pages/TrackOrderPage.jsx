@@ -33,8 +33,8 @@ const TrackOrderPage = () => {
     return (
         <div className="pt-28 pb-24">
             <Helmet>
-                <title>Track your order | Peter Edochie Legacy</title>
-                <meta name="description" content="Look up a Peter Edochie Legacy shop order with your email and payment reference." />
+                <title>Track your order | Pete Edochie Legacy</title>
+                <meta name="description" content="Look up a Pete Edochie Legacy shop order with your email and payment reference." />
             </Helmet>
             <div className="mx-auto max-w-[36rem] px-5 md:px-10">
                 <p className="eyebrow">Orders</p>

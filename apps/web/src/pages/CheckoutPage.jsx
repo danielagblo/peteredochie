@@ -148,8 +148,8 @@ const CheckoutPage = () => {
     return (
         <div className="pt-28">
             <Helmet>
-                <title>Checkout | Peter Edochie Legacy | King Dawie Publishing</title>
-                <meta name="description" content="Review your order and complete secure payment for Peter Edochie Legacy books and merchandise." />
+                <title>Checkout | Pete Edochie Legacy | King Dawie Publishing</title>
+                <meta name="description" content="Review your order and complete secure payment for Pete Edochie Legacy books and merchandise." />
             </Helmet>
             <div className="mx-auto max-w-[64rem] px-5 py-12 md:px-10">
                 <p className="eyebrow">Checkout</p>
