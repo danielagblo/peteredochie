@@ -1,7 +1,11 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../utils/prisma.js';
-import { signToken } from '../utils/token.js';
+import { signToken, verifyToken } from '../utils/token.js';
 import logger from '../utils/logger.js';
+import { sendEmail } from '../utils/email.js';
+import { renderNewsletterHtml, renderNewsletterText } from '../utils/emailTemplate.js';
+
+const FRONTEND_URL = (process.env.CORS_ORIGIN || 'http://localhost:3002').split(',')[0].trim().replace(/\/+$/, '');
 
 const STAFF_ROLES = [
 	'super_admin',
@@ -119,6 +123,59 @@ export async function register(req, res) {
 		},
 	});
 
+	// Send welcome / verification email
+	try {
+		const verifyTokenValue = signToken({ id: user.id, email: user.email, purpose: 'email_verification' });
+		const verifyUrl = `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(verifyTokenValue)}`;
+
+		const isOrg = validAccountType === 'distributor' || validAccountType === 'sponsor';
+		const greetingName = user.name || (user.email ? user.email.split('@')[0] : 'Valued Member');
+
+		const headline = isOrg
+			? `Application Received: ${validAccountType === 'distributor' ? 'Distributor' : 'Sponsor'} Account`
+			: 'Welcome to The Pete Edochie Legacy';
+
+		const introParagraph = isOrg
+			? `Thank you for submitting your ${validAccountType === 'distributor' ? 'distributor' : 'sponsorship'} application to King Dawie Publishing. Our team is currently reviewing your registration details.`
+			: `Welcome to the official platform for **The Pete Edochie Legacy**, operated by King Dawie Publishing. We are honored to have you with us.`;
+
+		const content = `
+${introParagraph}
+
+Please verify your email address to confirm your registration and unlock access to ticketing, pre-orders, and platform features.
+
+If you did not create an account on the Pete Edochie Legacy platform, you can safely disregard this email.
+		`.trim();
+
+		const html = renderNewsletterHtml({
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			previewText: `Welcome to The Pete Edochie Legacy. Please verify your email address.`,
+			headline,
+			content,
+			ctaText: 'Verify Email Address',
+			ctaUrl: verifyUrl,
+			recipientName: greetingName,
+		});
+
+		const text = renderNewsletterText({
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			headline,
+			content,
+			ctaText: 'Verify Email Address',
+			ctaUrl: verifyUrl,
+			recipientName: greetingName,
+		});
+
+		await sendEmail({
+			to: user.email,
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			html,
+			text,
+		});
+	} catch (err) {
+		logger.error('Failed to send welcome/verification email:', err.message);
+	}
+
 	res.status(201).json({ token, user: sanitizeUser(user) });
 }
 
@@ -161,6 +218,90 @@ export async function me(req, res) {
 	res.json({ user: sanitizeUser(req.user) });
 }
 
+export async function requestVerification(req, res) {
+	const user = req.user;
+	if (!user) {
+		return res.status(401).json({ error: 'Authentication required.' });
+	}
+
+	if (user.verified) {
+		return res.status(200).json({ message: 'Your email address is already verified.', verified: true });
+	}
+
+	const verifyTokenValue = signToken({ id: user.id, email: user.email, purpose: 'email_verification' });
+	const verifyUrl = `${FRONTEND_URL}/verify-email?token=${encodeURIComponent(verifyTokenValue)}`;
+	const greetingName = user.name || (user.email ? user.email.split('@')[0] : 'Valued Member');
+
+	try {
+		const content = `
+You requested a new verification link for your Pete Edochie Legacy account.
+
+Click the button below to verify your email address and unlock all platform features, orders, and event passes.
+		`.trim();
+
+		const html = renderNewsletterHtml({
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			previewText: `Verify your email address for The Pete Edochie Legacy.`,
+			headline: 'Verify Your Email Address',
+			content,
+			ctaText: 'Verify Email Address',
+			ctaUrl: verifyUrl,
+			recipientName: greetingName,
+		});
+
+		const text = renderNewsletterText({
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			headline: 'Verify Your Email Address',
+			content,
+			ctaText: 'Verify Email Address',
+			ctaUrl: verifyUrl,
+			recipientName: greetingName,
+		});
+
+		await sendEmail({
+			to: user.email,
+			subject: `Verify your email — The Pete Edochie Legacy`,
+			html,
+			text,
+		});
+
+		res.status(200).json({ message: 'Verification email sent.' });
+	} catch (err) {
+		logger.error('requestVerification email failed:', err.message);
+		res.status(500).json({ error: 'Could not send verification email.' });
+	}
+}
+
+export async function verifyEmail(req, res) {
+	const { token } = req.body || {};
+	if (!token) {
+		return res.status(422).json({ error: 'Verification token is required.' });
+	}
+
+	let payload;
+	try {
+		payload = verifyToken(token);
+	} catch {
+		return res.status(401).json({ error: 'Invalid or expired verification link.' });
+	}
+
+	if (payload?.purpose !== 'email_verification' || !payload.id) {
+		return res.status(401).json({ error: 'Invalid verification token.' });
+	}
+
+	const user = await prisma.user.findUnique({ where: { id: payload.id } });
+	if (!user) {
+		return res.status(404).json({ error: 'User not found.' });
+	}
+
+	const updated = await prisma.user.update({
+		where: { id: user.id },
+		data: { verified: true },
+	});
+
+	res.status(200).json({ message: 'Email verified successfully.', user: sanitizeUser(updated) });
+}
+
 export async function requestPasswordReset(req, res) {
 	const { email } = req.body || {};
 	if (!email) {
@@ -175,11 +316,46 @@ export async function requestPasswordReset(req, res) {
 	}
 
 	const token = signToken({ id: user.id, purpose: 'password_reset' });
+	const resetUrl = `${FRONTEND_URL}/forgot-password?token=${encodeURIComponent(token)}`;
+	const greetingName = user.name || (user.email ? user.email.split('@')[0] : 'Valued Member');
 
-	// TODO: send reset email via email service (Phase 5).
-	logger.info(`Password reset requested for ${normalizedEmail}`);
+	try {
+		const content = `
+We received a request to reset the password for your Pete Edochie Legacy account.
 
-	res.status(200).json({ message: 'If that account exists, a reset link has been sent.', reset_token: token });
+Click the button below to choose a new password. If you did not make this request, you can safely ignore this email.
+		`.trim();
+
+		const html = renderNewsletterHtml({
+			subject: `Reset your password — The Pete Edochie Legacy`,
+			previewText: `Password reset link for The Pete Edochie Legacy platform.`,
+			headline: 'Reset Your Password',
+			content,
+			ctaText: 'Reset Password',
+			ctaUrl: resetUrl,
+			recipientName: greetingName,
+		});
+
+		const text = renderNewsletterText({
+			subject: `Reset your password — The Pete Edochie Legacy`,
+			headline: 'Reset Your Password',
+			content,
+			ctaText: 'Reset Password',
+			ctaUrl: resetUrl,
+			recipientName: greetingName,
+		});
+
+		await sendEmail({
+			to: user.email,
+			subject: `Reset your password — The Pete Edochie Legacy`,
+			html,
+			text,
+		});
+	} catch (err) {
+		logger.error(`Password reset email failed for ${normalizedEmail}:`, err.message);
+	}
+
+	res.status(200).json({ message: 'If that account exists, a reset link has been sent.' });
 }
 
 export async function confirmPasswordReset(req, res) {

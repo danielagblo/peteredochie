@@ -29,6 +29,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import AccountTypePage from './pages/AccountTypePage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import DashboardPage from './pages/DashboardPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderPage from './pages/OrderPage';
@@ -106,6 +107,7 @@ function App() {
                             <Route path="/join" element={<AccountTypePage />} />
                             <Route path="/signup" element={<SignupPage />} />
                             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                            <Route path="/verify-email" element={<VerifyEmailPage />} />
 
                             {/* Admin portal (standalone, no public chrome) */}
                             <Route path="/admin/login" element={<AdminLoginPage />} />

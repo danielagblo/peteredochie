@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
             login,
             signup,
             refresh,
-            requestVerification: () => Promise.resolve(),
+            requestVerification: () => api.post('/auth/request-verification'),
             resetPassword: (email) => api.post('/auth/request-password-reset', { email }),
             logout: () => {
                 try {
