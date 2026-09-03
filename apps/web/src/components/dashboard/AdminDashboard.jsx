@@ -93,6 +93,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [orderItems, setOrderItems] = useState({});
     const [error, setError] = useState('');
     const [eventForm, setEventForm] = useState({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass', invitation_only: false });
+    const [editingEventId, setEditingEventId] = useState('');
     const [newsForm, setNewsForm] = useState({ title: '', excerpt: '', category: '' });
     const [sponsorPackages, setSponsorPackages] = useState([]);
     const [distTiers, setDistTiers] = useState([]);
@@ -267,17 +268,49 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         catch (_) { setError('Could not delete that material.'); }
     };
 
-    const createEvent = async (e) => {
+    const submitEvent = async (e) => {
         e.preventDefault();
         try {
-            await apiCrud.create('events', { ...eventForm, starts: eventForm.starts || null });
+            const payload = { ...eventForm, starts: eventForm.starts || null };
+            if (editingEventId) await apiCrud.update('events', editingEventId, payload);
+            else await apiCrud.create('events', payload);
             setEventForm({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass', invitation_only: false });
+            setEditingEventId('');
             load();
-        } catch (_) { setError('Could not create that event.'); }
+        } catch (_) { setError('Could not save that event.'); }
+    };
+
+    const editEvent = (ev) => {
+        const toLocalInput = (iso) => {
+            if (!iso) return '';
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return '';
+            const pad = (n) => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+        setEventForm({
+            title: ev.title || '',
+            city: ev.city || '',
+            venue: ev.venue || '',
+            starts: toLocalInput(ev.starts),
+            summary: ev.summary || '',
+            category: ev.category || '',
+            event_type: ev.event_type || 'masterclass',
+            invitation_only: !!ev.invitation_only,
+        });
+        setEditingEventId(ev.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const cancelEditEvent = () => {
+        setEventForm({ title: '', city: '', venue: '', starts: '', summary: '', category: '', event_type: 'masterclass', invitation_only: false });
+        setEditingEventId('');
     };
 
     const deleteEvent = async (id) => {
-        try { await apiCrud.remove('events', id); load(); }
+        try { await apiCrud.remove('events', id);
+            if (editingEventId === id) cancelEditEvent();
+            load(); }
         catch (_) { setError('Could not delete that event.'); }
     };
 
@@ -1071,7 +1104,10 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
 
                     {tab === 'events' ? (
                         <Panel title="Event management" lead="Create, publish and remove events. Ticketing follows each published event.">
-                            <form onSubmit={createEvent} className="grid gap-4 md:grid-cols-2">
+                            {editingEventId ? (
+                                <p className="mb-4 border border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[hsl(var(--gold))]">Editing event — save to apply changes</p>
+                            ) : null}
+                            <form onSubmit={submitEvent} className="grid gap-4 md:grid-cols-2">
                                 <input required placeholder="Title" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} className={input} />
                                 <input placeholder="Category" value={eventForm.category} onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })} className={input} />
                                 <select value={eventForm.event_type} onChange={(e) => setEventForm({ ...eventForm, event_type: e.target.value })} className={input}>
@@ -1087,7 +1123,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <input type="checkbox" checked={eventForm.invitation_only} onChange={(e) => setEventForm({ ...eventForm, invitation_only: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--gold))]" />
                                     <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Invitation only — no public registration</span>
                                 </label>
-                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Publish event</button>
+                                <div className="flex flex-wrap gap-3 md:col-span-2">
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingEventId ? 'Save changes' : 'Publish event'}</button>
+                                    {editingEventId ? (
+                                        <button type="button" onClick={cancelEditEvent} className="border border-border px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground">Cancel</button>
+                                    ) : null}
+                                </div>
                             </form>
                             <ul className="mt-8 divide-y divide-border">
                                 {events.length === 0 ? <EmptyState>No events published.</EmptyState> : null}
@@ -1095,9 +1136,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <li key={e.id} className="flex flex-wrap items-center justify-between gap-4 py-4">
                                         <div>
                                             <p className="font-display text-lg">{e.title}</p>
-                                            <p className="mt-1 text-xs text-muted-foreground">{e.venue} · {e.city}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{e.venue} · {e.city} · {e.event_type} · {e.invitation_only ? 'Invitation only' : 'Public'}</p>
                                         </div>
-                                        <button type="button" onClick={() => deleteEvent(e.id)} className={dangerBtn}>Delete</button>
+                                        <div className="flex items-center gap-3">
+                                            <button type="button" onClick={() => editEvent(e)} className={smallBtn}>Edit</button>
+                                            <button type="button" onClick={() => deleteEvent(e.id)} className={dangerBtn}>Delete</button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
