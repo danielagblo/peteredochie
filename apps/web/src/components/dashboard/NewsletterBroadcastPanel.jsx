@@ -642,14 +642,14 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                         placeholder="Click here to type a letter headline (e.g. A Word on Legacy)..."
                                         value={form.headline}
                                         onChange={(e) => setForm({ ...form, headline: e.target.value })}
-                                        className="w-full font-serif text-xl sm:text-2xl font-normal text-white bg-transparent outline-none border-b border-transparent focus:border-[#D4AF37] placeholder:text-zinc-600 transition-colors pb-1"
+                                        className="w-full font-serif text-xl sm:text-2xl font-semibold text-[#18181b] bg-transparent outline-none border-b border-transparent focus:border-[#D4AF37] placeholder:text-zinc-400 transition-colors pb-1"
                                     />
                                 </div>
 
                                 {/* Salutation */}
-                                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#e4e4e7] select-none">
+                                <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#3f3f46] select-none">
                                     <span>Dear <span className="text-[hsl(var(--gold))] font-medium">[Subscriber Name]</span>,</span>
-                                    <span className="text-[9px] uppercase tracking-wider text-zinc-500 bg-zinc-900/80 border border-zinc-800 px-1.5 py-0.5">
+                                    <span className="text-[9px] uppercase tracking-wider text-zinc-500 bg-zinc-100 border border-zinc-200 px-1.5 py-0.5">
                                         Personalized per recipient
                                     </span>
                                 </div>
@@ -664,25 +664,25 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                         onBlur={() => { setIsEditorFocused(false); handleEditorInput(); }}
                                         onKeyUp={updateActiveStates}
                                         onMouseUp={updateActiveStates}
-                                        className="min-h-[260px] text-xs sm:text-sm leading-relaxed outline-none text-[#d4d4d8] font-sans
-                                            [&_h1]:text-xl [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-white [&_h1]:my-3
-                                            [&_h2]:text-lg [&_h2]:font-serif [&_h2]:font-semibold [&_h2]:text-[#D4AF37] [&_h2]:my-3
-                                            [&_h3]:text-base [&_h3]:font-serif [&_h3]:font-semibold [&_h3]:text-[#D4AF37] [&_h3]:my-2
+                                        className="min-h-[260px] text-xs sm:text-sm leading-relaxed outline-none text-[#3f3f46] font-sans
+                                            [&_h1]:text-xl [&_h1]:font-serif [&_h1]:font-bold [&_h1]:text-[#18181b] [&_h1]:my-3
+                                            [&_h2]:text-lg [&_h2]:font-serif [&_h2]:font-semibold [&_h2]:text-[#B8860B] [&_h2]:my-3
+                                            [&_h3]:text-base [&_h3]:font-serif [&_h3]:font-semibold [&_h3]:text-[#B8860B] [&_h3]:my-2
                                             [&_p]:mb-2.5 [&_p]:leading-relaxed
-                                            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2.5 [&_ul]:text-[#D4AF37] [&_ul_li]:text-[#d4d4d8] [&_ul_li]:mb-1
-                                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2.5 [&_ol]:text-[#D4AF37] [&_ol_li]:text-[#d4d4d8] [&_ol_li]:mb-1
-                                            [&_blockquote]:border-l-2 [&_blockquote]:border-[#D4AF37] [&_blockquote]:bg-zinc-900/60 [&_blockquote]:py-2 [&_blockquote]:px-3.5 [&_blockquote]:my-3 [&_blockquote]:italic [&_blockquote]:text-zinc-200
-                                            [&_a]:text-[#D4AF37] [&_a]:underline [&_a]:font-semibold
-                                            [&_strong]:text-white [&_strong]:font-bold
-                                            [&_b]:text-white [&_b]:font-bold
-                                            [&_em]:italic [&_em]:text-zinc-200"
+                                            [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2.5 [&_ul]:text-[#B8860B] [&_ul_li]:text-[#3f3f46] [&_ul_li]:mb-1
+                                            [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:my-2.5 [&_ol]:text-[#B8860B] [&_ol_li]:text-[#3f3f46] [&_ol_li]:mb-1
+                                            [&_blockquote]:border-l-2 [&_blockquote]:border-[#B8860B] [&_blockquote]:bg-zinc-100 [&_blockquote]:py-2 [&_blockquote]:px-3.5 [&_blockquote]:my-3 [&_blockquote]:italic [&_blockquote]:text-[#3f3f46]
+                                            [&_a]:text-[#B8860B] [&_a]:underline [&_a]:font-semibold
+                                            [&_strong]:text-[#18181b] [&_strong]:font-bold
+                                            [&_b]:text-[#18181b] [&_b]:font-bold
+                                            [&_em]:italic [&_em]:text-[#3f3f46]"
                                     />
 
                                     {/* Placeholder when document is empty */}
                                     {isContentEmpty && !isEditorFocused && (
                                         <div
                                             onClick={() => editorRef.current?.focus()}
-                                            className="pointer-events-none absolute left-0 top-0 text-xs sm:text-sm text-zinc-600 italic select-none"
+                                            className="pointer-events-none absolute left-0 top-0 text-xs sm:text-sm text-zinc-400 italic select-none"
                                         >
                                             Click here to begin typing your official dispatch... Highlight text and use the toolbar above to make words bold, italic, or headings visually.
                                         </div>
@@ -697,7 +697,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                             onClick={(e) => e.preventDefault()}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-block bg-[#D4AF37] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#09090b] shadow-md hover:opacity-95"
+                                            className="inline-block bg-[#D4AF37] px-6 py-3 font-sans text-[11px] font-bold uppercase tracking-[0.18em] text-[#18181b] shadow-md hover:opacity-95"
                                         >
                                             {form.ctaText}
                                         </a>
@@ -705,15 +705,15 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                 )}
 
                                 {/* Signoff */}
-                                <div className="pt-6 border-t border-[#222226] text-xs text-[#a1a1aa] leading-normal select-none">
+                                <div className="pt-6 border-t border-[#ececef] text-xs text-[#52525b] leading-normal select-none">
                                     Warm regards,<br />
-                                    <strong className="text-white">The Pete Edochie Legacy Team</strong><br />
+                                    <strong className="text-[#18181b]">The Pete Edochie Legacy Team</strong><br />
                                     <span className="text-[11px] text-[#71717a]">King Dawie Publishing</span>
                                 </div>
                             </div>
 
                             {/* Letterhead Footer */}
-                            <div className="border-t border-[#222226] bg-[#0c0c0e] px-6 py-5 text-center text-[10px] text-[#71717a] leading-relaxed select-none">
+                            <div className="border-t border-[#ececef] bg-[#f4f4f5] px-6 py-5 text-center text-[10px] text-[#71717a] leading-relaxed select-none">
                                 <p>You received this email because you subscribed to updates from the Pete Edochie Legacy platform.</p>
                                 <p className="mt-1 text-[#52525b]">&copy; {new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.</p>
                             </div>

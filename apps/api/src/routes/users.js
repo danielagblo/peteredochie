@@ -3,7 +3,7 @@ import prisma from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
 import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
-import { sendSms } from '../utils/sms.js';
+import { sendSms, ARKESEL_SENDER_ID } from '../utils/sms.js';
 import { sendEmail } from '../utils/email.js';
 
 const STAFF_ROLES = [
@@ -100,7 +100,7 @@ const controller = crudController(prisma.user, {
 						data: {
 							recipientPhone: userRecord.phone,
 							message: smsText,
-							senderId: 'PeteEdochie',
+							senderId: ARKESEL_SENDER_ID,
 							status: 'sent',
 							context: 'user_approval',
 						},
