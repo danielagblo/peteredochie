@@ -4,6 +4,7 @@ import { isIntegrationConfigured } from "../utils/integrationConfig.js";
 import { decodeToken, verifyToken } from "../utils/token.js";
 import logger from "../utils/logger.js";
 import { sendEmail } from "../utils/email.js";
+import { sendSms } from "../utils/sms.js";
 
 const router = Router();
 
@@ -134,21 +135,56 @@ async function markOrderPaid(reference) {
 		}
 	}
 
+	// 1. Send SMS order confirmation via Arkesel
+	try {
+		const shippingPhone = order.shippingAddress?.phone;
+		let customerPhone = shippingPhone;
+		if (!customerPhone && order.ownerId) {
+			const owner = await prisma.user.findUnique({ where: { id: order.ownerId } });
+			customerPhone = owner?.phone;
+		}
+		if (customerPhone) {
+			await sendSms({
+				to: customerPhone,
+				message: `Pete Edochie Legacy: Thank you! Your order ${reference} (${order.currency || "USD"} ${order.totalPrice}) is confirmed. Track status at peteredochie.com/track`,
+			});
+		}
+	} catch (smsErr) {
+		logger.error("order confirmation SMS failed", smsErr.message);
+	}
+
 	return updated;
 }
 
 async function markTicketPaid(reference) {
 	const ticket = await prisma.meetAndGreetTicket.findFirst({
 		where: { paymentReference: reference },
+		include: { event: true, owner: true },
 	});
 	if (!ticket) return null;
 	if (ticket.paymentStatus === "paid") {
 		return ticket; // already processed
 	}
-	return prisma.meetAndGreetTicket.update({
+	const updatedTicket = await prisma.meetAndGreetTicket.update({
 		where: { id: ticket.id },
 		data: { status: "confirmed", paymentStatus: "paid" },
 	});
+
+	// 2. Send SMS ticket pass / Meet & Greet confirmation via Arkesel
+	try {
+		const recipientPhone = ticket.owner?.phone;
+		if (recipientPhone) {
+			const eventTitle = ticket.event?.title || "Pete Edochie Meet & Greet";
+			await sendSms({
+				to: recipientPhone,
+				message: `Pete Edochie Legacy: Your ${ticket.tier?.toUpperCase()} pass for ${eventTitle} is confirmed! Pass Code: ${ticket.confirmationCode}. View pass at peteredochie.com/dashboard`,
+			});
+		}
+	} catch (smsErr) {
+		logger.error("ticket confirmation SMS failed", smsErr.message);
+	}
+
+	return updatedTicket;
 }
 
 // ─── Routes ──────────────────────────────────────────────────────────────

@@ -160,6 +160,13 @@ export function crudController(model, opts = {}) {
 			data = stripRestricted(data);
 			if (preUpdate) data = await preUpdate(req, data);
 			const item = await model.update({ where: { id: req.params.id }, data });
+			if (opts?.postUpdate) {
+				try {
+					await opts.postUpdate(req, item, data);
+				} catch (postErr) {
+					logger.error('postUpdate hook failed', postErr.message);
+				}
+			}
 			res.json(mapItem(item));
 		} catch (err) {
 			logger.error(`${model?.name || 'model'} update failed`, err.message);

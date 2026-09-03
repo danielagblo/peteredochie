@@ -3,6 +3,8 @@ import prisma from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
 import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
+import { sendSms } from '../utils/sms.js';
+import { sendEmail } from '../utils/email.js';
 
 const STAFF_ROLES = [
 	'super_admin',
@@ -62,6 +64,27 @@ const controller = crudController(prisma.user, {
 			delete data.password;
 		}
 		return data;
+	},
+	// 3. Send SMS & Email when a distributor or sponsor application is approved
+	postUpdate: async (req, updatedUser, incomingData) => {
+		if (incomingData?.approvalStatus === 'approved' || incomingData?.approval_status === 'approved') {
+			const typeLabel = updatedUser.accountType === 'distributor' ? 'Distributor' : updatedUser.accountType === 'sponsor' ? 'Sponsor' : 'Member';
+			
+			if (updatedUser.phone) {
+				await sendSms({
+					to: updatedUser.phone,
+					message: `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at peteredochie.com/dashboard to access trade pricing and tools.`,
+				}).catch(() => {});
+			}
+			if (updatedUser.email) {
+				await sendEmail({
+					to: updatedUser.email,
+					subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
+					text: `Congratulations! Your ${typeLabel} account has been approved by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
+					html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
+				}).catch(() => {});
+			}
+		}
 	},
 });
 
