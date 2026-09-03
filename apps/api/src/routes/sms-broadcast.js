@@ -12,11 +12,12 @@ router.get('/status', requireAuth, requireRole('super_admin'), async (req, res) 
 		const configured = isArkeselConfigured();
 
 		// Count users with valid phone numbers by group
-		const [subscribersCount, distributorsCount, sponsorsCount, allUsersCount] = await Promise.all([
+		const [subscribersCount, distributorsCount, sponsorsCount, allUsersCount, totalSmsLogsCount] = await Promise.all([
 			prisma.subscriber.count({ where: { phone: { not: null } } }),
 			prisma.user.count({ where: { accountType: 'distributor', phone: { not: null } } }),
 			prisma.user.count({ where: { accountType: 'sponsor', phone: { not: null } } }),
 			prisma.user.count({ where: { phone: { not: null } } }),
+			prisma.smsLog.count(),
 		]);
 
 		res.json({
@@ -29,6 +30,7 @@ router.get('/status', requireAuth, requireRole('super_admin'), async (req, res) 
 				sponsors: sponsorsCount,
 				allUsers: allUsersCount,
 			},
+			totalLogsCount: totalSmsLogsCount,
 		});
 	} catch (err) {
 		logger.error('SMS status fetch failed:', err);
@@ -36,15 +38,45 @@ router.get('/status', requireAuth, requireRole('super_admin'), async (req, res) 
 	}
 });
 
-// 2. Broadcast or Test-Send an SMS campaign (admin only)
+// 2. Fetch SMS delivery history & logs (admin only)
+router.get('/logs', requireAuth, requireRole('super_admin'), async (req, res) => {
+	try {
+		const logs = await prisma.smsLog.findMany({
+			orderBy: { createdAt: 'desc' },
+			take: 100,
+			include: {
+				sentBy: {
+					select: { id: true, name: true, email: true },
+				},
+			},
+		});
+
+		res.json({
+			items: logs.map((log) => ({
+				id: log.id,
+				recipient_phone: log.recipientPhone,
+				message: log.message,
+				sender_id: log.senderId,
+				status: log.status,
+				context: log.context,
+				created_at: log.createdAt,
+				sent_by: log.sentBy ? { id: log.sentBy.id, name: log.sentBy.name, email: log.sentBy.email } : null,
+			})),
+		});
+	} catch (err) {
+		logger.error('SMS logs fetch failed:', err);
+		res.status(500).json({ error: 'Could not fetch SMS logs.' });
+	}
+});
+
+// 3. Broadcast SMS campaign and record in sms_logs (admin only)
 router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) => {
 	try {
 		const {
 			message,
-			targetAudience = 'all_subscribers', // 'all_subscribers' | 'distributors' | 'sponsors' | 'all_users'
+			targetAudience = 'all_users',
 			targetCountry = 'all',
-			isTest = false,
-			testPhone = '',
+			context = 'broadcast',
 		} = req.body || {};
 
 		const text = String(message || '').trim();
@@ -52,90 +84,32 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 			return res.status(400).json({ error: 'SMS message content is required.' });
 		}
 
-		// ─── A. Test Send ───
-		if (isTest) {
-			const recipient = normalizePhoneNumber(testPhone || req.user?.phone || '');
-			if (!recipient) {
-				return res.status(400).json({ error: 'A valid test phone number is required.' });
-			}
-
-			const smsResult = await sendSms({
-				to: recipient,
-				message: text,
-			});
-
-			return res.json({
-				success: true,
-				isTest: true,
-				recipient,
-				configured: isArkeselConfigured(),
-				mode: isArkeselConfigured() ? 'live_arkesel' : 'dev_simulation',
-				message: isArkeselConfigured()
-					? `Test SMS dispatched via Arkesel to ${recipient}.`
-					: `Dev simulation: test SMS logged for ${recipient}.`,
-				smsResult,
-			});
-		}
-
-		// ─── B. Broadcast to Selected Audience ───
-		let recipientPhones = [];
-
-		if (targetAudience === 'all_subscribers') {
-			const where = { phone: { not: null } };
-			if (targetCountry && targetCountry !== 'all') {
-				where.country = targetCountry;
-			}
-			const subs = await prisma.subscriber.findMany({
-				where,
+		// Fetch all valid phone numbers across users and subscribers
+		const [subscribers, users] = await Promise.all([
+			prisma.subscriber.findMany({
+				where: { phone: { not: null } },
 				select: { phone: true },
-			});
-			recipientPhones = subs.map((s) => s.phone);
-		} else if (targetAudience === 'distributors') {
-			const where = { accountType: 'distributor', phone: { not: null } };
-			if (targetCountry && targetCountry !== 'all') {
-				where.country = targetCountry;
-			}
-			const dists = await prisma.user.findMany({
-				where,
+			}),
+			prisma.user.findMany({
+				where: { phone: { not: null } },
 				select: { phone: true },
-			});
-			recipientPhones = dists.map((u) => u.phone);
-		} else if (targetAudience === 'sponsors') {
-			const where = { accountType: 'sponsor', phone: { not: null } };
-			if (targetCountry && targetCountry !== 'all') {
-				where.country = targetCountry;
-			}
-			const sps = await prisma.user.findMany({
-				where,
-				select: { phone: true },
-			});
-			recipientPhones = sps.map((u) => u.phone);
-		} else if (targetAudience === 'all_users') {
-			const where = { phone: { not: null } };
-			if (targetCountry && targetCountry !== 'all') {
-				where.country = targetCountry;
-			}
-			const users = await prisma.user.findMany({
-				where,
-				select: { phone: true },
-			});
-			recipientPhones = users.map((u) => u.phone);
-		}
+			}),
+		]);
 
-		// Normalize and deduplicate numbers
+		const allPhones = [...subscribers.map((s) => s.phone), ...users.map((u) => u.phone)];
 		const uniqueRecipients = Array.from(
-			new Set(recipientPhones.map(normalizePhoneNumber).filter(Boolean))
+			new Set(allPhones.map(normalizePhoneNumber).filter(Boolean))
 		);
 
 		if (uniqueRecipients.length === 0) {
 			return res.status(400).json({
-				error: 'No valid phone numbers found for the selected audience.',
+				error: 'No valid phone numbers found in the database.',
 			});
 		}
 
 		logger.info(`Starting SMS broadcast to ${uniqueRecipients.length} phone number(s)...`);
 
-		// Send SMS in batches of 50 to avoid API payload overruns
+		// Send SMS in batches of 50
 		const BATCH_SIZE = 50;
 		let totalSent = 0;
 		const configured = isArkeselConfigured();
@@ -152,6 +126,18 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 				logger.error(`SMS batch ${i} failed:`, batchErr.message);
 			}
 		}
+
+		// Log each sent SMS into sms_logs database table
+		await prisma.smsLog.createMany({
+			data: uniqueRecipients.map((phone) => ({
+				recipientPhone: phone,
+				message: text,
+				senderId: ARKESEL_SENDER_ID,
+				status: 'sent',
+				context,
+				sentById: req.user?.id || null,
+			})),
+		});
 
 		res.json({
 			success: true,
