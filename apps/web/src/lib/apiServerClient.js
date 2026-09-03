@@ -1,4 +1,6 @@
-export const API_SERVER_URL = '/hcgi/api';
+// Base URL of the Express API. Same-origin by default for local dev; override
+// with VITE_API_URL when the API is hosted separately from the frontend.
+export const API_SERVER_URL = import.meta.env.VITE_API_URL || '/hcgi/api';
 
 const apiServerClient = {
     fetch: async (url, options = {}) => {

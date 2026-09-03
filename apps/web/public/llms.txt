@@ -1,0 +1,4 @@
+## Pages
+- [Checkout | Pete Edochie Legacy | King Dawie Publishing](/checkout): Review your order and complete secure payment for Pete Edochie Legacy books and merchandise.
+- [Order confirmation | Pete Edochie Legacy | King Dawie Publishing](/order/:reference): Your order confirmation and payment status on the Pete Edochie Legacy platform.
+- [Track your order | Pete Edochie Legacy](/track-order): Look up a Pete Edochie Legacy shop order with your email and payment reference.

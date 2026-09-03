@@ -60,7 +60,10 @@ export const authStore = {
 	},
 };
 
-const API_BASE = '/hcgi/api';
+// Base URL of the Express API. Same-origin by default for local dev; override
+// with VITE_API_URL (e.g. https://api.example.com/hcgi/api) when the API is
+// hosted separately from the frontend.
+const API_BASE = import.meta.env.VITE_API_URL || '/hcgi/api';
 
 function getToken() {
 	return authStore.token;

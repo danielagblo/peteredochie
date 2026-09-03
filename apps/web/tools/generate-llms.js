@@ -2,6 +2,9 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
+
+const __file = path.resolve(fileURLToPath(import.meta.url));
 
 const CLEAN_CONTENT_REGEX = {
 	comments: /\/\*[\s\S]*?\*\/|\/\/.*$/gm,
@@ -90,8 +93,24 @@ function extractRoutes(appJsxPath) {
 	}
 }
 
+// Recurse through the pages tree collecting React files, skipping any directory
+// named "admin" so the internal admin pages are never listed/exposed in llms.txt.
+const EXCLUDED_DIRS = new Set(['admin']);
+
 function findReactFiles(dir) {
-	return fs.readdirSync(dir).map(item => path.join(dir, item));
+	const results = [];
+	const entries = fs.readdirSync(dir, { withFileTypes: true });
+	for (const entry of entries) {
+		const full = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			if (!EXCLUDED_DIRS.has(entry.name)) {
+				results.push(...findReactFiles(full));
+			}
+		} else if (/\.(jsx?|tsx?)$/.test(entry.name)) {
+			results.push(full);
+		}
+	}
+	return results;
 }
 
 function extractHelmetData(content, filePath, routes) {
@@ -184,7 +203,10 @@ function main() {
 	fs.writeFileSync(outputPath, llmsTxtContent, 'utf8');
 }
 
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+// Compare resolved absolute paths so this check works on Windows too where
+// import.meta.url is file:/// while argv[1] uses backslashes.
+const isMainModule =
+	path.resolve(process.argv[1] || '.') === __file;
 
 if (isMainModule) {
 	main();
