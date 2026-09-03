@@ -68,7 +68,7 @@ export function parseMarkdownToEmailHtml(text = '') {
 				.split('\n')
 				.map((line) => line.replace(/^(?:>|&gt;)\s?/, ''))
 				.join('\n');
-			return `<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #18181b; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">${formatInline(quoteLines)}</blockquote>`;
+			return `<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #d4d4d8; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">${formatInline(quoteLines)}</blockquote>`;
 		}
 
 		// Bullet list (handles mixed text + bullet lines)
@@ -161,7 +161,7 @@ export function formatContentForEmail(content = '') {
 		styled = styled.replace(/<ul(?:\s+style="[^"]*")?>/gi, '<ul style="margin: 14px 0 20px; padding-left: 24px; color: #18181b;">');
 		styled = styled.replace(/<ol(?:\s+style="[^"]*")?>/gi, '<ol style="margin: 14px 0 20px; padding-left: 24px; color: #18181b;">');
 		styled = styled.replace(/<li(?:\s+style="[^"]*")?>/gi, '<li style="margin-bottom: 8px; font-size: 15px; line-height: 1.6; color: #3f3f46 !important;">');
-		styled = styled.replace(/<blockquote(?:\s+style="[^"]*")?>/gi, '<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #18181b; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">');
+		styled = styled.replace(/<blockquote(?:\s+style="[^"]*")?>/gi, '<blockquote style="margin: 20px 0; padding: 14px 20px; border-left: 3px solid #d4d4d8; background-color: #f4f4f5; color: #3f3f46 !important; font-style: italic; font-size: 15px; line-height: 1.7;">');
 		styled = styled.replace(/<a\s+([^>]*?)href="([^"]+)"([^>]*?)>/gi, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #18181b !important; text-decoration: underline !important; font-weight: 600;"><span style="color: #18181b !important;">');
 		styled = styled.replace(/<\/a>/gi, '</span></a>');
 		// Clean up empty lines
@@ -191,8 +191,8 @@ export function renderNewsletterHtml({
 			<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin: 28px 0 10px;">
 				<tr>
 					<td align="center" bgcolor="#18181b" style="border-radius: 2px; background-color: #18181b; padding: 0;">
-						<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; color: #18181b !important; text-decoration: none; text-transform: uppercase; letter-spacing: 0.18em; background-color: #18181b;">
-							<span style="color: #18181b !important; font-weight: 700; text-decoration: none;">${ctaText}</span>
+						<a href="${ctaUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 700; color: #ffffff !important; text-decoration: none; text-transform: uppercase; letter-spacing: 0.18em; background-color: #18181b;">
+							<span style="color: #ffffff !important; font-weight: 700; text-decoration: none;">${ctaText}</span>
 						</a>
 					</td>
 				</tr>
