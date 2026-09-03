@@ -255,7 +255,10 @@ function distributorTierForKey(tierKey) {
 
 // GET /paystack/status
 router.get("/status", (req, res) => {
-	res.json({ configured: isIntegrationConfigured("PAYSTACK_SECRET_KEY") });
+	res.json({
+		configured: isIntegrationConfigured("PAYSTACK_SECRET_KEY"),
+		currency: process.env.PAYSTACK_CURRENCY || "USD",
+	});
 });
 
 // POST /paystack/initialize
