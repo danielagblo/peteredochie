@@ -15,8 +15,7 @@ const ALL_NAV = [
     { key: 'events', label: 'Events', icon: CalendarDays },
     { key: 'users', label: 'Users', icon: Users },
     { key: 'distributors', label: 'Distributors', icon: Truck },
-    { key: 'sponsors', label: 'Sponsors', icon: Handshake },
-    { key: 'sponsorships', label: 'Sponsorships', icon: Landmark },
+    { key: 'sponsorships', label: 'Sponsorships & Partners', icon: Landmark },
     { key: 'mentorship', label: 'Mentorship', icon: GraduationCap },
     { key: 'books', label: 'Books', icon: BookOpen },
     { key: 'inventory', label: 'Inventory', icon: Package },
@@ -1167,14 +1166,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                         </Panel>
                     ) : null}
 
-                    {tab === 'sponsors' ? (
-                        <Panel title="Sponsor management" lead="Approve partners and manage sponsorship packages.">
-                            <ul className="divide-y divide-border">
-                                {byType('sponsor').length === 0 ? <EmptyState>No sponsor applications.</EmptyState> : null}
-                                {byType('sponsor').map(approvalRow)}
-                            </ul>
-                        </Panel>
-                    ) : null}
+
 
                     {tab === 'mentorship' ? (
                         <>
@@ -1430,42 +1422,51 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     ) : null}
 
                     {tab === 'sponsorships' ? (
-                        <Panel title="Sponsorship applications" lead="Review corporate sponsorship applications, approve or reject, and track sponsorship payments.">
-                            {sponsorships.length === 0 ? <EmptyState>No sponsorship applications yet.</EmptyState> : (
-                                <ul className="divide-y divide-border">
-                                    {sponsorships.map((s) => {
-                                        const pkg = s.package;
-                                        return (
-                                            <li key={s.id} className="py-6">
-                                                <div className="flex flex-wrap items-start justify-between gap-4">
-                                                    <div className="max-w-xl">
-                                                        <p className="font-display text-lg">{s.company_name}</p>
-                                                        <p className="mt-1 text-xs text-muted-foreground">{s.contact_person} · {s.email} · {s.country || 'Country not set'}</p>
-                                                        <p className="mt-2 text-sm text-[hsl(var(--gold))]">
-                                                            {pkg?.name || s.package_tier || 'Package'} · {formatUSD(s.investment_amount || pkg?.price)} · {pkg?.duration || '12 months'}
-                                                        </p>
-                                                        {s.message ? <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.message}</p> : null}
-                                                        {s.website ? <p className="mt-2 text-xs text-muted-foreground">{s.website}</p> : null}
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <div className="flex gap-2">
-                                                            <button type="button" onClick={() => setSponsorshipStatus(s.id, 'approved')} className={smallBtn}>Approve</button>
-                                                            <button type="button" onClick={() => setSponsorshipStatus(s.id, 'rejected')} className={dangerBtn}>Reject</button>
+                        <>
+                            <Panel title="Sponsorship proposals" lead="Review corporate sponsorship applications, approve or reject proposals, and track sponsorship payments.">
+                                {sponsorships.length === 0 ? <EmptyState>No sponsorship proposals submitted yet.</EmptyState> : (
+                                    <ul className="divide-y divide-border">
+                                        {sponsorships.map((s) => {
+                                            const pkg = s.package;
+                                            return (
+                                                <li key={s.id} className="py-6">
+                                                    <div className="flex flex-wrap items-start justify-between gap-4">
+                                                        <div className="max-w-xl">
+                                                            <p className="font-display text-lg">{s.company_name}</p>
+                                                            <p className="mt-1 text-xs text-muted-foreground">{s.contact_person} · {s.email} · {s.country || 'Country not set'}</p>
+                                                            <p className="mt-2 text-sm text-[hsl(var(--gold))]">
+                                                                {pkg?.name || s.package_tier || 'Package'} · {formatUSD(s.investment_amount || pkg?.price)} · {pkg?.duration || '12 months'}
+                                                            </p>
+                                                            {s.message ? <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.message}</p> : null}
+                                                            {s.website ? <p className="mt-2 text-xs text-muted-foreground">{s.website}</p> : null}
                                                         </div>
-                                                        <select value={s.payment_status || 'unpaid'} onChange={(e) => setSponsorshipPayment(s.id, e.target.value)} className={`${input} max-w-[10rem]`}>
-                                                            <option value="unpaid">Unpaid</option>
-                                                            <option value="paid">Paid</option>
-                                                            <option value="refunded">Refunded</option>
-                                                        </select>
-                                                        <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{s.status || 'pending'}</span>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <div className="flex gap-2">
+                                                                <button type="button" onClick={() => setSponsorshipStatus(s.id, 'approved')} className={smallBtn}>Approve</button>
+                                                                <button type="button" onClick={() => setSponsorshipStatus(s.id, 'rejected')} className={dangerBtn}>Reject</button>
+                                                            </div>
+                                                            <select value={s.payment_status || 'unpaid'} onChange={(e) => setSponsorshipPayment(s.id, e.target.value)} className={`${input} max-w-[10rem]`}>
+                                                                <option value="unpaid">Unpaid</option>
+                                                                <option value="paid">Paid</option>
+                                                                <option value="refunded">Refunded</option>
+                                                            </select>
+                                                            <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{s.status || 'pending'}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </li>
-                                        );
-                                    })}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                )}
+                            </Panel>
+
+                            <Panel title="Sponsor accounts" lead="Partner organization member accounts registered on the platform.">
+                                <ul className="divide-y divide-border">
+                                    {byType('sponsor').length === 0 ? <EmptyState>No registered sponsor accounts.</EmptyState> : null}
+                                    {byType('sponsor').map(approvalRow)}
                                 </ul>
-                            )}
-                        </Panel>
+                            </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'packages' ? (
