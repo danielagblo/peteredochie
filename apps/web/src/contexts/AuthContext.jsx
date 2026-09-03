@@ -33,6 +33,18 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => authStore.onChange((_token, record) => setUser(record)), []);
 
+    // Sync the user's latest status (verified, approval_status, etc.) on load
+    useEffect(() => {
+        if (!authStore.isValid) return;
+        api.get('/auth/me')
+            .then((res) => {
+                if (res?.user) {
+                    authStore.updateRecord(res.user);
+                }
+            })
+            .catch(() => {});
+    }, []);
+
     // Load the signed-in user's staff role (if any) from employee_roles.
     useEffect(() => {
         const id = authStore.record?.id;
@@ -75,7 +87,11 @@ export const AuthProvider = ({ children }) => {
     const refresh = useCallback(async () => {
         if (!authStore.isValid) return null;
         try {
-            return await api.get('/auth/me');
+            const res = await api.get('/auth/me');
+            if (res?.user) {
+                authStore.updateRecord(res.user);
+            }
+            return res;
         } catch (_) {
             return null;
         }
