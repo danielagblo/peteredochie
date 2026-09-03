@@ -5,10 +5,25 @@ import { decodeToken, verifyToken } from "../utils/token.js";
 import logger from "../utils/logger.js";
 import { sendEmail } from "../utils/email.js";
 import { sendSms } from "../utils/sms.js";
+import { getUsdRate } from "../services/rateService.js";
 
 const router = Router();
 
 const getPaystackSecretKey = () => process.env.PAYSTACK_SECRET_KEY;
+
+// Convert a USD-major amount into the merchant's local Paystack currency
+// (PAYSTACK_CURRENCY, e.g. GHS). Prices are stored/displayed in USD; Paystack
+// only supports charging in the merchant's enabled currency, so we convert at
+// a live rate to avoid Paystack's "unsupported_currency" rejection.
+async function buildCharge(priceUsd) {
+	const currency = process.env.PAYSTACK_CURRENCY || "USD";
+	let amountInCents = Math.round(Number(priceUsd) * 100);
+	if (currency !== "USD") {
+		const rate = await getUsdRate(currency);
+		amountInCents = Math.round(amountInCents * rate);
+	}
+	return { amountInCents, currency };
+}
 
 // Meet & Greet tier prices in USD major units.
 const TIER_PRICES = { vip: 1000, standard: 500 };
@@ -240,7 +255,10 @@ function distributorTierForKey(tierKey) {
 
 // GET /paystack/status
 router.get("/status", (req, res) => {
-	res.json({ configured: isIntegrationConfigured("PAYSTACK_SECRET_KEY") });
+	res.json({
+		configured: isIntegrationConfigured("PAYSTACK_SECRET_KEY"),
+		currency: process.env.PAYSTACK_CURRENCY || "USD",
+	});
 });
 
 // POST /paystack/initialize
@@ -355,7 +373,7 @@ router.post("/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(total * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(total);
 	const callbackUrl = `${return_origin || ""}/order/${reference}`;
 
 	let paystackRes;
@@ -369,7 +387,7 @@ router.post("/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
@@ -497,7 +515,7 @@ router.post("/tickets/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(price * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(price);
 	const callbackUrl = `${return_origin || ""}/events?ticket=${reference}`;
 
 	let paystackRes;
@@ -511,7 +529,7 @@ router.post("/tickets/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
@@ -565,6 +583,7 @@ router.post("/sponsorships/initialize", async (req, res) => {
 	const userId = token ? userIdFromToken(token) : null;
 
 	const {
+		sponsorship_id,
 		company_name,
 		industry,
 		contact_person,
@@ -577,10 +596,6 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		country,
 		return_origin,
 	} = req.body || {};
-
-	if (!company_name || !contact_person || !email) {
-		return res.status(422).json({ error: "Company name, contact person and email are required." });
-	}
 
 	let price = 0;
 	let currency = "USD";
@@ -600,34 +615,77 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		return res.status(422).json({ error: "Please choose a sponsorship package with a valid investment amount." });
 	}
 
-	const reference = genSponsorshipReference();
-
+	// Resume path: re-initialise payment for an existing (unpaid) application
+	// instead of creating a duplicate. Ownership is enforced so users can only
+	// pay for their own application.
 	let sponsorship;
-	try {
-		sponsorship = await prisma.sponsorship.create({
-			data: {
-				ownerId: userId || null,
-				companyName: company_name,
-				industry: industry || null,
-				contactPerson: contact_person,
-				email,
-				phone: phone || null,
-				website: website || null,
-				packageId: packageId || null,
-				packageTier: tier || null,
-				investmentAmount: price,
-				currency,
-				message: message || null,
-				status: "pending",
-				paymentStatus: "pending",
-				paymentReference: reference,
-				country: country || "",
-			},
-		});
-	} catch (err) {
-		logger.error("sponsorship create failed", err.message);
-		return res.status(500).json({ error: "Could not create your sponsorship application." });
+	if (sponsorship_id) {
+		const existing = await prisma.sponsorship.findUnique({ where: { id: sponsorship_id } });
+		if (!existing) return res.status(404).json({ error: "Sponsorship application not found." });
+		if (existing.paymentStatus === "paid") {
+			return res.status(422).json({ error: "This sponsorship has already been paid." });
+		}
+		if (userId && existing.ownerId && existing.ownerId !== userId) {
+			return res.status(403).json({ error: "You are not authorised to pay for this sponsorship." });
+		}
+		if (!userId && existing.email && email && String(email).toLowerCase() !== String(existing.email).toLowerCase()) {
+			return res.status(403).json({ error: "This sponsorship is associated with a different email." });
+		}
+
+		const reference = genSponsorshipReference();
+		sponsorship = existing;
+		try {
+			sponsorship = await prisma.sponsorship.update({
+				where: { id: existing.id },
+				data: {
+					packageId: packageId || existing.packageId,
+					packageTier: tier || existing.packageTier,
+					investmentAmount: price,
+					currency,
+					paymentStatus: "pending",
+					status: existing.status || "pending",
+					paymentReference: reference,
+					country: country || existing.country || "",
+				},
+			});
+		} catch (err) {
+			logger.error("sponsorship resume failed", err.message);
+			return res.status(500).json({ error: "Could not resume your sponsorship payment." });
+		}
+	} else {
+		if (!company_name || !contact_person || !email) {
+			return res.status(422).json({ error: "Company name, contact person and email are required." });
+		}
+
+		try {
+			sponsorship = await prisma.sponsorship.create({
+				data: {
+					ownerId: userId || null,
+					companyName: company_name,
+					industry: industry || null,
+					contactPerson: contact_person,
+					email,
+					phone: phone || null,
+					website: website || null,
+					packageId: packageId || null,
+					packageTier: tier || null,
+					investmentAmount: price,
+					currency,
+					message: message || null,
+					status: "pending",
+					paymentStatus: "pending",
+					paymentReference: genSponsorshipReference(),
+					country: country || "",
+				},
+			});
+		} catch (err) {
+			logger.error("sponsorship create failed", err.message);
+			return res.status(500).json({ error: "Could not create your sponsorship application." });
+		}
 	}
+
+	const reference = sponsorship.paymentReference;
+	const companyNameForMeta = sponsorship.companyName || company_name || "";
 
 	if (!isIntegrationConfigured("PAYSTACK_SECRET_KEY")) {
 		return res.status(503).json({
@@ -641,8 +699,8 @@ router.post("/sponsorships/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(price * 100);
-	const callbackUrl = `${return_origin || ""}/sponsorships?reference=${reference}`;
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(price);
+	const callbackUrl = `${return_origin || ""}/dashboard?sponsor_payment=${reference}`;
 
 	let paystackRes;
 	try {
@@ -653,15 +711,15 @@ router.post("/sponsorships/initialize", async (req, res) => {
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				email,
+				email: sponsorship.email || email,
 				amount: amountInCents,
-				currency,
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {
 					sponsorship_id: sponsorship.id,
 					custom_fields: [
-						{ display_name: "Company", variable_name: "company", value: company_name },
+						{ display_name: "Company", variable_name: "company", value: companyNameForMeta },
 					],
 				},
 			}),
@@ -798,7 +856,7 @@ router.post("/distributors/initialize", async (req, res) => {
 		});
 	}
 
-	const amountInCents = Math.round(total * 100);
+	const { amountInCents, currency: chargeCurrency } = await buildCharge(total);
 	const callbackUrl = `${return_origin || ""}/dashboard?distributor_order=${reference}`;
 
 	let paystackRes;
@@ -812,7 +870,7 @@ router.post("/distributors/initialize", async (req, res) => {
 			body: JSON.stringify({
 				email,
 				amount: amountInCents,
-				currency: "USD",
+				currency: chargeCurrency,
 				reference,
 				callback_url: callbackUrl,
 				metadata: {

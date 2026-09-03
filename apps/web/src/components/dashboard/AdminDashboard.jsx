@@ -3,7 +3,7 @@ import { BarChart3, BookOpen, CalendarDays, CreditCard, FileText, Gauge, Globe, 
 import DashboardShell, { EmptyState, Panel, Stat } from '@/components/dashboard/DashboardShell';
 import MentorshipApplicationRow from '@/components/dashboard/MentorshipApplicationRow';
 import { ACCOUNT_LABEL } from '@/lib/accounts';
-import { formatUSD } from '@/lib/commerce';
+import { formatUSD, paystackStatus } from '@/lib/commerce';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 import { emptyBookForm, emptyCategoryForm } from '@/lib/books';
 import ProductQrPanel from '@/components/ProductQrPanel';
@@ -15,8 +15,7 @@ const ALL_NAV = [
     { key: 'events', label: 'Events', icon: CalendarDays },
     { key: 'users', label: 'Users', icon: Users },
     { key: 'distributors', label: 'Distributors', icon: Truck },
-    { key: 'sponsors', label: 'Sponsors', icon: Handshake },
-    { key: 'sponsorships', label: 'Sponsorships', icon: Landmark },
+    { key: 'sponsorships', label: 'Sponsorships & Partners', icon: Landmark },
     { key: 'mentorship', label: 'Mentorship', icon: GraduationCap },
     { key: 'books', label: 'Books', icon: BookOpen },
     { key: 'inventory', label: 'Inventory', icon: Package },
@@ -88,6 +87,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
     const [bookPreregistrations, setBookPreregistrations] = useState([]);
     const [enquiries, setEnquiries] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [paystackReady, setPaystackReady] = useState(false);
     const [movements, setMovements] = useState([]);
     const [employees, setEmployees] = useState([]);
     const [orderItems, setOrderItems] = useState({});
@@ -161,7 +161,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
             bookCategories: () => has('analytics') || has('books'),
             bookPreregs: () => has('analytics') || has('books'),
             sponsorPackages: () => has('analytics') || has('sponsors') || has('sponsorships') || has('packages'),
-            distTiers: () => has('packages'),
+            distTiers: () => has('packages') || has('distributors'),
         };
 
         try {
@@ -203,6 +203,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         load();
     }, [load]);
 
+    useEffect(() => {
+        let active = true;
+        paystackStatus().then((ready) => { if (active) setPaystackReady(ready); }).catch(() => { if (active) setPaystackReady(false); });
+        return () => { active = false; };
+    }, []);
+
     // Load line items for each order (expanded into a map by order id).
     useEffect(() => {
         if (orders.length === 0) return;
@@ -217,8 +223,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
         return () => { active = false; };
     }, [orders]);
 
-    const setApproval = async (id, status) => {
-        try { await apiCrud.update('users', id, { approval_status: status }); load(); }
+    const setApproval = async (id, status, extra = {}) => {
+        try { await apiCrud.update('users', id, { approval_status: status, ...extra }); load(); }
         catch (_) { setError('Could not update that account.'); }
     };
 
@@ -1114,19 +1120,60 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                         <Panel title="Distributor management" lead="Approve applications, assign territories and manage trade pricing.">
                             <ul className="divide-y divide-border">
                                 {byType('distributor').length === 0 ? <EmptyState>No distributor applications.</EmptyState> : null}
-                                {byType('distributor').map(approvalRow)}
+                                {byType('distributor').map((u) => (
+                                    <li key={u.id} className="flex flex-wrap items-center justify-between gap-4 py-5">
+                                        <div className="max-w-md">
+                                            <p className="font-display text-lg">{u.name || u.email}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">
+                                                {u.organisation || u.email} · {u.country || 'Country not set'} · {u.phone || 'No phone'}
+                                            </p>
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <span className="text-[0.58rem] uppercase tracking-[0.18em] text-[hsl(var(--gold))]">
+                                                    Territory: {u.territory || 'Unassigned'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <select
+                                                id={`tier-${u.id}`}
+                                                defaultValue={u.role || ''}
+                                                className="border border-border bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-[hsl(var(--gold))]"
+                                            >
+                                                <option value="">Default Volume Pricing</option>
+                                                {distTiers.map((t) => (
+                                                    <option key={t.id} value={t.name}>
+                                                        {t.name} ({t.discount}% off)
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <input
+                                                type="text"
+                                                placeholder="Assign territory (e.g. Ghana)"
+                                                defaultValue={u.territory || ''}
+                                                id={`territory-${u.id}`}
+                                                className="border border-border bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-[hsl(var(--gold))]"
+                                            />
+                                            <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{u.approval_status || 'pending'}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const territoryVal = document.getElementById(`territory-${u.id}`)?.value || u.territory;
+                                                    const tierVal = document.getElementById(`tier-${u.id}`)?.value;
+                                                    setApproval(u.id, 'approved', { territory: territoryVal, ...(tierVal ? { role: tierVal } : {}) });
+                                                }}
+                                                className={smallBtn}
+                                            >
+                                                Approve
+                                            </button>
+                                            <button type="button" onClick={() => setApproval(u.id, 'rejected')} className={dangerBtn}>Decline</button>
+                                        </div>
+                                    </li>
+                                ))}
                             </ul>
                         </Panel>
                     ) : null}
 
-                    {tab === 'sponsors' ? (
-                        <Panel title="Sponsor management" lead="Approve partners and manage sponsorship packages.">
-                            <ul className="divide-y divide-border">
-                                {byType('sponsor').length === 0 ? <EmptyState>No sponsor applications.</EmptyState> : null}
-                                {byType('sponsor').map(approvalRow)}
-                            </ul>
-                        </Panel>
-                    ) : null}
+
 
                     {tab === 'mentorship' ? (
                         <>
@@ -1376,48 +1423,124 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     ) : null}
 
                     {tab === 'payments' ? (
-                        <Panel title="Payments & reconciliation" lead="Paystack transactions reconcile automatically. Add your Paystack secret key in the API server env to enable live payments.">
-                            <EmptyState>Payment reconciliation appears here once Paystack is connected and orders are paid.</EmptyState>
-                        </Panel>
+                        <>
+                            <Panel title="Payments & reconciliation" lead="Paid orders, sponsorships and ticket payments reconcile automatically via the Paystack webhook.">
+                                <div className={`mb-6 flex flex-wrap items-center justify-between gap-3 border px-5 py-4 ${paystackReady ? 'border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5' : 'border-[hsl(var(--destructive))]/40 bg-[hsl(var(--destructive))]/5'}`}>
+                                    <p className="text-sm text-foreground">
+                                        {paystackReady ? 'Live payments are configured and reconciled automatically.' : 'Paystack is not configured. Add PAYSTACK_SECRET_KEY to the API server env to enable live payments.'}
+                                    </p>
+                                    <span className={`text-[0.62rem] uppercase tracking-[0.2em] ${paystackReady ? 'text-[hsl(var(--gold))]' : 'text-[hsl(var(--destructive))]'}`}>
+                                        {paystackReady ? 'Connected' : 'Not configured'}
+                                    </span>
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-3">
+                                    <Stat label="Paid orders" value={orders.filter((o) => o.payment_status === 'paid').length} />
+                                    <Stat label="Paid sponsorships" value={sponsorships.filter((s) => s.payment_status === 'paid').length} />
+                                    <Stat label="Reconciled revenue" value={formatUSD(
+                                        orders.filter((o) => o.payment_status === 'paid').reduce((n, o) => n + (Number(o.total_price) || 0), 0) +
+                                        sponsorships.filter((s) => s.payment_status === 'paid').reduce((n, s) => n + (Number(s.investment_amount) || 0), 0),
+                                    )} />
+                                </div>
+                            </Panel>
+
+                            <Panel title="Payment ledger" lead="All successfully paid transactions, most recent first.">
+                                {(() => {
+                                    const ledger = [
+                                        ...orders
+                                            .filter((o) => o.payment_status === 'paid')
+                                            .map((o) => ({
+                                                id: o.id,
+                                                kind: 'Order',
+                                                label: o.items_summary || o.email || 'Order',
+                                                ref: o.payment_reference || o.id,
+                                                amount: o.total_price,
+                                                currency: o.currency || 'USD',
+                                                created: o.created,
+                                            })),
+                                        ...sponsorships
+                                            .filter((s) => s.payment_status === 'paid')
+                                            .map((s) => ({
+                                                id: s.id,
+                                                kind: 'Sponsorship',
+                                                label: s.company_name || 'Sponsorship',
+                                                ref: s.payment_reference || s.id,
+                                                amount: s.investment_amount || 0,
+                                                currency: s.currency || 'USD',
+                                                created: s.created,
+                                            })),
+                                    ].sort((a, b) => new Date(b.created) - new Date(a.created));
+
+                                    if (ledger.length === 0) {
+                                        return <EmptyState>No paid transactions yet. Completed Paystack payments will appear here automatically.</EmptyState>;
+                                    }
+
+                                    return (
+                                        <ul className="divide-y divide-border border border-border">
+                                            {ledger.map((tx) => (
+                                                <li key={tx.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-4">
+                                                    <div>
+                                                        <p className="font-mono text-[0.6rem] uppercase tracking-[0.15em] text-muted-foreground">{tx.ref}</p>
+                                                        <p className="mt-1 text-sm">{tx.label}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-display text-lg">{formatUSD(tx.amount)}</p>
+                                                        <p className="mt-1 text-[0.6rem] uppercase tracking-[0.2em] text-muted-foreground">{tx.kind} · {fmtDate(tx.created)}</p>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    );
+                                })()}
+                            </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'sponsorships' ? (
-                        <Panel title="Sponsorship applications" lead="Review corporate sponsorship applications, approve or reject, and track sponsorship payments.">
-                            {sponsorships.length === 0 ? <EmptyState>No sponsorship applications yet.</EmptyState> : (
-                                <ul className="divide-y divide-border">
-                                    {sponsorships.map((s) => {
-                                        const pkg = s.package;
-                                        return (
-                                            <li key={s.id} className="py-6">
-                                                <div className="flex flex-wrap items-start justify-between gap-4">
-                                                    <div className="max-w-xl">
-                                                        <p className="font-display text-lg">{s.company_name}</p>
-                                                        <p className="mt-1 text-xs text-muted-foreground">{s.contact_person} · {s.email} · {s.country || 'Country not set'}</p>
-                                                        <p className="mt-2 text-sm text-[hsl(var(--gold))]">
-                                                            {pkg?.name || s.package_tier || 'Package'} · {formatUSD(s.investment_amount || pkg?.price)} · {pkg?.duration || '12 months'}
-                                                        </p>
-                                                        {s.message ? <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.message}</p> : null}
-                                                        {s.website ? <p className="mt-2 text-xs text-muted-foreground">{s.website}</p> : null}
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <div className="flex gap-2">
-                                                            <button type="button" onClick={() => setSponsorshipStatus(s.id, 'approved')} className={smallBtn}>Approve</button>
-                                                            <button type="button" onClick={() => setSponsorshipStatus(s.id, 'rejected')} className={dangerBtn}>Reject</button>
+                        <>
+                            <Panel title="Sponsorship proposals" lead="Review corporate sponsorship applications, approve or reject proposals, and track sponsorship payments.">
+                                {sponsorships.length === 0 ? <EmptyState>No sponsorship proposals submitted yet.</EmptyState> : (
+                                    <ul className="divide-y divide-border">
+                                        {sponsorships.map((s) => {
+                                            const pkg = s.package;
+                                            return (
+                                                <li key={s.id} className="py-6">
+                                                    <div className="flex flex-wrap items-start justify-between gap-4">
+                                                        <div className="max-w-xl">
+                                                            <p className="font-display text-lg">{s.company_name}</p>
+                                                            <p className="mt-1 text-xs text-muted-foreground">{s.contact_person} · {s.email} · {s.country || 'Country not set'}</p>
+                                                            <p className="mt-2 text-sm text-[hsl(var(--gold))]">
+                                                                {pkg?.name || s.package_tier || 'Package'} · {formatUSD(s.investment_amount || pkg?.price)} · {pkg?.duration || '12 months'}
+                                                            </p>
+                                                            {s.message ? <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{s.message}</p> : null}
+                                                            {s.website ? <p className="mt-2 text-xs text-muted-foreground">{s.website}</p> : null}
                                                         </div>
-                                                        <select value={s.payment_status || 'unpaid'} onChange={(e) => setSponsorshipPayment(s.id, e.target.value)} className={`${input} max-w-[10rem]`}>
-                                                            <option value="unpaid">Unpaid</option>
-                                                            <option value="paid">Paid</option>
-                                                            <option value="refunded">Refunded</option>
-                                                        </select>
-                                                        <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{s.status || 'pending'}</span>
+                                                        <div className="flex flex-col items-end gap-2">
+                                                            <div className="flex gap-2">
+                                                                <button type="button" onClick={() => setSponsorshipStatus(s.id, 'approved')} className={smallBtn}>Approve</button>
+                                                                <button type="button" onClick={() => setSponsorshipStatus(s.id, 'rejected')} className={dangerBtn}>Reject</button>
+                                                            </div>
+                                                            <select value={s.payment_status || 'unpaid'} onChange={(e) => setSponsorshipPayment(s.id, e.target.value)} className={`${input} max-w-[10rem]`}>
+                                                                <option value="unpaid">Unpaid</option>
+                                                                <option value="paid">Paid</option>
+                                                                <option value="refunded">Refunded</option>
+                                                            </select>
+                                                            <span className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{s.status || 'pending'}</span>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </li>
-                                        );
-                                    })}
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                )}
+                            </Panel>
+
+                            <Panel title="Sponsor accounts" lead="Partner organization member accounts registered on the platform.">
+                                <ul className="divide-y divide-border">
+                                    {byType('sponsor').length === 0 ? <EmptyState>No registered sponsor accounts.</EmptyState> : null}
+                                    {byType('sponsor').map(approvalRow)}
                                 </ul>
-                            )}
-                        </Panel>
+                            </Panel>
+                        </>
                     ) : null}
 
                     {tab === 'packages' ? (
