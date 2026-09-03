@@ -1789,6 +1789,12 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                         />
                     ) : null}
 
+                    {tab === 'sms' ? (
+                        <SmsBroadcastPanel
+                            countries={countries}
+                        />
+                    ) : null}
+
                     {tab === 'reports' ? (
                         <Panel title="Reports & exports" lead="Export account, subscriber, order and event data.">
                             <div className="grid gap-4 sm:grid-cols-3">
