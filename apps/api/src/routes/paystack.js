@@ -7,7 +7,7 @@ import { sendEmail } from "../utils/email.js";
 
 const router = Router();
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+const getPaystackSecretKey = () => process.env.PAYSTACK_SECRET_KEY;
 
 // Meet & Greet tier prices in USD major units.
 const TIER_PRICES = { vip: 1000, standard: 500 };
@@ -278,7 +278,7 @@ router.post("/initialize", async (req, res) => {
 		paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
 			method: "POST",
 			headers: {
-				Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+				Authorization: `Bearer ${getPaystackSecretKey()}`,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
@@ -420,7 +420,7 @@ router.post("/tickets/initialize", async (req, res) => {
 		paystackRes = await fetch("https://api.paystack.co/transaction/initialize", {
 			method: "POST",
 			headers: {
-				Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+				Authorization: `Bearer ${getPaystackSecretKey()}`,
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
@@ -502,7 +502,7 @@ router.get("/verify", async (req, res) => {
 	let verifyRes;
 	try {
 		verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
-			headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
+			headers: { Authorization: `Bearer ${getPaystackSecretKey()}` },
 		});
 	} catch (err) {
 		return res.status(502).json({ error: `Paystack verify failed: ${err.message}` });
@@ -550,7 +550,7 @@ router.post("/webhook", async (req, res) => {
 
 	const crypto = await import("crypto");
 	const hash = crypto
-		.createHmac("sha512", PAYSTACK_SECRET_KEY)
+		.createHmac("sha512", getPaystackSecretKey() || "")
 		.update(JSON.stringify(req.body))
 		.digest("hex");
 

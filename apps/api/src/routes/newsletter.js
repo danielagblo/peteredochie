@@ -1,21 +1,22 @@
 import { Router } from 'express';
 import prisma from '../utils/prisma.js';
-import { sendEmail, isEmailConfigured, EMAIL_FROM } from '../utils/email.js';
+import { sendEmail, isEmailConfigured, isGmailConfigured, EMAIL_FROM } from '../utils/email.js';
 import { renderNewsletterHtml, renderNewsletterText } from '../utils/emailTemplate.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import logger from '../utils/logger.js';
 
 const router = Router();
 
-// Check SMTP configuration status (admin only)
+// Check email configuration status (admin only)
 router.get('/status', requireAuth, requireRole('super_admin'), (req, res) => {
 	const configured = isEmailConfigured();
+	const gmail = isGmailConfigured();
 	res.json({
 		configured,
-		host: process.env.SMTP_HOST || null,
-		port: Number(process.env.SMTP_PORT) || 587,
+		host: gmail ? 'gmail-api' : process.env.SMTP_HOST || null,
+		port: gmail ? null : Number(process.env.SMTP_PORT) || 587,
 		from: EMAIL_FROM,
-		mode: configured ? 'smtp' : 'dev_simulation',
+		mode: !configured ? 'dev_simulation' : gmail ? 'gmail' : 'smtp',
 	});
 });
 
@@ -78,7 +79,7 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 				isTest: true,
 				recipient,
 				configured: isEmailConfigured(),
-				mode: isEmailConfigured() ? 'smtp' : 'dev_simulation',
+				mode: isEmailConfigured() ? (isGmailConfigured() ? 'gmail' : 'smtp') : 'dev_simulation',
 				message: isEmailConfigured()
 					? `Test email sent to ${recipient}`
 					: `Dev simulation: test email preview logged for ${recipient}`,
@@ -176,7 +177,7 @@ router.post('/send', requireAuth, requireRole('super_admin'), async (req, res) =
 			campaignId: campaign.id,
 			sentCount: recipients.length,
 			configured,
-			mode: configured ? 'smtp' : 'dev_simulation',
+			mode: configured ? (isGmailConfigured() ? 'gmail' : 'smtp') : 'dev_simulation',
 			message: configured
 				? `Campaign broadcast successfully to ${recipients.length} subscriber(s).`
 				: `Dev simulation: campaign logged for ${recipients.length} subscriber(s). Configure SMTP to send live emails.`,
