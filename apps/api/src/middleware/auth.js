@@ -27,6 +27,8 @@ export async function requireAuth(req, res, next) {
 				where: { userId: user.id },
 			});
 			req.employeeRole = employeeRole?.role || user.staffRole;
+		} else if (user.role === 'admin' || user.accountType === 'admin') {
+			req.employeeRole = 'super_admin';
 		} else {
 			req.employeeRole = null;
 		}

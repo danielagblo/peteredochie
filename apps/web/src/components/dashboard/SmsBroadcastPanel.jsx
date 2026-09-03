@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Smartphone, Send, Users, ShieldAlert, CheckCircle2,
-    RefreshCw, AlertCircle, Sparkles, MessageSquare, Phone
+    Smartphone, Send, CheckCircle2, RefreshCw,
+    AlertCircle, ShieldAlert
 } from 'lucide-react';
 import { api } from '@/lib/api';
-import { Panel, Stat, EmptyState } from '@/components/dashboard/DashboardShell';
-import { useAuth } from '@/contexts/AuthContext';
+import { Panel, Stat } from '@/components/dashboard/DashboardShell';
 
-const SmsBroadcastPanel = ({ countries = [] }) => {
-    const { user } = useAuth();
+const SmsBroadcastPanel = () => {
     const [smsStatus, setSmsStatus] = useState(null);
     const [loadingStatus, setLoadingStatus] = useState(true);
 
     const [form, setForm] = useState({
         message: '',
-        targetAudience: 'all_subscribers', // 'all_subscribers' | 'distributors' | 'sponsors' | 'all_users'
-        targetCountry: 'all',
-        testPhone: user?.phone || '0557609106',
     });
 
     const [isSending, setIsSending] = useState(false);
@@ -42,52 +37,7 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
     // Standard GSM character calculation
     const charCount = form.message.length;
     const smsSegments = charCount === 0 ? 1 : charCount <= 160 ? 1 : Math.ceil(charCount / 153);
-
-    const targetAudienceLabel = {
-        all_subscribers: 'Newsletter Subscribers (with Phone)',
-        distributors: 'Approved Distributors',
-        sponsors: 'Corporate Sponsors',
-        all_users: 'All Registered Platform Users',
-    }[form.targetAudience] || 'Audience';
-
-    const estimatedRecipients = smsStatus?.audience?.[
-        form.targetAudience === 'all_subscribers' ? 'subscribers' :
-        form.targetAudience === 'distributors' ? 'distributors' :
-        form.targetAudience === 'sponsors' ? 'sponsors' : 'allUsers'
-    ] || 0;
-
-    // Send single test SMS
-    const handleSendTest = async () => {
-        if (!form.message.trim()) {
-            setFeedback({ type: 'error', message: 'Please write an SMS message before sending a test.' });
-            return;
-        }
-        if (!form.testPhone.trim()) {
-            setFeedback({ type: 'error', message: 'Please provide a test phone number.' });
-            return;
-        }
-
-        setIsSending(true);
-        setFeedback(null);
-        try {
-            const res = await api.post('/sms/send', {
-                message: form.message,
-                isTest: true,
-                testPhone: form.testPhone,
-            });
-            setFeedback({
-                type: 'success',
-                message: res.message || `Test SMS dispatched to ${form.testPhone}`,
-            });
-        } catch (err) {
-            setFeedback({
-                type: 'error',
-                message: err.message || 'Could not send test SMS.',
-            });
-        } finally {
-            setIsSending(false);
-        }
-    };
+    const totalRecipients = smsStatus?.audience?.allUsers ?? 0;
 
     // Broadcast SMS to audience
     const handleBroadcast = async () => {
@@ -103,15 +53,15 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
         try {
             const res = await api.post('/sms/send', {
                 message: form.message,
-                targetAudience: form.targetAudience,
-                targetCountry: form.targetCountry,
+                targetAudience: 'all_users',
+                targetCountry: 'all',
                 isTest: false,
             });
             setFeedback({
                 type: 'success',
                 message: res.message || `SMS broadcast dispatched to ${res.sentCount || 0} recipient(s).`,
             });
-            setForm((prev) => ({ ...prev, message: '' }));
+            setForm({ message: '' });
             loadStatus();
         } catch (err) {
             setFeedback({
@@ -123,7 +73,7 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
         }
     };
 
-    const inputClasses = 'w-full border border-border bg-card text-foreground px-4 py-2.5 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))] [&>option]:bg-card [&>option]:text-foreground';
+    const inputClasses = 'w-full border border-border bg-card text-foreground px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
 
     return (
         <div className="space-y-8">
@@ -168,37 +118,31 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
                     </div>
                 </div>
 
-                {/* Quick Audience Counter Stats */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Counter Stat */}
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <Stat
-                        label="Subscribers (SMS Ready)"
-                        value={smsStatus?.audience?.subscribers ?? '—'}
-                        hint="Newsletter contacts with phone"
+                        label="Available Contacts (with Phone)"
+                        value={smsStatus?.audience?.allUsers ?? '—'}
+                        hint="Platform accounts with phone number"
                     />
                     <Stat
-                        label="Distributors"
+                        label="Distributor Contacts"
                         value={smsStatus?.audience?.distributors ?? '—'}
                         hint="Wholesale partner network"
                     />
                     <Stat
-                        label="Sponsors"
+                        label="Sponsor Contacts"
                         value={smsStatus?.audience?.sponsors ?? '—'}
                         hint="Corporate partner contacts"
-                    />
-                    <Stat
-                        label="All Accounts (with Phone)"
-                        value={smsStatus?.audience?.allUsers ?? '—'}
-                        hint="Full platform directory"
                     />
                 </div>
             </div>
 
             {/* 2. Feedback Alert */}
             {feedback && (
-                <div className={`flex items-start gap-3 border p-4 text-sm ${
-                    feedback.type === 'success'
-                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-                        : 'border-red-500/40 bg-red-500/10 text-red-300'
+                <div className={`flex items-start gap-3 border p-4 text-sm ${feedback.type === 'success'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                    : 'border-red-500/40 bg-red-500/10 text-red-300'
                 }`}>
                     {feedback.type === 'success' ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <ShieldAlert size={16} className="mt-0.5 shrink-0" />}
                     <div className="flex-1">
@@ -210,148 +154,45 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
                 </div>
             )}
 
-            {/* 3. Compose SMS Grid */}
-            <div className="grid gap-8 lg:grid-cols-12">
-                {/* Left Column: Editor & Controls (7 cols) */}
-                <div className="space-y-6 lg:col-span-7">
-                    <Panel title="Compose SMS Broadcast" lead="Draft your SMS message and configure target audience filters.">
-                        <div className="space-y-5">
-                            {/* Audience Target */}
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Target Audience</label>
-                                    <select
-                                        value={form.targetAudience}
-                                        onChange={(e) => setForm({ ...form, targetAudience: e.target.value })}
-                                        className={`${inputClasses} mt-1`}
-                                    >
-                                        <option value="all_subscribers">Newsletter Subscribers ({smsStatus?.audience?.subscribers ?? 0})</option>
-                                        <option value="distributors">Distributors ({smsStatus?.audience?.distributors ?? 0})</option>
-                                        <option value="sponsors">Corporate Sponsors ({smsStatus?.audience?.sponsors ?? 0})</option>
-                                        <option value="all_users">All Registered Platform Users ({smsStatus?.audience?.allUsers ?? 0})</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Target Country</label>
-                                    <select
-                                        value={form.targetCountry}
-                                        onChange={(e) => setForm({ ...form, targetCountry: e.target.value })}
-                                        className={`${inputClasses} mt-1`}
-                                    >
-                                        <option value="all">All Countries</option>
-                                        {countries.map((c) => (
-                                            <option key={c.id || c.code} value={c.name || c.code}>
-                                                {c.name} ({c.code})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* SMS Message Box */}
-                            <div>
-                                <div className="flex items-center justify-between">
-                                    <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
-                                        SMS Message Text
-                                    </label>
-                                    <div className="text-[0.68rem] text-muted-foreground flex items-center gap-3">
-                                        <span>Characters: <strong className={charCount > 160 ? 'text-[hsl(var(--gold))]' : 'text-foreground'}>{charCount}</strong> / 160</span>
-                                        <span>Segments: <strong>{smsSegments} SMS</strong></span>
-                                    </div>
-                                </div>
-                                <textarea
-                                    rows={5}
-                                    value={form.message}
-                                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                                    placeholder="Pete Edochie Legacy: We are thrilled to announce the Ghana Launch Tour dates! Tickets are now live at peteredochie.com/events."
-                                    className={`${inputClasses} mt-1 font-mono text-sm leading-relaxed`}
-                                />
-                                <p className="mt-1.5 text-[0.68rem] text-muted-foreground">
-                                    Tip: Messages up to 160 characters count as 1 SMS. Longer messages automatically concatenate.
-                                </p>
-                            </div>
-
-                            {/* Test Send Row */}
-                            <div className="border-t border-border pt-5">
-                                <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Test Dispatch</label>
-                                <div className="mt-1.5 flex flex-wrap gap-2">
-                                    <input
-                                        type="tel"
-                                        value={form.testPhone}
-                                        onChange={(e) => setForm({ ...form, testPhone: e.target.value })}
-                                        placeholder="0557609106 or +233..."
-                                        className={`${inputClasses} max-w-xs`}
-                                    />
-                                    <button
-                                        type="button"
-                                        disabled={isSending || !form.message.trim()}
-                                        onClick={handleSendTest}
-                                        className="border border-border px-5 py-2.5 text-[0.62rem] uppercase tracking-[0.2em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))] disabled:opacity-40"
-                                    >
-                                        {isSending ? 'Sending…' : 'Send Test SMS'}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Broadcast Button */}
-                            <div className="border-t border-border pt-5">
-                                <button
-                                    type="button"
-                                    disabled={isSending || !form.message.trim() || estimatedRecipients === 0}
-                                    onClick={() => setShowConfirmModal(true)}
-                                    className="w-full flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.24em] text-white font-medium shadow-md transition-all hover:brightness-110 disabled:opacity-40"
-                                >
-                                    <Send size={14} /> Broadcast SMS to {estimatedRecipients} {targetAudienceLabel}
-                                </button>
+            {/* 3. Clean Compose Box */}
+            <Panel title="Compose SMS Message" lead="Type your text message below to send an instant SMS broadcast.">
+                <div className="space-y-6">
+                    <div>
+                        <div className="flex items-center justify-between">
+                            <label className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
+                                SMS Message Text
+                            </label>
+                            <div className="text-[0.68rem] text-muted-foreground flex items-center gap-3">
+                                <span>Characters: <strong className={charCount > 160 ? 'text-[hsl(var(--gold))]' : 'text-foreground'}>{charCount}</strong> / 160</span>
+                                <span>Segments: <strong>{smsSegments} SMS</strong></span>
                             </div>
                         </div>
-                    </Panel>
+                        <textarea
+                            rows={6}
+                            value={form.message}
+                            onChange={(e) => setForm({ ...form, message: e.target.value })}
+                            placeholder="Pete Edochie Legacy: We are thrilled to announce the Ghana Launch Tour dates! Tickets are now live at peteredochie.com/events."
+                            className={`${inputClasses} mt-1.5 font-mono text-sm leading-relaxed`}
+                        />
+                        <p className="mt-2 text-[0.68rem] text-muted-foreground">
+                            Standard SMS messages up to 160 characters count as 1 unit. Longer messages automatically concatenate.
+                        </p>
+                    </div>
+
+                    <div className="border-t border-border pt-6">
+                        <button
+                            type="button"
+                            disabled={isSending || !form.message.trim()}
+                            onClick={() => setShowConfirmModal(true)}
+                            className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.24em] text-white font-medium shadow-md transition-all hover:brightness-110 disabled:opacity-40"
+                        >
+                            <Send size={14} /> Send SMS Broadcast
+                        </button>
+                    </div>
                 </div>
+            </Panel>
 
-                {/* Right Column: Live Mobile Device Phone Preview (5 cols) */}
-                <div className="space-y-6 lg:col-span-5">
-                    <Panel title="Live Phone Preview" lead="Real-time rendering on recipient mobile handset.">
-                        <div className="flex justify-center p-4">
-                            {/* Realistic iPhone mockup */}
-                            <div className="relative w-[280px] rounded-[36px] border-[6px] border-[#2d2d2d] bg-[#121212] p-4 shadow-2xl">
-                                {/* Dynamic Island / Speaker notch */}
-                                <div className="mx-auto mb-4 h-4 w-20 rounded-full bg-[#2d2d2d]" />
-
-                                {/* Chat Header */}
-                                <div className="mb-4 border-b border-border/40 pb-2 text-center">
-                                    <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[hsl(var(--gold))]/10 text-[hsl(var(--gold))]">
-                                        <MessageSquare size={18} />
-                                    </div>
-                                    <p className="mt-1 font-semibold text-xs text-foreground">
-                                        {smsStatus?.senderId || 'PeteEdochie'}
-                                    </p>
-                                    <p className="text-[0.55rem] text-muted-foreground">Arkesel SMS Gateway</p>
-                                </div>
-
-                                {/* SMS Chat Bubble */}
-                                <div className="space-y-3 py-2 min-h-[220px]">
-                                    <div className="flex justify-start">
-                                        <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-[#242424] p-3 text-xs text-foreground shadow-sm">
-                                            <p className="whitespace-pre-wrap break-words leading-relaxed">
-                                                {form.message || 'Your SMS broadcast preview will appear here in real-time as you type…'}
-                                            </p>
-                                            <p className="mt-1.5 text-right text-[0.55rem] text-muted-foreground">
-                                                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Phone Home Bar Indicator */}
-                                <div className="mx-auto mt-4 h-1 w-24 rounded-full bg-muted-foreground/30" />
-                            </div>
-                        </div>
-                    </Panel>
-                </div>
-            </div>
-
-            {/* 4. Confirmation Modal Before Real Broadcast */}
+            {/* 4. Confirmation Modal */}
             {showConfirmModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <div className="w-full max-w-lg border border-border bg-card p-6 shadow-2xl">
@@ -361,7 +202,7 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
                         </div>
 
                         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                            You are about to dispatch a live SMS broadcast to <strong>{estimatedRecipients} recipients</strong> in <strong>{targetAudienceLabel}</strong> via Arkesel.
+                            You are about to dispatch this live SMS message to phone contacts via Arkesel.
                         </p>
 
                         <div className="my-4 border border-border bg-secondary/30 p-4 text-xs font-mono">
@@ -383,7 +224,7 @@ const SmsBroadcastPanel = ({ countries = [] }) => {
                                 onClick={handleBroadcast}
                                 className="bg-[hsl(var(--primary))] px-6 py-2.5 text-[0.62rem] uppercase tracking-[0.2em] text-white font-medium hover:brightness-110"
                             >
-                                {isSending ? 'Sending…' : 'Yes, Dispatch SMS Broadcast'}
+                                {isSending ? 'Sending…' : 'Yes, Send SMS Broadcast'}
                             </button>
                         </div>
                     </div>
