@@ -267,8 +267,11 @@ Click the button below to verify your email address and unlock all platform feat
 
 		res.status(200).json({ message: 'Verification email sent.' });
 	} catch (err) {
-		logger.error('requestVerification email failed:', err.message);
-		res.status(500).json({ error: 'Could not send verification email.' });
+		logger.error('requestVerification email failed:', err);
+		res.status(500).json({
+			error: 'Could not send verification email.',
+			details: err?.message || String(err),
+		});
 	}
 }
 
