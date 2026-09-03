@@ -1128,6 +1128,18 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-3">
+                                            <select
+                                                id={`tier-${u.id}`}
+                                                defaultValue={u.role || ''}
+                                                className="border border-border bg-card px-3 py-1.5 text-xs text-foreground outline-none focus:border-[hsl(var(--gold))]"
+                                            >
+                                                <option value="">Default Volume Pricing</option>
+                                                {distTiers.map((t) => (
+                                                    <option key={t.id} value={t.name}>
+                                                        {t.name} ({t.discount}% off)
+                                                    </option>
+                                                ))}
+                                            </select>
                                             <input
                                                 type="text"
                                                 placeholder="Assign territory (e.g. Ghana)"
@@ -1140,7 +1152,8 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                 type="button"
                                                 onClick={() => {
                                                     const territoryVal = document.getElementById(`territory-${u.id}`)?.value || u.territory;
-                                                    setApproval(u.id, 'approved', { territory: territoryVal });
+                                                    const tierVal = document.getElementById(`tier-${u.id}`)?.value;
+                                                    setApproval(u.id, 'approved', { territory: territoryVal, ...(tierVal ? { role: tierVal } : {}) });
                                                 }}
                                                 className={smallBtn}
                                             >
