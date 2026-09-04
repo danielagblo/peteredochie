@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ExternalLink, Loader2 } from 'lucide-react';
 import BookPreregistrationForm from '@/components/BookPreregistrationForm';
+import CountUp from '@/components/CountUp';
 import { PageHead, Section } from '@/components/Section';
 import { IMG } from '@/lib/content';
 import { fetchBookPreregStats } from '@/lib/bookStats';
 import { formatUSD, isRedirectOnly } from '@/lib/commerce';
 import { apiCrud } from '@/lib/api';
-import CountUp from '@/components/CountUp';
 
 const BookProductPage = () => {
     const { productId } = useParams();
@@ -42,14 +42,15 @@ const BookProductPage = () => {
     const title = product?.edition || product?.name || 'Book edition';
     const categoryName = product?.expand?.book_category?.name || product?.book_category?.name;
     const redirect = product ? isRedirectOnly(product) : false;
+    const statusLabel = product?.status === 'preorder' ? 'Preorder' : product?.status === 'main_order' ? 'Available' : 'Unavailable';
 
     return (
         <div className="pt-28">
             <PageHead
-                title={`${title} — Book details | Pete Edochie Legacy`}
-                description={product?.excerpt || product?.description || 'View details and pre-register for this Pete Edochie autobiography edition.'}
+                title={`${title} — Preorder | Pete Edochie Legacy`}
+                description={product?.excerpt || product?.description || 'Preorder this Pete Edochie autobiography edition with secure Paystack payment.'}
             />
-            <Section className="py-16 md:py-24" width="max-w-[80rem]">
+            <Section className="py-12 md:py-20" width="max-w-[80rem]">
                 {loading ? (
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <Loader2 size={16} className="animate-spin" /> Loading edition…
@@ -64,40 +65,49 @@ const BookProductPage = () => {
                     </div>
                 ) : (
                     <div className="space-y-16">
-                        <article className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-                            <div>
-                                <img src={product.image || IMG.book} alt={title} className="w-full object-cover" />
+                        <article className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
+                            <div className="lg:sticky lg:top-28">
+                                <div className="relative overflow-hidden border border-border bg-[hsl(var(--surface))]">
+                                    <img
+                                        src={product.image || IMG.book}
+                                        alt={title}
+                                        className="aspect-[3/4] w-full object-cover"
+                                    />
+                                    <div className="absolute left-4 top-4 bg-[hsl(var(--primary))] px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.2em] text-white">
+                                        {statusLabel}
+                                    </div>
+                                </div>
                                 {categoryName ? (
-                                    <p className="mt-6 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))]">{categoryName}</p>
+                                    <p className="mt-5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))]">{categoryName}</p>
                                 ) : null}
                             </div>
 
                             <div>
                                 <p className="eyebrow">Book details</p>
-                                <h1 className="mt-4 font-display text-4xl md:text-5xl lg:text-6xl">{title}</h1>
+                                <h1 className="mt-4 font-display text-4xl leading-tight md:text-5xl lg:text-6xl">{title}</h1>
                                 {product.name && product.edition ? (
                                     <p className="mt-2 text-sm text-muted-foreground">{product.name}</p>
                                 ) : null}
                                 <p className="mt-4 text-sm text-muted-foreground">
                                     {product.author ? `${product.author} · ` : ''}
-                                    {product.format === 'hardcopy' ? 'Hardcover' : 'Digital'} ·{' '}
-                                    {product.status === 'preorder' ? 'Preorder' : product.status === 'main_order' ? 'Available' : 'Unavailable'}
+                                    {product.format === 'hardcopy' ? 'Hardcover' : 'Digital'}
                                     {product.published_year ? ` · ${product.published_year}` : ''}
                                 </p>
 
-                                <p className="mt-6 font-display text-4xl text-[hsl(var(--gold))]">{formatUSD(product.price)}</p>
+                                <p className="mt-6 font-display text-5xl text-[hsl(var(--gold))]">{formatUSD(product.price)}</p>
+                                <p className="mt-2 text-sm text-muted-foreground">Payment confirms your preorder reservation.</p>
 
                                 {editionStats?.totalRegistrations > 0 ? (
-                                    <p className="mt-4 text-sm text-muted-foreground">
+                                    <p className="mt-5 border-l border-[hsl(var(--gold))]/40 pl-4 text-sm text-muted-foreground">
                                         <span className="font-display text-2xl text-[hsl(var(--gold))]">
                                             <CountUp value={editionStats.totalCopies} />
                                         </span>
-                                        {' '}copies pre-ordering across{' '}
-                                        <CountUp value={editionStats.totalRegistrations} /> registrations for this edition
+                                        {' '}copies already reserved across{' '}
+                                        <CountUp value={editionStats.totalRegistrations} /> preorders
                                     </p>
                                 ) : null}
 
-                                <dl className="mt-8 grid gap-5 border-t border-border pt-8 text-sm sm:grid-cols-2">
+                                <dl className="mt-8 grid gap-5 border-y border-border py-8 text-sm sm:grid-cols-2">
                                     {product.isbn ? (
                                         <div>
                                             <dt className="text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground">ISBN</dt>
@@ -155,7 +165,11 @@ const BookProductPage = () => {
                             </div>
                         </article>
 
-                        {!redirect ? <BookPreregistrationForm product={product} /> : null}
+                        {!redirect ? (
+                            <div id="preorder">
+                                <BookPreregistrationForm product={product} />
+                            </div>
+                        ) : null}
                     </div>
                 )}
             </Section>

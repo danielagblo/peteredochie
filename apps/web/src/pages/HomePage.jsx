@@ -161,7 +161,7 @@ const HomePage = () => {
                     <Reveal delay={0.1}>
                         <div className="mt-9 flex flex-wrap gap-4">
                             <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
-                                Reserve your copy
+                                Preorder the book
                             </Link>
                             <Link to="/book" className="border border-border px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                 Read an extract

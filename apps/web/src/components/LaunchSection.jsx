@@ -30,7 +30,7 @@ const LaunchSection = () => (
                             <BookOpen size={22} strokeWidth={1.4} className="shrink-0 text-[hsl(var(--gold))]" />
                             <div className="flex-1">
                                 <p className="font-display text-xl">Pre-order the autobiography</p>
-                                <p className="mt-1 text-sm text-white/70">Reserve your edition before the Ghana launch</p>
+                                <p className="mt-1 text-sm text-white/70">Secure your edition with payment before the Ghana launch</p>
                             </div>
                             <ArrowRight size={16} className="text-white/50 transition-transform group-hover:translate-x-1" />
                         </Link>

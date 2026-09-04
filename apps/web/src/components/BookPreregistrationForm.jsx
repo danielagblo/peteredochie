@@ -1,28 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Loader2, Lock } from 'lucide-react';
+import CountryCollectionFields, { collectionInput } from '@/components/CountryCollectionFields';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { COUNTRIES } from '@/lib/countries';
-import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
 import { apiCrud } from '@/lib/api';
+import { formatUSD, initializeOrder, isPurchasable, paystackStatus } from '@/lib/commerce';
+import { zipRequired } from '@/lib/countries';
+import { fetchCountryDistributor } from '@/lib/distributors';
 
-const field = 'w-full border border-border bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[hsl(var(--gold))]';
+const field = collectionInput;
 
 const BookPreregistrationForm = ({ product }) => {
     const { user, isAuthed } = useAuth();
     const { toast } = useToast();
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         full_name: '',
         email: '',
         phone: '',
-        country: 'GH',
+        address_line: '',
         city: '',
+        country: 'GH',
+        region: '',
+        postal_code: '',
         quantity: 1,
         notes: '',
     });
+    const [fulfillmentMethod, setFulfillmentMethod] = useState('ship');
     const [sending, setSending] = useState(false);
-    const [done, setDone] = useState(false);
-    const [submittedQty, setSubmittedQty] = useState(1);
+    const [error, setError] = useState('');
+    const [configured, setConfigured] = useState(true);
+
+    const isDigital = product?.format === 'digital';
+    const unitPrice = Number(product?.price) || 0;
+    const qty = Math.max(1, Number(form.quantity) || 1);
+    const total = useMemo(() => Math.round(unitPrice * qty * 100) / 100, [unitPrice, qty]);
+    const purchasable = isPurchasable(product);
+    const collecting = !isDigital && fulfillmentMethod === 'distributor_collection';
+    const needsZip = zipRequired(form.country);
+
+    useEffect(() => {
+        paystackStatus().then(setConfigured);
+    }, []);
 
     useEffect(() => {
         if (!user) return;
@@ -35,106 +55,169 @@ const BookPreregistrationForm = ({ product }) => {
         }));
     }, [user]);
 
+    useEffect(() => {
+        setForm((prev) => ({ ...prev, region: '' }));
+    }, [form.country]);
+
     const submit = async (e) => {
         e.preventDefault();
-        if (!product?.id) return;
-        setSending(true);
+        if (!product?.id || !purchasable) return;
+        setError('');
 
-        const edition = product.edition || product.name;
-        openWhatsApp(
-            composeWhatsApp(`Book pre-registration — ${edition}`, {
-                Name: form.full_name,
-                Email: form.email,
-                Phone: form.phone,
-                Country: COUNTRIES.find((c) => c.code === form.country)?.name || form.country,
-                City: form.city,
-                Edition: edition,
-                Quantity: form.quantity,
-                Notes: form.notes,
-            }),
-        );
-
-        try {
-            await apiCrud.create('book-preregistrations', {
-                product: product.id,
-                full_name: form.full_name,
-                email: form.email,
-                phone: form.phone,
-                country: COUNTRIES.find((c) => c.code === form.country)?.name || form.country,
-                city: form.city,
-                quantity: Number(form.quantity) || 1,
-                notes: form.notes,
-                edition,
-            });
-        } catch (_) {
-            /* WhatsApp is the primary channel */
+        if (!form.full_name || !form.email || !form.phone || !form.country || !form.region) {
+            setError('Please complete name, email, phone, country and region.');
+            return;
+        }
+        if (!isDigital && !collecting && (!form.address_line || !form.city)) {
+            setError('Please enter your street address and city for delivery.');
+            return;
+        }
+        if (!isDigital && !collecting && needsZip && !form.postal_code) {
+            setError('A postal / zip code is required for the selected country.');
+            return;
+        }
+        if (unitPrice <= 0) {
+            setError('This edition does not have a price set yet. Contact the publishing office.');
+            return;
         }
 
-        setDone(true);
-        setSubmittedQty(Number(form.quantity) || 1);
-        setForm({ full_name: '', email: '', phone: '', country: 'GH', city: '', quantity: 1, notes: '' });
-        toast({
-            title: 'Pre-registration received',
-            description: 'Your interest in this edition has been recorded. WhatsApp should have opened to confirm with the publishing office.',
-        });
-        setSending(false);
+        setSending(true);
+        try {
+            let distributorId = '';
+            if (collecting) {
+                const match = await fetchCountryDistributor(form.country);
+                if (!match?.distributor?.id) {
+                    setError('No distributor is available for collection in that country. Choose shipping instead.');
+                    setSending(false);
+                    return;
+                }
+                distributorId = match.distributor.id;
+            }
+
+            const shipping = isDigital
+                ? {
+                    full_name: form.full_name,
+                    email: form.email,
+                    phone: form.phone,
+                    country: form.country,
+                    region: form.region,
+                    city: form.city || form.region,
+                    address_line: form.notes || 'Digital edition — email delivery',
+                    postal_code: form.postal_code || '',
+                }
+                : collecting
+                    ? {
+                        ...form,
+                        address_line: form.address_line || 'Collect from distributor',
+                        city: form.city || form.region,
+                    }
+                    : form;
+
+            const result = await initializeOrder({
+                items: [{ product_id: product.id, quantity: qty }],
+                shipping_address: shipping,
+                email: form.email,
+                country: form.country,
+                fulfillment_method: isDigital ? 'ship' : fulfillmentMethod,
+                distributor_id: distributorId || undefined,
+                return_origin: window.location.origin,
+            });
+
+            try {
+                await apiCrud.create('book-preregistrations', {
+                    product: product.id,
+                    full_name: form.full_name,
+                    email: form.email,
+                    phone: form.phone,
+                    country: form.country,
+                    city: form.city || form.region,
+                    quantity: qty,
+                    edition: product.edition || product.name,
+                    notes: [
+                        form.notes,
+                        `Paid preorder · order ${result.reference}`,
+                        `Total ${formatUSD(total)}`,
+                    ].filter(Boolean).join(' · '),
+                    status: 'pending',
+                });
+            } catch (_) {
+                /* order is source of truth for payment */
+            }
+
+            toast({
+                title: configured && result.authorization_url ? 'Redirecting to payment' : 'Preorder recorded',
+                description: configured && result.authorization_url
+                    ? 'Complete payment to confirm your book preorder.'
+                    : 'Your preorder is pending payment confirmation.',
+            });
+
+            if (result.configured && result.authorization_url) {
+                window.location.href = result.authorization_url;
+                return;
+            }
+            navigate(`/order/${result.reference}`);
+        } catch (err) {
+            setError(err.message || 'Could not start payment for this preorder.');
+            setSending(false);
+        }
     };
 
-    if (done) {
+    if (!purchasable) {
         return (
-            <div className="border border-[hsl(var(--gold))]/40 bg-[hsl(var(--surface))] p-8">
-                <p className="font-display text-2xl text-[hsl(var(--gold))]">Thank you.</p>
+            <div className="border border-border bg-[hsl(var(--surface))] p-8 md:p-10">
+                <p className="eyebrow">Preorder</p>
+                <h2 className="mt-3 font-display text-3xl">Not available yet</h2>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Your pre-registration for <span className="text-foreground">{product.edition || product.name}</span> ({submittedQty} {submittedQty === 1 ? 'copy' : 'copies'}) is on file.
-                    The publishing office will contact you when this edition is ready to order.
+                    This edition is not open for purchase right now. Check back soon or browse other editions.
                 </p>
-                <button
-                    type="button"
-                    onClick={() => setDone(false)}
-                    className="mt-6 text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]"
-                >
-                    Register another person
-                </button>
+                <Link to="/book" className="mt-6 inline-block text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
+                    Browse editions
+                </Link>
             </div>
         );
     }
 
     return (
         <form onSubmit={submit} className="border border-border bg-[hsl(var(--surface))] p-8 md:p-10">
-            <p className="eyebrow">Pre-register</p>
-            <h2 className="mt-3 font-display text-3xl">Reserve your interest</h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Leave your details to pre-register for <span className="text-foreground">{product.edition || product.name}</span>.
-                The team will notify you when ordering opens — no payment is taken now.
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <p className="eyebrow">Secure preorder</p>
+                    <h2 className="mt-3 font-display text-3xl">Preorder &amp; pay</h2>
+                    <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                        Reserve <span className="text-foreground">{product.edition || product.name}</span> with payment now.
+                        You will be redirected to Paystack to complete checkout.
+                    </p>
+                </div>
+                <div className="text-right">
+                    <p className="text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">Total</p>
+                    <p className="mt-1 font-display text-3xl text-[hsl(var(--gold))]">{formatUSD(total)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{qty} × {formatUSD(unitPrice)}</p>
+                </div>
+            </div>
+
+            {!isAuthed ? (
+                <p className="mt-5 text-sm text-muted-foreground">
+                    Guest checkout is available.{' '}
+                    <Link to="/login" className="text-[hsl(var(--gold))]">Sign in</Link>
+                    {' '}to save the order to your dashboard.
+                </p>
+            ) : null}
 
             <div className="mt-8 grid gap-5 sm:grid-cols-2">
                 <div className="grid gap-2 sm:col-span-2">
-                    <label htmlFor="pr-name" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Full name</label>
+                    <label htmlFor="pr-name" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Full name *</label>
                     <input id="pr-name" required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} className={field} />
                 </div>
                 <div className="grid gap-2">
-                    <label htmlFor="pr-email" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Email</label>
+                    <label htmlFor="pr-email" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Email *</label>
                     <input id="pr-email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={field} />
                 </div>
                 <div className="grid gap-2">
-                    <label htmlFor="pr-phone" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Phone / WhatsApp</label>
+                    <label htmlFor="pr-phone" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Phone / WhatsApp *</label>
                     <input id="pr-phone" required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={field} />
                 </div>
                 <div className="grid gap-2">
-                    <label htmlFor="pr-country" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Country</label>
-                    <select id="pr-country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className={field}>
-                        {COUNTRIES.map((c) => (
-                            <option key={c.code} value={c.code} className="bg-background">{c.name}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="grid gap-2">
-                    <label htmlFor="pr-city" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">City</label>
-                    <input id="pr-city" required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={field} />
-                </div>
-                <div className="grid gap-2">
-                    <label htmlFor="pr-qty" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Number of copies</label>
+                    <label htmlFor="pr-qty" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Number of copies *</label>
                     <input
                         id="pr-qty"
                         type="number"
@@ -146,23 +229,82 @@ const BookPreregistrationForm = ({ product }) => {
                         className={field}
                     />
                 </div>
-                <div className="grid gap-2 sm:col-span-2">
-                    <label htmlFor="pr-notes" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Notes (optional)</label>
-                    <textarea id="pr-notes" rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={field} placeholder="Signed copy preference, gift message…" />
-                </div>
             </div>
+
+            <div className="mt-6">
+                <CountryCollectionFields
+                    country={form.country}
+                    region={form.region}
+                    fulfillmentMethod={fulfillmentMethod}
+                    onCountry={(country) => setForm((prev) => ({ ...prev, country }))}
+                    onRegion={(region) => setForm((prev) => ({ ...prev, region }))}
+                    onFulfillmentMethod={setFulfillmentMethod}
+                    showFulfillment={!isDigital}
+                />
+            </div>
+
+            {!isDigital && !collecting ? (
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                    <div className="grid gap-2 sm:col-span-2">
+                        <label htmlFor="pr-address" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Street address *</label>
+                        <input id="pr-address" required value={form.address_line} onChange={(e) => setForm({ ...form, address_line: e.target.value })} className={field} />
+                    </div>
+                    <div className="grid gap-2">
+                        <label htmlFor="pr-city" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">City *</label>
+                        <input id="pr-city" required value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={field} />
+                    </div>
+                    <div className="grid gap-2">
+                        <label htmlFor="pr-zip" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">
+                            Postal / zip{needsZip ? ' *' : ''}
+                        </label>
+                        <input
+                            id="pr-zip"
+                            required={needsZip}
+                            value={form.postal_code}
+                            onChange={(e) => setForm({ ...form, postal_code: e.target.value })}
+                            className={field}
+                        />
+                    </div>
+                </div>
+            ) : null}
+
+            <div className="mt-5 grid gap-2">
+                <label htmlFor="pr-notes" className="text-[0.66rem] uppercase tracking-[0.2em] text-muted-foreground">Notes (optional)</label>
+                <textarea
+                    id="pr-notes"
+                    rows={3}
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                    className={field}
+                    placeholder="Gift message, delivery preference…"
+                />
+            </div>
+
+            {error ? <p className="mt-5 text-sm text-[hsl(var(--destructive))]">{error}</p> : null}
+
+            {!configured ? (
+                <p className="mt-5 text-sm text-muted-foreground">
+                    Online payment is being configured. Your preorder will still be recorded and the office will follow up.
+                </p>
+            ) : null}
 
             <button
                 type="submit"
                 disabled={sending}
-                className="mt-8 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                className="mt-8 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
             >
                 {sending ? (
-                    <span className="inline-flex items-center justify-center gap-2"><Loader2 size={14} className="animate-spin" /> Submitting…</span>
+                    <span className="inline-flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Starting payment…</span>
                 ) : (
-                    'Pre-register for this edition'
+                    <>
+                        <Lock size={14} strokeWidth={1.6} />
+                        Pay {formatUSD(total)} &amp; preorder
+                    </>
                 )}
             </button>
+            <p className="mt-4 text-center text-xs text-muted-foreground">
+                Secure payment via Paystack. After payment you will receive an order confirmation.
+            </p>
         </form>
     );
 };

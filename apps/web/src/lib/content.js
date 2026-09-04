@@ -272,7 +272,7 @@ export const FAQ_SECTIONS = [
     items: [
       {
         q: "How do I order the autobiography?",
-        a: "Visit The Book or Shop, add your edition to the cart, and proceed to checkout. You can complete your order as a guest or while signed in. After payment your confirmation and tracking details appear on the order page.",
+        a: "Visit The Book, choose your edition, and complete a secure preorder with payment via Paystack. You can also buy through Shop checkout. Guest checkout is available. After payment, your confirmation and tracking details appear on the order page.",
       },
       {
         q: "Can I buy without creating an account?",
