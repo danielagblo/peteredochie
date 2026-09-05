@@ -10,19 +10,19 @@ export const PageHead = ({ title, description }) => (
 );
 
 export const PageHero = ({ eyebrow, title, lead, image, align = 'left' }) => (
-    <section className="relative flex min-h-[62vh] items-end overflow-hidden bg-[#0a0a0a]">
-        {image ? (
-            <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        ) : null}
+    <section className="relative flex min-h-[62vh] items-end overflow-hidden">
+        <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="img-veil absolute inset-0" />
-        <div className={`relative z-10 mx-auto w-full max-w-[72rem] px-5 pb-16 pt-32 text-white md:px-10 ${align === 'center' ? 'text-center' : ''}`}>
-            <p className="text-[0.68rem] uppercase tracking-[0.32em] text-[hsl(var(--gold))]">{eyebrow}</p>
-            <h1 className="mt-5 font-display text-5xl leading-[0.95] text-white md:text-7xl">{title}</h1>
-            {lead ? (
-                <p className={`mt-6 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg ${align === 'center' ? 'mx-auto' : ''}`}>
-                    {lead}
-                </p>
-            ) : null}
+        <div className={`relative mx-auto w-full max-w-[72rem] px-5 pb-16 pt-32 text-white md:px-10 ${align === 'center' ? 'text-center' : ''}`}>
+            <Reveal>
+                <p className="eyebrow">{eyebrow}</p>
+                <h1 className="mt-5 font-display text-5xl leading-[0.95] md:text-7xl text-white">{title}</h1>
+                {lead ? (
+                    <p className={`mt-6 max-w-2xl text-base leading-relaxed text-white/75 md:text-lg ${align === 'center' ? 'mx-auto' : ''}`}>
+                        {lead}
+                    </p>
+                ) : null}
+            </Reveal>
         </div>
     </section>
 );

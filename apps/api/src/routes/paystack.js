@@ -291,14 +291,6 @@ router.post("/initialize", async (req, res) => {
 	const token = (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
 	const userId = token ? userIdFromToken(token) : null;
 
-	// Authenticated users must verify their email before ordering.
-	if (userId) {
-		const account = await prisma.user.findUnique({ where: { id: userId }, select: { verified: true, approvalStatus: true } });
-		if (account && !account.verified) {
-			return res.status(403).json({ error: "Please verify your email address before placing an order." });
-		}
-	}
-
 	const {
 		items,
 		shipping_address: shipping,

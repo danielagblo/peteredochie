@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, ExternalLink, Loader2 } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import CountUp from '@/components/CountUp';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
-import { IMG, OFFICIAL_BOOKS, OFFICIAL_BOOK_CATEGORIES, PUBLISHER } from '@/lib/content';
+import { IMG, PUBLISHER } from '@/lib/content';
 import { groupBooksByCategory } from '@/lib/books';
 import { fetchBookPreregStats } from '@/lib/bookStats';
 import { formatUSD, isRedirectOnly } from '@/lib/commerce';
@@ -21,24 +21,19 @@ const BookPage = () => {
             apiCrud.list('products', {
                 filter: `product_type = "book" && enabled = true`,
                 sort: 'price',
-            }).catch(() => []),
+            }),
             apiCrud.list('book-categories', { sort: 'sort' }).catch(() => []),
             fetchBookPreregStats().catch(() => ({ totalCopies: 0, totalRegistrations: 0 })),
         ])
             .then(([prods, cats, stats]) => {
-                const list = Array.isArray(prods)
-                    ? prods.filter((p) => (p.product_type || p.productType) === 'book')
-                    : [];
-                const books = list.length ? list : OFFICIAL_BOOKS;
-                setProducts(books);
+                setProducts(prods);
                 const enabledCats = (cats || []).filter((c) => c.enabled !== false);
-                setCategories(enabledCats.length ? enabledCats : OFFICIAL_BOOK_CATEGORIES);
-                setPreregStats(stats && typeof stats === 'object' ? stats : { totalCopies: 0, totalRegistrations: 0 });
+                setCategories(enabledCats.length ? enabledCats : [{ id: '', name: 'All editions', sort: 0 }]);
+                setPreregStats(stats);
             })
             .catch(() => {
-                setProducts(OFFICIAL_BOOKS);
-                setCategories(OFFICIAL_BOOK_CATEGORIES);
-                setPreregStats({ totalCopies: 0, totalRegistrations: 0 });
+                setProducts([]);
+                setCategories([]);
             })
             .finally(() => setLoading(false));
     }, []);

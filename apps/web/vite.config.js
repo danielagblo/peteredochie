@@ -10,12 +10,6 @@ export default defineConfig({
 	server: {
 		port: 3000,
 		allowedHosts: true,
-		proxy: {
-			'/hcgi/api': {
-				target: 'http://localhost:3001',
-				changeOrigin: true,
-			},
-		},
 	},
 	preview: {
 		port: 3000,

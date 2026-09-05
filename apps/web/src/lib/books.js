@@ -1,11 +1,9 @@
 /** Group book products by category (relation or legacy string field). */
 export function groupBooksByCategory(books, categories) {
-    const list = Array.isArray(books) ? books : [];
-    const cats = Array.isArray(categories) ? categories : [];
-    const byId = Object.fromEntries(cats.map((c) => [c.id, c]));
+    const byId = Object.fromEntries(categories.map((c) => [c.id, c]));
     const groups = new Map();
 
-    for (const book of list) {
+    for (const book of books) {
         const catId = book.expand?.book_category?.id || book.book_category?.id || book.book_category || book.category || '';
         const cat = byId[catId] || { id: catId, name: catId || 'Uncategorised', sort: 999 };
         if (!groups.has(cat.id || '__none')) {
