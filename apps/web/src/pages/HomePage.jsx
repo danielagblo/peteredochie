@@ -47,26 +47,39 @@ const HomePage = () => {
                     <div className="absolute inset-0 bg-black/25" />
                 </div>
                 <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-24 md:px-10 md:pb-11">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.45, duration: 0.9 }}
-                        className="font-hero text-[clamp(2.4rem,6vw,4.75rem)] leading-[0.95] tracking-tight text-white"
-                    >
-                        {LEGACY.name}
-                    </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7, duration: 0.85 }}
-                        className="mt-3 max-w-xl text-[0.68rem] uppercase tracking-[0.28em] text-white/65"
+                        transition={{ delay: 0.4, duration: 0.85 }}
+                        className="text-[0.68rem] uppercase tracking-[0.28em] text-white/65"
                     >
-                        {BRAND.projectName} · {BRAND.tagline}
+                        {LEGACY.name} · {BRAND.projectName}
+                    </motion.p>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.55, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                        className="font-hero mt-4 max-w-5xl text-[clamp(2.35rem,5.8vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-white"
+                    >
+                        <span className="md:hidden">
+                            A voice that taught
+                            <br />
+                            a continent
+                        </span>
+                        <span className="hidden md:inline">A voice that taught a continent</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.05, duration: 0.8 }}
+                        className="mt-4 max-w-xl text-[0.72rem] uppercase tracking-[0.26em] text-white/55"
+                    >
+                        {BRAND.tagline}
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ delay: 1.05, duration: 1 }}
+                        transition={{ delay: 1.2, duration: 1 }}
                         className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
                     >
                         <p className="max-w-md text-sm leading-relaxed text-white/80">
@@ -76,13 +89,13 @@ const HomePage = () => {
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
                                 to="/peter-edochie"
-                                className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.98]"
+                                className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
                             >
                                 Enter the story
                                 <ArrowRight
                                     size={15}
                                     strokeWidth={1.6}
-                                    className="text-white transition-transform group-hover:translate-x-1"
+                                    className="text-[hsl(var(--primary-foreground))] transition-transform group-hover:translate-x-1"
                                 />
                             </Link>
                             <Link
@@ -190,7 +203,7 @@ const HomePage = () => {
                     <SectionTitle eyebrow="The Autobiography" title={<>The life, told in his own cadence</>} lead="Three years of recorded conversation, edited into a single volume: childhood in Enugu, the broadcasting years, the making of Okonkwo, family, faith, and the discipline of a public life." />
                     <Reveal delay={0.1}>
                         <div className="mt-9 flex flex-wrap gap-4">
-                            <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
+                            <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
                                 Preorder the book
                             </Link>
                             <Link to="/book" className="border border-border px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
@@ -354,7 +367,7 @@ const HomePage = () => {
                                 A legacy is only alive if it is <span className="italic text-[hsl(var(--gold))]">handed on</span>.
                             </h2>
                             <div className="mt-10 flex flex-wrap justify-center gap-4">
-                                <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
+                                <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
                                     Create your account
                                 </Link>
                                 <Link to="/contact" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">

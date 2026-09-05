@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, ExternalLink, Loader2 } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import CountUp from '@/components/CountUp';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
-import { IMG, PUBLISHER } from '@/lib/content';
+import { IMG, OFFICIAL_BOOKS, OFFICIAL_BOOK_CATEGORIES, PUBLISHER } from '@/lib/content';
 import { groupBooksByCategory } from '@/lib/books';
 import { fetchBookPreregStats } from '@/lib/bookStats';
 import { formatUSD, isRedirectOnly } from '@/lib/commerce';
@@ -21,19 +21,24 @@ const BookPage = () => {
             apiCrud.list('products', {
                 filter: `product_type = "book" && enabled = true`,
                 sort: 'price',
-            }),
+            }).catch(() => []),
             apiCrud.list('book-categories', { sort: 'sort' }).catch(() => []),
             fetchBookPreregStats().catch(() => ({ totalCopies: 0, totalRegistrations: 0 })),
         ])
             .then(([prods, cats, stats]) => {
-                setProducts(prods);
+                const list = Array.isArray(prods)
+                    ? prods.filter((p) => (p.product_type || p.productType) === 'book')
+                    : [];
+                const books = list.length ? list : OFFICIAL_BOOKS;
+                setProducts(books);
                 const enabledCats = (cats || []).filter((c) => c.enabled !== false);
-                setCategories(enabledCats.length ? enabledCats : [{ id: '', name: 'All editions', sort: 0 }]);
-                setPreregStats(stats);
+                setCategories(enabledCats.length ? enabledCats : OFFICIAL_BOOK_CATEGORIES);
+                setPreregStats(stats && typeof stats === 'object' ? stats : { totalCopies: 0, totalRegistrations: 0 });
             })
             .catch(() => {
-                setProducts([]);
-                setCategories([]);
+                setProducts(OFFICIAL_BOOKS);
+                setCategories(OFFICIAL_BOOK_CATEGORIES);
+                setPreregStats({ totalCopies: 0, totalRegistrations: 0 });
             })
             .finally(() => setLoading(false));
     }, []);
@@ -88,7 +93,7 @@ const BookPage = () => {
                         ) : (
                             <Link
                                 to={`/book/item/${p.id}`}
-                                className="mt-6 flex items-center justify-center gap-2 bg-[hsl(var(--primary))] py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.98]"
+                                className="mt-6 flex items-center justify-center gap-2 bg-[hsl(var(--primary))] py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
                             >
                                 Preorder &amp; pay
                                 <ArrowRight size={13} strokeWidth={1.6} />
@@ -141,25 +146,25 @@ const BookPage = () => {
             </Section>
 
             {preregStats.totalRegistrations > 0 ? (
-                <div className="border-y border-border bg-[hsl(var(--primary))] py-14 text-white">
+                <div className="border-y border-border bg-[hsl(var(--primary))] py-14 text-[hsl(var(--primary-foreground))]">
                     <Section width="max-w-[80rem]">
                         <div className="flex flex-wrap items-center gap-10 md:gap-16">
                             <div className="flex items-center gap-4">
-                                <BookOpen size={28} strokeWidth={1.4} className="text-[hsl(var(--gold))]" />
+                                <BookOpen size={28} strokeWidth={1.4} className="text-black/80" />
                                 <div>
                                     <p className="font-display text-4xl">
                                         <CountUp value={preregStats.totalCopies} />
                                     </p>
-                                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/65">Copies reserved</p>
+                                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-black/65">Copies reserved</p>
                                 </div>
                             </div>
                             <div>
                                 <p className="font-display text-4xl">
                                     <CountUp value={preregStats.totalRegistrations} />
                                 </p>
-                                <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/65">Preorders</p>
+                                <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-black/65">Preorders</p>
                             </div>
-                            <p className="max-w-md text-sm leading-relaxed text-white/75">
+                            <p className="max-w-md text-sm leading-relaxed text-black/75">
                                 Readers across the continent are securing their editions ahead of the Ghana launch. Payment confirms your copy.
                             </p>
                         </div>

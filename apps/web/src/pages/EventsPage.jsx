@@ -108,7 +108,7 @@ const EventCard = ({ event, onParticipate }) => {
                             <button
                                 type="button"
                                 onClick={() => onParticipate(event)}
-                                className="bg-[hsl(var(--primary))] px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.99]"
+                                className="bg-[hsl(var(--primary))] px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99]"
                             >
                                 Buy ticket
                             </button>
@@ -116,7 +116,7 @@ const EventCard = ({ event, onParticipate }) => {
                             <button
                                 type="button"
                                 onClick={() => onParticipate(event)}
-                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
+                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-[hsl(var(--primary-foreground))]"
                             >
                                 Register now
                             </button>
@@ -267,7 +267,7 @@ const EventsPage = () => {
                         </div>
                         <Link
                             to="/mentorship"
-                            className="mt-9 inline-flex items-center gap-3 bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]"
+                            className="mt-9 inline-flex items-center gap-3 bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]"
                         >
                             Apply to the programme
                         </Link>

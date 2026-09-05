@@ -38,7 +38,7 @@ const GalleryPage = () => {
                             type="button"
                             onClick={() => setFilter(c)}
                             className={`px-4 py-2 text-[0.66rem] uppercase tracking-[0.2em] transition-colors ${
-                                filter === c ? 'bg-[hsl(var(--gold))] text-white' : 'border border-border text-muted-foreground hover:text-foreground'
+                                filter === c ? 'bg-[hsl(var(--gold))] text-[hsl(var(--primary-foreground))]' : 'border border-border text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             {c}

@@ -230,7 +230,7 @@ const SmsBroadcastPanel = () => {
                                 type="button"
                                 disabled={isSending || !form.message.trim()}
                                 onClick={() => setShowConfirmModal(true)}
-                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.24em] text-white font-medium shadow-md transition-all hover:brightness-110 disabled:opacity-40"
+                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] font-medium shadow-md transition-all hover:brightness-110 disabled:opacity-40"
                             >
                                 <Send size={14} /> Send SMS Broadcast
                             </button>
@@ -318,7 +318,7 @@ const SmsBroadcastPanel = () => {
                                 type="button"
                                 disabled={isSending}
                                 onClick={handleBroadcast}
-                                className="bg-[hsl(var(--primary))] px-6 py-2.5 text-[0.62rem] uppercase tracking-[0.2em] text-white font-medium hover:brightness-110"
+                                className="bg-[hsl(var(--primary))] px-6 py-2.5 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))] font-medium hover:brightness-110"
                             >
                                 {isSending ? 'Sending…' : 'Yes, Send SMS Broadcast'}
                             </button>

@@ -221,7 +221,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                             <div className="mt-7 flex flex-col gap-3">
                                 <Link
                                     to={`/login?next=${encodeURIComponent(signInNext)}`}
-                                    className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                                    className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                                 >
                                     Sign in
                                 </Link>
@@ -337,7 +337,7 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
         <button
             type="button"
             onClick={onContinue}
-            className="mt-7 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+            className="mt-7 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
         >
             Continue to payment
         </button>
@@ -415,7 +415,7 @@ const PaymentReview = ({
                     type="button"
                     onClick={onPay}
                     disabled={busy}
-                    className="flex-[2] bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                    className="flex-[2] bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                 >
                     {busy ? 'Redirecting…' : 'Make Payment'}
                 </button>
@@ -466,7 +466,7 @@ const MasterclassRegister = ({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="mt-6 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+            className="mt-6 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
         >
             {busy ? 'Registering…' : 'Confirm registration'}
         </button>
@@ -529,7 +529,7 @@ const ConfirmationView = ({ event, ticket, tier, onDone }) => {
             <div className="mt-6 flex flex-col gap-3">
                 <Link
                     to="/dashboard"
-                    className="bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                    className="bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                 >
                     Go to dashboard
                 </Link>

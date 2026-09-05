@@ -14,8 +14,8 @@ export const BRAND = {
   hashtag: "#TheLegacyProject",
   tagline: "What will you leave behind?",
   colors: {
-    burgundy: "#7A0C19",
-    black: "#0A0A0A",
+    burgundy: "#9A7A2F",
+    black: "#141414",
     white: "#FFFFFF",
   },
 };
@@ -151,6 +151,76 @@ export const OFFICIAL_EVENTS = [
     invitation_only: true,
     ticket_tiers: [],
     image: COVER,
+  },
+];
+
+/** Fallback book editions when the API is offline (mirrors prisma seed). */
+export const OFFICIAL_BOOK_CATEGORIES = [
+  { id: 'hardcover-editions', name: 'Hardcover Editions', description: 'Cloth-bound and standard hardcover books from the Peter Edochie Legacy imprint.', sort: 1, enabled: true },
+  { id: 'digital-editions', name: 'Digital Editions', description: 'Audiobook and e-book formats.', sort: 2, enabled: true },
+  { id: 'signed-collector', name: 'Signed & Collector', description: 'Personally signed and limited collector editions.', sort: 3, enabled: true },
+];
+
+export const OFFICIAL_BOOKS = [
+  {
+    id: 'book-signed',
+    name: 'The Peter Edochie Autobiography',
+    edition: 'Signed copy',
+    format: 'hardcopy',
+    price: 85,
+    product_type: 'book',
+    status: 'preorder',
+    enabled: true,
+    book_category: 'signed-collector',
+    author: 'Peter Edochie',
+    published_year: '2026',
+    excerpt: 'A personally signed hardcover of the official autobiography — cloth bound, 412 pages, 32 archive photographs.',
+    image: assetUrl(ASSETS.book),
+  },
+  {
+    id: 'book-standard',
+    name: 'The Peter Edochie Autobiography',
+    edition: 'Standard copy',
+    format: 'hardcopy',
+    price: 45,
+    product_type: 'book',
+    status: 'preorder',
+    enabled: true,
+    book_category: 'hardcover-editions',
+    author: 'Peter Edochie',
+    published_year: '2026',
+    excerpt: 'The standard hardcover edition of the official autobiography — 412 pages, 32 archive photographs.',
+    image: assetUrl(ASSETS.book),
+  },
+  {
+    id: 'book-audio',
+    name: 'The Peter Edochie Autobiography',
+    edition: 'Audiobook',
+    format: 'digital',
+    price: 24.99,
+    product_type: 'book',
+    status: 'preorder',
+    enabled: true,
+    book_category: 'digital-editions',
+    author: 'Peter Edochie',
+    published_year: '2026',
+    excerpt: 'Narrated by Peter Edochie with extended audio extracts from the archive recordings.',
+    image: assetUrl(ASSETS.book),
+  },
+  {
+    id: 'book-ebook',
+    name: 'The Peter Edochie Autobiography',
+    edition: 'E-book',
+    format: 'digital',
+    price: 14.99,
+    product_type: 'book',
+    status: 'preorder',
+    enabled: true,
+    book_category: 'digital-editions',
+    author: 'Peter Edochie',
+    published_year: '2026',
+    excerpt: 'The complete autobiography in a portable digital edition.',
+    image: assetUrl(ASSETS.book),
   },
 ];
 

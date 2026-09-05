@@ -128,7 +128,7 @@ const MentorshipPage = () => {
                                     Applications are tied to your account so you can track their status from your dashboard.
                                 </p>
                                 <div className="mt-6 flex flex-col gap-3">
-                                    <Link to="/login?next=/mentorship" className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-white">
+                                    <Link to="/login?next=/mentorship" className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]">
                                         Sign in
                                     </Link>
                                     <Link to="/join?next=/mentorship" className="border border-border py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
@@ -204,7 +204,7 @@ const MentorshipPage = () => {
                                 <button
                                     type="submit"
                                     disabled={sending}
-                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
                                 >
                                     {sending ? 'Opening WhatsApp…' : 'Submit via WhatsApp'}
                                 </button>

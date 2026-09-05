@@ -16,54 +16,54 @@ body {
 
 @layer base {
   :root {
-    /* The Legacy Project — light editorial (white 50% / black 30% / burgundy 20%) */
+    /* Editorial white with classic gold accents */
     --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --foreground: 0 0% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
-    --primary: 356 82% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 4%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 35%;
-    --accent: 356 82% 26%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 46%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 40 48% 38%;
+    --primary-foreground: 0 0% 6%;
+    --secondary: 40 12% 96%;
+    --secondary-foreground: 0 0% 8%;
+    --muted: 40 10% 96%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 40 48% 38%;
+    --accent-foreground: 0 0% 6%;
+    --destructive: 0 55% 40%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 356 82% 26%;
+    --border: 40 8% 88%;
+    --input: 40 8% 88%;
+    --ring: 40 48% 38%;
     --radius: 0.15rem;
-    --gold: 356 82% 26%;
-    --surface: 0 0% 98%;
+    --gold: 40 52% 42%;
+    --surface: 40 14% 97%;
   }
   .dark {
-    /* The Legacy Project — cinematic black with burgundy accents */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 356 82% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 68%;
-    --accent: 356 82% 26%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 46%;
+    /* Night with luminous gold */
+    --background: 0 0% 5%;
+    --foreground: 40 10% 96%;
+    --card: 0 0% 7%;
+    --card-foreground: 40 10% 96%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 40 10% 96%;
+    --primary: 40 55% 52%;
+    --primary-foreground: 0 0% 6%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 40 10% 96%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 40 8% 68%;
+    --accent: 40 55% 52%;
+    --accent-foreground: 0 0% 6%;
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 356 82% 26%;
+    --ring: 40 55% 52%;
     --radius: 0.15rem;
-    --gold: 356 82% 26%;
-    --surface: 0 0% 3%;
+    --gold: 40 58% 58%;
+    --surface: 0 0% 4%;
   }
   * {
     border-color: hsl(var(--border));

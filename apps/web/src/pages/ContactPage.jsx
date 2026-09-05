@@ -128,7 +128,7 @@ const ContactPage = () => {
                             <button
                                 type="submit"
                                 disabled={sending}
-                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
                             >
                                 {sending ? 'Opening WhatsApp…' : 'Send via WhatsApp'}
                             </button>

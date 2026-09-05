@@ -291,7 +291,7 @@ const BookPreregistrationForm = ({ product }) => {
             <button
                 type="submit"
                 disabled={sending}
-                className="mt-8 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                className="mt-8 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
             >
                 {sending ? (
                     <span className="inline-flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Starting payment…</span>

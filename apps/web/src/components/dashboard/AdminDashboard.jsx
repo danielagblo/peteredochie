@@ -903,7 +903,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={productForm.main_order_enabled} onChange={(e) => setProductForm({ ...productForm, main_order_enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Main order available</label>
                                 </div>
                                 <div className="flex gap-3 md:col-span-2">
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingId ? 'Update product' : 'Add product'}</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingId ? 'Update product' : 'Add product'}</button>
                                     {editingId ? <button type="button" onClick={() => { setEditingId(null); setProductForm(emptyProductForm); }} className={smallBtn}>Cancel</button> : null}
                                 </div>
                             </form>
@@ -1019,7 +1019,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     </select>
                                     <input type="number" placeholder="Quantity change (+/-)" value={adjustForm.delta} onChange={(e) => setAdjustForm({ ...adjustForm, delta: e.target.value })} className={input} />
                                     <input placeholder="Reason" value={adjustForm.reason} onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })} className={input} />
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-3">Apply stock adjustment</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] md:col-span-3">Apply stock adjustment</button>
                                 </form>
 
                                 <ul className="mt-8 divide-y divide-border">
@@ -1078,7 +1078,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <select value={empForm.role} onChange={(e) => setEmpForm({ ...empForm, role: e.target.value })} className={input}>
                                     {EMPLOYEE_ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                                 </select>
-                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">Grant role</button>
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">Grant role</button>
                             </form>
 
                             <ul className="mt-8 divide-y divide-border">
@@ -1118,7 +1118,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Invitation only — no public registration</span>
                                 </label>
                                 <div className="flex flex-wrap gap-3 md:col-span-2">
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingEventId ? 'Save changes' : 'Publish event'}</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingEventId ? 'Save changes' : 'Publish event'}</button>
                                     {editingEventId ? (
                                         <button type="button" onClick={cancelEditEvent} className="border border-border px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:text-foreground">Cancel</button>
                                     ) : null}
@@ -1255,7 +1255,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <input type="checkbox" checked={materialForm.published} onChange={(e) => setMaterialForm({ ...materialForm, published: e.target.checked })} />
                                     Published
                                 </label>
-                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Add material</button>
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] md:col-span-2">Add material</button>
                             </form>
                             <ul className="mt-8 divide-y divide-border">
                                 {materials.length === 0 ? <EmptyState>No materials yet.</EmptyState> : null}
@@ -1286,7 +1286,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={categoryForm.enabled} onChange={(e) => setCategoryForm({ ...categoryForm, enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Enabled on storefront</label>
                                 <textarea placeholder="Category description" rows={3} value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })} className={`${input} md:col-span-2`} />
                                 <div className="flex flex-wrap gap-3 md:col-span-2">
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingCategoryId ? 'Update category' : 'Add category'}</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingCategoryId ? 'Update category' : 'Add category'}</button>
                                     {editingCategoryId ? <button type="button" onClick={() => { setEditingCategoryId(null); setCategoryForm(emptyCategoryForm); }} className={smallBtn}>Cancel</button> : null}
                                 </div>
                             </form>
@@ -1338,7 +1338,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <label className="flex items-center gap-2 text-xs text-muted-foreground"><input type="checkbox" checked={bookForm.main_order_enabled} onChange={(e) => setBookForm({ ...bookForm, main_order_enabled: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--primary))]" /> Main order available</label>
                                 </div>
                                 <div className="flex flex-wrap gap-3 md:col-span-2">
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingBookId ? 'Update book' : 'Add book'}</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingBookId ? 'Update book' : 'Add book'}</button>
                                     {editingBookId ? <button type="button" onClick={() => { setEditingBookId(null); setBookForm(emptyBookForm); }} className={smallBtn}>Cancel</button> : null}
                                 </div>
                             </form>
@@ -1452,7 +1452,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <input required placeholder="Title" value={newsForm.title} onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })} className={input} />
                                 <input placeholder="Category" value={newsForm.category} onChange={(e) => setNewsForm({ ...newsForm, category: e.target.value })} className={input} />
                                 <input placeholder="Excerpt" value={newsForm.excerpt} onChange={(e) => setNewsForm({ ...newsForm, excerpt: e.target.value })} className={`${input} md:col-span-2`} />
-                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-2">Publish entry</button>
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] md:col-span-2">Publish entry</button>
                             </form>
                             <ul className="mt-8 divide-y divide-border">
                                 {news.map((n) => (
@@ -1604,7 +1604,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <input placeholder="Description" value={sponsorPkgForm.description} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, description: e.target.value })} className={`${input} md:col-span-2`} />
                                     <textarea placeholder="Benefits (one per line)" rows={3} value={sponsorPkgForm.benefits} onChange={(e) => setSponsorPkgForm({ ...sponsorPkgForm, benefits: e.target.value })} className={`${input} md:col-span-2`} />
                                     <div className="flex gap-3 md:col-span-2">
-                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingSponsorPkgId ? 'Update package' : 'Add package'}</button>
+                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingSponsorPkgId ? 'Update package' : 'Add package'}</button>
                                         {editingSponsorPkgId ? <button type="button" onClick={() => { setEditingSponsorPkgId(null); resetSponsorPkgForm(); }} className={smallBtn}>Cancel</button> : null}
                                     </div>
                                 </form>
@@ -1641,7 +1641,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                         Enabled
                                     </label>
                                     <div className="flex gap-3 md:col-span-4">
-                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">{editingTierId ? 'Update tier' : 'Add tier'}</button>
+                                        <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingTierId ? 'Update tier' : 'Add tier'}</button>
                                         {editingTierId ? <button type="button" onClick={() => { setEditingTierId(null); resetTierForm(); }} className={smallBtn}>Cancel</button> : null}
                                     </div>
                                 </form>
@@ -1699,7 +1699,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                             <input placeholder="Key (auto if blank)" value={ticketTierForm.key} onChange={(e) => setTicketTierForm({ ...ticketTierForm, key: e.target.value })} className={input} />
                                             <input type="number" step="0.01" required placeholder="Price" value={ticketTierForm.price} onChange={(e) => setTicketTierForm({ ...ticketTierForm, price: e.target.value })} className={input} />
                                             <input placeholder="Currency (e.g. GBP)" value={ticketTierForm.currency} onChange={(e) => setTicketTierForm({ ...ticketTierForm, currency: e.target.value })} className={input} />
-                                            <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">Add tier</button>
+                                            <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">Add tier</button>
                                         </form>
                                     </>
                                 ) : null}
@@ -1729,7 +1729,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                             <option key={u.id} value={u.id}>{u.organisation || u.name || u.email}</option>
                                         ))}
                                     </select>
-                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white md:col-span-3">Add country</button>
+                                    <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] md:col-span-3">Add country</button>
                                 </form>
 
                                 <ul className="mt-8 divide-y divide-border">

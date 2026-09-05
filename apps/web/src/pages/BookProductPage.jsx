@@ -73,7 +73,7 @@ const BookProductPage = () => {
                                         alt={title}
                                         className="aspect-[3/4] w-full object-cover"
                                     />
-                                    <div className="absolute left-4 top-4 bg-[hsl(var(--primary))] px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.2em] text-white">
+                                    <div className="absolute left-4 top-4 bg-[hsl(var(--primary))] px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]">
                                         {statusLabel}
                                     </div>
                                 </div>

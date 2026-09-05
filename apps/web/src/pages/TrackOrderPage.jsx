@@ -76,7 +76,7 @@ const TrackOrderPage = () => {
                     <button
                         type="submit"
                         disabled={busy}
-                        className="flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                        className="flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                     >
                         {busy ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} strokeWidth={1.6} />}
                         Look up order

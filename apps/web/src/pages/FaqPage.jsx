@@ -63,7 +63,7 @@ const FaqPage = () => (
                         href={whatsappHref(`Hello ${PUBLISHER.name}. I have a question about the Peter Edochie Legacy platform.`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block bg-[hsl(var(--primary))] px-6 py-3 text-[0.68rem] uppercase tracking-[0.2em] text-white"
+                        className="inline-block bg-[hsl(var(--primary))] px-6 py-3 text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]"
                     >
                         WhatsApp {PUBLISHER.phoneDisplay}
                     </a>

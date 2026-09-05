@@ -101,7 +101,7 @@ const ShopPage = () => {
                                                 </span>
                                             ) : null}
                                             {p.status === 'preorder' ? (
-                                                <span className="absolute right-0 top-0 bg-[hsl(var(--primary))] px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.2em] text-white">
+                                                <span className="absolute right-0 top-0 bg-[hsl(var(--primary))] px-3 py-1.5 text-[0.56rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]">
                                                     Preorder
                                                 </span>
                                             ) : null}
@@ -138,7 +138,7 @@ const ShopPage = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => handleAdd(p)}
-                                                    className="mt-6 flex items-center justify-center gap-2 bg-[hsl(var(--primary))] py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.98]"
+                                                    className="mt-6 flex items-center justify-center gap-2 bg-[hsl(var(--primary))] py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
                                                 >
                                                     <ShoppingCart size={13} strokeWidth={1.6} />
                                                     {added === p.id ? 'Added to cart' : cartLine ? `In cart (${cartLine.quantity}) — add another` : 'Add to cart'}
@@ -163,7 +163,7 @@ const ShopPage = () => {
                     </p>
                     <Link
                         to="/checkout"
-                        className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
+                        className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-[hsl(var(--primary-foreground))]"
                     >
                         <Check size={13} strokeWidth={1.6} /> View cart & checkout
                     </Link>

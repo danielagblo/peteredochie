@@ -118,7 +118,7 @@ const SponsorApplyPage = () => {
                             Status: {rec.status || 'pending'} · Payment: {rec.payment_status || 'unpaid'}
                         </p>
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
-                            <Link to="/dashboard" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white">Go to dashboard</Link>
+                            <Link to="/dashboard" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">Go to dashboard</Link>
                             <Link to="/sponsors" className="border border-border px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground">Back to sponsors</Link>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ const SponsorApplyPage = () => {
                         </p>
                         {error ? <p className="mt-4 text-xs text-[hsl(var(--primary))]">{error}</p> : null}
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
-                            <button type="button" onClick={onResume} disabled={submitting} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60">
+                            <button type="button" onClick={onResume} disabled={submitting} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] disabled:opacity-60">
                                 {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                                 {submitting ? 'Starting…' : 'Pay now'}
                             </button>
@@ -272,7 +272,7 @@ const SponsorApplyPage = () => {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60"
+                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                             >
                                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} strokeWidth={1.6} />}
                                 Continue to payment

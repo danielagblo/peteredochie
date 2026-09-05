@@ -46,7 +46,7 @@ const SponsorsPage = () => {
                 <Section width="max-w-[90rem]">
                     <div className="flex flex-wrap items-end justify-between gap-6">
                         <SectionTitle eyebrow="Partnership" title="Four sponsorship packages" />
-                        <Link to={applyTo} className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white">
+                        <Link to={applyTo} className="flex items-center gap-2 border border-[hsl(var(--gold))]/60 px-6 py-3 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-[hsl(var(--primary-foreground))]">
                             Become a sponsor <ArrowRight size={14} strokeWidth={1.6} />
                         </Link>
                     </div>
@@ -108,7 +108,7 @@ const SponsorsPage = () => {
                     <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
                         For founding-institution and archive-naming partnerships, or multi-country underwriting, our partnership team will design a bespoke package with you.
                     </p>
-                    <Link to="/contact" className="mt-7 inline-block border border-[hsl(var(--gold))]/60 px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white">
+                    <Link to="/contact" className="mt-7 inline-block border border-[hsl(var(--gold))]/60 px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-[hsl(var(--primary-foreground))]">
                         Contact the partnership team
                     </Link>
                 </div>

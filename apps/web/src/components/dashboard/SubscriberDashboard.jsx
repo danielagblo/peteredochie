@@ -548,7 +548,7 @@ const SubscriberDashboard = () => {
                                     </div>
                                 </fieldset>
                                 {saved ? <p className="text-sm text-[hsl(var(--gold))]">{saved}</p> : null}
-                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white">
+                                <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">
                                     Save changes
                                 </button>
                             </form>

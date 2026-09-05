@@ -62,7 +62,7 @@ const VerifyEmailPage = () => {
                         <div className="pt-4">
                             <Link
                                 to="/dashboard"
-                                className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.2em] text-white"
+                                className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]"
                             >
                                 Continue to Dashboard <ArrowRight size={14} />
                             </Link>

@@ -177,7 +177,7 @@ const SiteLayout = ({ children }) => {
             >
               <ShoppingCart size={17} strokeWidth={1.5} />
               {count > 0 ? (
-                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center bg-[hsl(var(--primary))] px-1 text-[0.55rem] leading-none text-white">
+                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center bg-[hsl(var(--primary))] px-1 text-[0.55rem] leading-none text-[hsl(var(--primary-foreground))]">
                   {count}
                 </span>
               ) : null}
@@ -311,16 +311,6 @@ const SiteLayout = ({ children }) => {
               © {new Date().getFullYear()} {PUBLISHER.name}. All rights
               reserved.
             </p>
-            <a
-              href="http://skytechghana.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:text-secondary-container transition-colors font-body-md text-body-md"
-            >
-              <span>Designed By</span>
-              <img src="/skytech.png" className="h-6 w-6 rounded-full" />
-              <span className="font-medium">SkyTech Ghana</span>
-            </a>
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Link
                 to="/terms"

@@ -141,7 +141,7 @@ const SubscribeSection = () => {
                             <button
                                 type="submit"
                                 disabled={state === 'busy'}
-                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                             >
                                 {state === 'busy' ? 'Opening WhatsApp…' : 'Join via WhatsApp'}
                             </button>

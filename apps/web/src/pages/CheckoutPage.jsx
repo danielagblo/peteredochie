@@ -301,7 +301,7 @@ const CheckoutPage = () => {
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="mt-6 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.98] disabled:opacity-60"
+                                    className="mt-6 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98] disabled:opacity-60"
                                 >
                                     {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                                     {configured ? 'Make Payment' : 'Place order'}

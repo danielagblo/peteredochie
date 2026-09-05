@@ -74,7 +74,7 @@ const ForgotPasswordPage = () => {
                                 <div className="pt-2">
                                     <Link
                                         to="/login"
-                                        className="inline-block bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                                        className="inline-block bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                                     >
                                         Sign In Now
                                     </Link>
@@ -114,7 +114,7 @@ const ForgotPasswordPage = () => {
                                 <button
                                     type="submit"
                                     disabled={state === 'busy'}
-                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                                 >
                                     {state === 'busy' ? 'Updating…' : 'Update password'}
                                 </button>
@@ -140,7 +140,7 @@ const ForgotPasswordPage = () => {
                             <button
                                 type="submit"
                                 disabled={state === 'busy'}
-                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                             >
                                 {state === 'busy' ? 'Sending…' : 'Send reset link'}
                             </button>

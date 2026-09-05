@@ -198,7 +198,7 @@ const DistributorDashboard = () => {
                                             <button
                                                 type="submit"
                                                 disabled={placing}
-                                                className="flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-white disabled:opacity-60"
+                                                className="flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                                             >
                                                 {placing ? <Loader2 size={14} className="animate-spin" /> : <ShoppingCart size={14} />}
                                                 Pay online
