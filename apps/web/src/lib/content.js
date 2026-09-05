@@ -76,6 +76,7 @@ export const MERCH_PREVIEW = [
 /** Ghana launch activation — master plan page 5–7. */
 export const LAUNCH = {
   activationDate: "20 September 2026",
+  activationAt: "2026-09-20T18:00:00+00:00",
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
   headline: "Ghana activation",

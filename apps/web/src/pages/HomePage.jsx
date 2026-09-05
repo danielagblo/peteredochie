@@ -8,6 +8,7 @@ import Seo from '@/components/Seo';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import SubscribeSection from '@/components/SubscribeSection';
 import LaunchSection from '@/components/LaunchSection';
+import LaunchCountdown from '@/components/LaunchCountdown';
 import { BRAND, IMG, LEGACY, MERCH_PREVIEW, MILESTONES, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
 import { apiCrud } from '@/lib/api';
 const HomePage = () => {
@@ -19,8 +20,8 @@ const HomePage = () => {
             <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
             <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO */}
-            <section className="relative flex min-h-[100svh] flex-col justify-end">
+            {/* HERO — half viewport */}
+            <section className="relative flex min-h-[50svh] flex-col justify-end">
                 <div className="absolute inset-0 overflow-hidden">
                     <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
         scale: 1.08,
@@ -34,7 +35,7 @@ const HomePage = () => {
       }} className="absolute inset-0 h-full w-full object-cover [filter:brightness(0.72)]" />
                     <div className="img-veil absolute inset-0" />
                 </div>
-                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-16 pt-28 md:px-10 md:pb-24">
+                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-10 pt-24 md:px-10 md:pb-12">
                     <motion.p initial={{
           opacity: 0,
           y: 12
@@ -45,10 +46,10 @@ const HomePage = () => {
           delay: 0.5,
           duration: 0.9
         }} className="eyebrow">{LEGACY.heroEyebrow.toUpperCase()}</motion.p>
-                    <p className="mt-4 max-w-xl text-[0.72rem] uppercase tracking-[0.28em] text-white/60">
+                    <p className="mt-3 max-w-xl text-[0.72rem] uppercase tracking-[0.28em] text-white/60">
                         {BRAND.tagline}
                     </p>
-                    <h1 className="mt-5 max-w-4xl font-display text-5xl leading-[0.94] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[6.5rem]">
+                    <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[0.94] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.75rem]">
                         {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
                                 <motion.span className="block" initial={{
               y: '110%'
@@ -72,8 +73,8 @@ const HomePage = () => {
         }} transition={{
           delay: 1.3,
           duration: 1
-        }} className="mt-9 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <p className="max-w-md text-sm leading-relaxed text-white/75 md:text-base">
+        }} className="mt-6 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                        <p className="max-w-md text-sm leading-relaxed text-white/75">
                             {LEGACY.descriptor}. Six decades on screen — from <em>Things Fall Apart</em> to over two
                             hundred roles — gathered into one archive and given forward to the next generation.
                         </p>
@@ -89,6 +90,8 @@ const HomePage = () => {
                     </motion.div>
                 </div>
             </section>
+
+            <LaunchCountdown />
 
             {/* MARQUEE */}
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
