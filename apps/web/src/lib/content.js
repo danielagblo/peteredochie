@@ -56,9 +56,13 @@ export const ASSETS = {
 export const COVER = "/images/peter-edochie-cover.jpg";
 export const PORTRAIT = "/images/peter-edochie-portrait.jpg";
 export const PORTRAIT_ART = "/images/peter-edochie-portrait-art.jpg";
+/** Optional atmospheric banner (kept for reuse). */
+export const PAGE_HERO = "/images/page-hero-cover.jpg";
 
 export const IMG = {
   cover: COVER,
+  /** Interior page headers — Peter collage / portraits. */
+  pageHero: COVER,
   /** Formal seated portrait — biography, story, login. */
   portrait: PORTRAIT,
   /** Painterly red portrait — closing CTAs, gallery, cultural pages. */
@@ -67,19 +71,19 @@ export const IMG = {
   set: assetUrl(ASSETS.premiere),
   book: assetUrl(ASSETS.book),
   award: PORTRAIT,
-  youth: assetUrl(ASSETS.tour),
+  youth: PORTRAIT_ART,
   podium: PORTRAIT,
   family: assetUrl(ASSETS.okonkwo),
-  artifact: PORTRAIT_ART,
-  theatre: PORTRAIT_ART,
+  artifact: assetUrl(ASSETS.honours),
+  theatre: COVER,
 };
 
-/** Shop preview tiles on the homepage — mix of his image and imprint pieces. */
+/** Shop preview tiles on the homepage — photographs of Peter Edochie. */
 export const MERCH_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
+  COVER,
   assetUrl(ASSETS.okonkwo),
-  assetUrl(ASSETS.honours),
 ];
 
 /** Curated archive strip — photographs of Peter Edochie. */
@@ -88,6 +92,8 @@ export const ARCHIVE_PREVIEW = [
   PORTRAIT_ART,
   COVER,
   assetUrl(ASSETS.premiere),
+  assetUrl(ASSETS.honours),
+  assetUrl(ASSETS.tour),
 ];
 
 /** Ghana activation — master plan: The Legacy Experience, 20 September 2026. */

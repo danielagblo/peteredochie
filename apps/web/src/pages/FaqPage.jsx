@@ -15,7 +15,7 @@ const FaqPage = () => (
             eyebrow="Help"
             title="Frequently asked questions"
             lead="Quick answers about the archive, the book, events, mentorship, orders and how to reach the publishing office."
-            image={IMG.podium}
+            image={IMG.cover}
         />
 
         <Section className="py-24 md:py-32" width="max-w-[56rem]">

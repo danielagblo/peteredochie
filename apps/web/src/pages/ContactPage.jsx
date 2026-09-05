@@ -43,7 +43,7 @@ const ContactPage = () => {
                 title="Contact & Enquiries | The Peter Edochie Legacy | King Dawie Publishing"
                 description="Contact King Dawie Publishing, official owner and rights holder of the Peter Edochie Legacy, for media, bookings, publishing, rights and licensing, partnership and general enquiries."
             />
-            <PageHero eyebrow="Contact" title="The office" lead="Media, bookings, publishing & rights, partnership and general enquiries are handled by the legacy office in Lagos, administered by King Dawie Publishing." image={IMG.portraitArt} />
+            <PageHero eyebrow="Contact" title="The office" lead="Media, bookings, publishing & rights, partnership and general enquiries are handled by the legacy office in Lagos, administered by King Dawie Publishing." image={IMG.cover} />
 
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:py-32" width="max-w-[80rem]">
                 <div>

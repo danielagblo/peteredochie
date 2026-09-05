@@ -48,7 +48,7 @@ const TermsPage = () => (
             eyebrow="Legal"
             title="Terms of Service"
             lead={`The Peter Edochie Legacy platform is owned, published and operated by ${PUBLISHER.name}.`}
-            image={IMG.theatre}
+            image={IMG.cover}
         />
 
         <Section className="py-24 md:py-32" width="max-w-[56rem]">

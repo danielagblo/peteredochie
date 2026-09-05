@@ -13,7 +13,7 @@ const PetePage = () => (
             eyebrow="The Man"
             title={<>{LEGACY.name}</>}
             lead={`${LEGACY.title}, broadcaster, elder. The biography of one of Africa's most recognised screen actors — written the way he speaks: slowly, and with weight on every word.`}
-            image={IMG.portrait}
+            image={IMG.cover}
         />
 
         <Section className="grid gap-14 py-24 md:grid-cols-[1.2fr_0.8fr] md:py-32" width="max-w-[80rem]">

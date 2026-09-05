@@ -170,7 +170,7 @@ const SignupPage = () => {
                 </div>
             </div>
             <div className="relative hidden md:block">
-                <img src={IMG.theatre} alt="" className="h-full w-full object-cover object-[center_22%]" />
+                <img src={IMG.portraitArt} alt="Peter Edochie" className="h-full w-full object-cover object-[center_22%]" />
                 <div className="img-veil absolute inset-0" />
             </div>
         </div>

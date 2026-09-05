@@ -110,7 +110,7 @@ const BookPage = () => {
                 eyebrow="The Autobiography"
                 title="In his own cadence"
                 lead="Three years of recorded conversation, edited into one volume. Published 2026 by King Dawie Publishing. Secure preorders open now — payment confirms your reservation."
-                image={IMG.book}
+                image={IMG.cover}
             />
 
             <Section className="grid gap-14 py-24 md:grid-cols-[0.9fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">

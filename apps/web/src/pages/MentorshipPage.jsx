@@ -97,7 +97,7 @@ const MentorshipPage = () => {
                 title="African Youth Mentorship Initiative — 2027 Cohort | Peter Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
-            <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.youth} />
+            <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.cover} />
 
             <Section className="grid gap-14 py-24 md:grid-cols-2 md:py-32" width="max-w-[80rem]">
                 <div>

@@ -48,7 +48,7 @@ const PrivacyPage = () => (
             eyebrow="Legal"
             title="Privacy Policy"
             lead={`Your privacy is respected by ${PUBLISHER.name}, the operator of the Peter Edochie Legacy platform.`}
-            image={IMG.artifact}
+            image={IMG.cover}
         />
 
         <Section className="py-24 md:py-32" width="max-w-[56rem]">

@@ -229,7 +229,7 @@ const EventsPage = () => {
                 eyebrow="Events"
                 title="Where to meet the legacy"
                 lead="The Legacy Experience peaks in Accra on 20 September 2026. Register for the Ghana activation, note invitation-only media and private sessions, and apply separately to the mentorship programme."
-                image={IMG.theatre}
+                image={IMG.cover}
             />
 
             <Section className="py-20 md:py-28" width="max-w-[84rem]">
@@ -252,7 +252,7 @@ const EventsPage = () => {
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
                 <Section className="grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center" width="max-w-[84rem]">
                     <Reveal>
-                        <img src={IMG.youth} alt="Young African storytellers in a mentorship workshop" className="w-full object-cover" />
+                        <img src={IMG.youth} alt="Peter Edochie — handing on the craft" className="w-full object-cover object-[center_20%]" />
                     </Reveal>
                     <div>
                         <SectionTitle

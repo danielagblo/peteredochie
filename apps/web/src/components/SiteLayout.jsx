@@ -16,7 +16,7 @@ import { useCart } from "@/contexts/CartContext";
 import { whatsappHref } from "@/lib/whatsapp";
 
 const OVERLAY_PATHS = new Set([
-  "/",
+  // Home keeps a solid header so it never sits on the collage faces
   "/peter-edochie",
   "/legacy",
   "/book",

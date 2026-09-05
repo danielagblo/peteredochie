@@ -29,7 +29,7 @@ const SponsorsPage = () => {
                 title="Sponsors & Partners | The Peter Edochie Legacy | King Dawie Publishing"
                 description="Partnership opportunities with the Peter Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
             />
-            <PageHero eyebrow="Sponsors & Partners" title="Institutions that carry this forward" lead="The archive, the events and the mentorship cohorts are sustained by partners who think in decades. Choose a package and apply to partner with the legacy." image={IMG.podium} />
+            <PageHero eyebrow="Sponsors & Partners" title="Institutions that carry this forward" lead="The archive, the events and the mentorship cohorts are sustained by partners who think in decades. Choose a package and apply to partner with the legacy." image={IMG.cover} />
 
             <Section className="py-24 md:py-32" width="max-w-[80rem]">
                 <SectionTitle eyebrow="Current partners" title="In good company" />

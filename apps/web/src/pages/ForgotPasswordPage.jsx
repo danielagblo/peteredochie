@@ -152,7 +152,7 @@ const ForgotPasswordPage = () => {
                 </div>
             </div>
             <div className="relative hidden md:block">
-                <img src={IMG.artifact} alt="" className="h-full w-full object-cover" />
+                <img src={IMG.portrait} alt="" className="h-full w-full object-cover object-[center_18%]" />
                 <div className="img-veil absolute inset-0" />
             </div>
         </div>

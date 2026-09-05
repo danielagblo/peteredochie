@@ -12,8 +12,9 @@ const ITEMS = [
     { src: assetUrl(ASSETS.honours), cat: 'Honours', caption: 'Continental screen awards' },
     { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
     { src: assetUrl(ASSETS.okonkwo), cat: 'Legacy', caption: 'Okonkwo — landmark screen role' },
-    { src: assetUrl(ASSETS.book), cat: 'The Book', caption: 'The autobiography' },
     { src: assetUrl(ASSETS.launch), cat: 'Events', caption: 'Legacy launch evening' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'Elder statesman — official likeness' },
+    { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'From the archive — premiere night' },
 ];
 
 const GalleryPage = () => {
@@ -28,7 +29,7 @@ const GalleryPage = () => {
                 title="Gallery — The Peter Edochie Photographic Archive"
                 description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
             />
-            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Peter Edochie from six decades, held and captioned like a collection." image={IMG.portrait} />
+            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Peter Edochie from six decades, held and captioned like a collection." image={IMG.cover} />
 
             <Section className="py-20 md:py-28" width="max-w-[90rem]">
                 <div className="flex flex-wrap gap-3 border-b border-border pb-6">

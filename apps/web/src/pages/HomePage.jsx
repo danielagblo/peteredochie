@@ -26,26 +26,26 @@ const HomePage = () => {
             <PageHead title="Peter Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Peter Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
             <Seo title="Peter Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Peter Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Peter Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO — legacy cover collage */}
-            <section className="relative flex min-h-[58svh] flex-col justify-end overflow-hidden bg-[#07101c] md:min-h-[68svh]">
+            {/* HERO — full-bleed cover, below fixed header */}
+            <section className="relative mt-[4.25rem] flex min-h-[52svh] flex-col justify-end overflow-hidden bg-[#07101c] md:mt-[4.5rem] md:min-h-[62svh]">
                 <div className="absolute inset-0">
                     <motion.img
                         src={IMG.cover}
                         alt="Peter Edochie — The Legacy Project cover"
-                        initial={{ scale: 1.04, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 h-full w-full object-cover object-[center_42%] md:object-[center_48%]"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute inset-0 h-full w-full object-cover object-[center_18%] md:object-[center_22%]"
                     />
                     <div
                         className="absolute inset-0"
                         style={{
                             background:
-                                "linear-gradient(to top, rgba(4,10,18,0.88) 0%, rgba(4,10,18,0.45) 36%, rgba(4,10,18,0.18) 65%, rgba(4,10,18,0.28) 100%)",
+                                "linear-gradient(to top, rgba(4,10,18,0.9) 0%, rgba(4,10,18,0.42) 38%, rgba(4,10,18,0.12) 68%, rgba(4,10,18,0.22) 100%)",
                         }}
                     />
                 </div>
-                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-24 md:px-10 md:pb-11">
+                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-10 md:px-10 md:pb-11 md:pt-12">
                     <motion.p
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -110,7 +110,20 @@ const HomePage = () => {
 
             <LaunchCountdown />
 
-            {/* SUPPORTERS — under countdown */}
+            {/* MARQUEE — rolling catalogue */}
+            <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
+                <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
+                    {[0, 1].map(k => <div key={k} className="flex gap-14">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'The Legacy Experience — Accra'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                                        {t}
+                                        <span className="text-[hsl(var(--gold))]">◆</span>
+                                    </span>)}
+                        </div>)}
+                </div>
+                <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
+            </div>
+
+            {/* SUPPORTERS — after catalogue */}
             <div className="border-b border-border bg-background py-8 md:py-10">
                 <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-5 px-5 md:flex-row md:items-center md:gap-10 md:px-10">
                     <p className="shrink-0 text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground">
@@ -130,19 +143,6 @@ const HomePage = () => {
                         Become a partner
                     </Link>
                 </div>
-            </div>
-
-            {/* MARQUEE */}
-            <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
-                <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
-                    {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'The Legacy Experience — Accra'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
-                                        {t}
-                                        <span className="text-[hsl(var(--gold))]">◆</span>
-                                    </span>)}
-                        </div>)}
-                </div>
-                <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
             </div>
 
             <LaunchSection />
@@ -241,7 +241,7 @@ const HomePage = () => {
             {/* MENTORSHIP */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1.1fr_1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
-                    <img src={IMG.youth} alt="Young African storytellers in a mentorship workshop" className="w-full object-cover" />
+                    <img src={IMG.portraitArt} alt="Peter Edochie — mentorship and legacy" className="w-full object-cover object-[center_20%]" />
                 </Reveal>
                 <div>
                     <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="A structured programme for young storytellers across the continent — craft, discipline, cultural memory and the business of a creative life." />

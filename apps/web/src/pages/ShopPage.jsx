@@ -63,7 +63,7 @@ const ShopPage = () => {
                 eyebrow="The Shop"
                 title="Carry the legacy with you"
                 lead="A curated collection of official merchandise — apparel, prints and keepsakes drawn from six decades of storytelling. Every piece is produced and shipped by King Dawie Publishing."
-                image={IMG.stage}
+                image={IMG.cover}
             />
 
             <Section className="py-24 md:py-32" width="max-w-[90rem]">
