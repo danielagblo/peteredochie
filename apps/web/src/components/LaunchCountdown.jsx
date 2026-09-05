@@ -43,18 +43,18 @@ const LaunchCountdown = ({ target = LAUNCH.activationAt }) => {
 
                 <div className="grid grid-cols-4 gap-3 sm:gap-5">
                     {UNIT_LABELS.map(({ key, label }) => (
-                        <div key={key} className="min-w-[4.25rem] border border-white/15 bg-white/[0.06] px-3 py-3 text-center sm:min-w-[5rem] sm:px-4 sm:py-4">
-                            <p className="font-display text-2xl tabular-nums text-[hsl(var(--gold))] sm:text-4xl">
+                        <div key={key} className="min-w-[4.25rem] border border-white/20 bg-white/[0.08] px-3 py-3 text-center sm:min-w-[5rem] sm:px-4 sm:py-4">
+                            <p className="font-display text-2xl tabular-nums text-white sm:text-4xl">
                                 {String(remaining[key]).padStart(2, '0')}
                             </p>
-                            <p className="mt-1 text-[0.58rem] uppercase tracking-[0.18em] text-white/55">{label}</p>
+                            <p className="mt-1 text-[0.58rem] uppercase tracking-[0.18em] text-white/70">{label}</p>
                         </div>
                     ))}
                 </div>
 
                 <Link
                     to="/events"
-                    className="shrink-0 border border-white/35 px-6 py-3 text-center text-[0.66rem] uppercase tracking-[0.22em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                    className="shrink-0 border border-white/50 px-6 py-3 text-center text-[0.66rem] uppercase tracking-[0.22em] text-white transition-colors hover:border-white hover:bg-white/10"
                 >
                     View launch events
                 </Link>

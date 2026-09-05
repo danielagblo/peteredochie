@@ -20,8 +20,8 @@ const HomePage = () => {
             <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
             <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO — half viewport */}
-            <section className="relative flex min-h-[50svh] flex-col justify-end">
+            {/* HERO — compact viewport */}
+            <section className="relative flex min-h-[36svh] flex-col justify-end md:min-h-[40svh]">
                 <div className="absolute inset-0 overflow-hidden">
                     <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
         scale: 1.08,
@@ -35,7 +35,7 @@ const HomePage = () => {
       }} className="absolute inset-0 h-full w-full object-cover [filter:brightness(0.72)]" />
                     <div className="img-veil absolute inset-0" />
                 </div>
-                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-10 pt-24 md:px-10 md:pb-12">
+                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-7 pt-20 md:px-10 md:pb-9">
                     <motion.p initial={{
           opacity: 0,
           y: 12
@@ -45,11 +45,11 @@ const HomePage = () => {
         }} transition={{
           delay: 0.5,
           duration: 0.9
-        }} className="eyebrow">{LEGACY.heroEyebrow.toUpperCase()}</motion.p>
-                    <p className="mt-3 max-w-xl text-[0.72rem] uppercase tracking-[0.28em] text-white/60">
+        }} className="eyebrow text-white/85">{LEGACY.heroEyebrow.toUpperCase()}</motion.p>
+                    <p className="mt-2 max-w-xl text-[0.68rem] uppercase tracking-[0.28em] text-white/60">
                         {BRAND.tagline}
                     </p>
-                    <h1 className="mt-4 max-w-4xl font-display text-4xl leading-[0.94] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[4.75rem]">
+                    <h1 className="mt-3 max-w-4xl font-display text-3xl leading-[0.94] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.75rem]">
                         {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
                                 <motion.span className="block" initial={{
               y: '110%'
@@ -61,7 +61,7 @@ const HomePage = () => {
               ease: [0.22, 1, 0.36, 1]
             }}>
                                     {i === 2 ? <>
-                                            a <span className="italic text-[hsl(var(--gold))]">continent</span>
+                                            a <span className="italic text-white">continent</span>
                                         </> : line}
                                 </motion.span>
                             </span>)}
@@ -73,18 +73,18 @@ const HomePage = () => {
         }} transition={{
           delay: 1.3,
           duration: 1
-        }} className="mt-6 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        }} className="mt-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <p className="max-w-md text-sm leading-relaxed text-white/75">
                             {LEGACY.descriptor}. Six decades on screen — from <em>Things Fall Apart</em> to over two
                             hundred roles — gathered into one archive and given forward to the next generation.
                         </p>
-                        <div className="flex flex-wrap items-center gap-4">
-                            <Link to="/peter-edochie" className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.98]">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Link to="/peter-edochie" className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.98]">
                                 Enter the story
-                                <ArrowRight size={15} strokeWidth={1.6} className="transition-transform group-hover:translate-x-1" />
+                                <ArrowRight size={15} strokeWidth={1.6} className="text-white transition-transform group-hover:translate-x-1" />
                             </Link>
-                            <Link to="/events" className="flex items-center gap-3 border border-white/35 px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
-                                <CalendarDays size={14} strokeWidth={1.6} /> View events
+                            <Link to="/events" className="flex items-center gap-3 border border-white/50 px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-white hover:bg-white/10">
+                                <CalendarDays size={14} strokeWidth={1.6} className="text-white" /> View events
                             </Link>
                         </div>
                     </motion.div>
