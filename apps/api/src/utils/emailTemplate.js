@@ -1,4 +1,4 @@
-// Branded HTML email template for The Pete Edochie Legacy.
+// Branded HTML email template for The Peter Edochie Legacy.
 // Designed with inline styles and table structures for maximum compatibility
 // across Gmail (Web & App, Light & Dark modes), Apple Mail, Outlook, Yahoo, and mobile clients.
 // Light theme with gold accent.
@@ -174,7 +174,7 @@ export function formatContentForEmail(content = '') {
 }
 
 export function renderNewsletterHtml({
-	subject = 'The Pete Edochie Legacy Update',
+	subject = 'The Peter Edochie Legacy Update',
 	previewText = '',
 	headline = '',
 	content = '',
@@ -245,7 +245,7 @@ export function renderNewsletterHtml({
 					<tr>
 						<td align="center" bgcolor="#ffffff" style="padding: 36px 32px 24px; border-bottom: 1px solid #ececef; background-color: #ffffff;">
 							<p style="margin: 0; font-family: 'Georgia', 'Times New Roman', serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.28em; color: #18181b !important;">
-								THE PETE EDOCHIE LEGACY
+								THE Peter Edochie LEGACY
 							</p>
 							<p style="margin: 6px 0 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; color: #71717a !important;">
 								King Dawie Publishing &bull; Official Dispatch
@@ -270,7 +270,7 @@ export function renderNewsletterHtml({
 
 							<p style="margin: 32px 0 0; font-size: 14px; line-height: 1.6; color: #52525b !important;">
 								Warm regards,<br />
-								<strong style="color: #18181b !important; font-weight: 600;">The Pete Edochie Legacy Team</strong><br />
+								<strong style="color: #18181b !important; font-weight: 600;">The Peter Edochie Legacy Team</strong><br />
 								<span style="font-size: 12px; color: #71717a !important;">King Dawie Publishing</span>
 							</p>
 						</td>
@@ -280,10 +280,10 @@ export function renderNewsletterHtml({
 					<tr>
 						<td bgcolor="#f4f4f5" style="padding: 24px 32px; background-color: #f4f4f5; border-top: 1px solid #ececef; text-align: center;">
 							<p style="margin: 0 0 8px; font-size: 11px; line-height: 1.5; color: #71717a !important;">
-								You received this email because you subscribed to updates from the Pete Edochie Legacy platform${recipientEmail ? ` (${recipientEmail})` : ''}.
+								You received this email because you subscribed to updates from the Peter Edochie Legacy platform${recipientEmail ? ` (${recipientEmail})` : ''}.
 							</p>
 							<p style="margin: 0; font-size: 11px; line-height: 1.5; color: #a1a1aa !important;">
-								&copy; ${new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.
+								&copy; ${new Date().getFullYear()} The Peter Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.
 							</p>
 						</td>
 					</tr>
@@ -314,7 +314,7 @@ export function renderNewsletterText({
 		.trim();
 
 	const parts = [
-		'THE PETE EDOCHIE LEGACY',
+		'THE Peter Edochie LEGACY',
 		'King Dawie Publishing - Official Dispatch',
 		'========================================',
 		'',
@@ -325,12 +325,12 @@ export function renderNewsletterText({
 		'',
 		ctaText && ctaUrl ? `>>> ${ctaText.toUpperCase()}: ${ctaUrl}\n` : '',
 		'Warm regards,',
-		'The Pete Edochie Legacy Team',
+		'The Peter Edochie Legacy Team',
 		'King Dawie Publishing',
 		'',
 		'----------------------------------------',
-		'You received this email because you are subscribed to The Pete Edochie Legacy updates.',
-		`© ${new Date().getFullYear()} The Pete Edochie Legacy. All rights reserved.`,
+		'You received this email because you are subscribed to The Peter Edochie Legacy updates.',
+		`© ${new Date().getFullYear()} The Peter Edochie Legacy. All rights reserved.`,
 	];
 	return parts.filter((p) => p !== undefined && p !== null).join('\n');
 }

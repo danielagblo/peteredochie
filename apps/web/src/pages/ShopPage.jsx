@@ -56,8 +56,8 @@ const ShopPage = () => {
     return (
         <div>
             <PageHead
-                title="Shop — Official Merchandise | Pete Edochie Legacy | King Dawie Publishing"
-                description="Official Pete Edochie Legacy merchandise: premium T-shirts, framed and limited-edition prints, tote bags, caps and homeware. Published by King Dawie Publishing."
+                title="Shop — Official Merchandise | Peter Edochie Legacy | King Dawie Publishing"
+                description="Official Peter Edochie Legacy merchandise: premium T-shirts, framed and limited-edition prints, tote bags, caps and homeware. Published by King Dawie Publishing."
             />
             <PageHero
                 eyebrow="The Shop"

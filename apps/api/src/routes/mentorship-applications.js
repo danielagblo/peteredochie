@@ -40,7 +40,7 @@ const controller = crudController(prisma.mentorshipApplication, {
 				try {
 					const smsRes = await sendSms({
 						to: recipientPhone,
-						message: `Pete Edochie Legacy: Congratulations ${name}! Your Mentorship application (${tier} tier) has been accepted. Access programme materials at peteredochie.com/mentorship`,
+						message: `Peter Edochie Legacy: Congratulations ${name}! Your Mentorship application (${tier} tier) has been accepted. Access programme materials at peteredochie.com/mentorship`,
 					});
 					logger.info('[mentorship sms result]', JSON.stringify(smsRes));
 				} catch (err) {
@@ -52,9 +52,9 @@ const controller = crudController(prisma.mentorshipApplication, {
 				try {
 					await sendEmail({
 						to: recipientEmail,
-						subject: `Mentorship Application Accepted — The Pete Edochie Legacy`,
-						text: `Congratulations ${name}! Your application for the Pete Edochie Mentorship Programme (${tier} tier) has been accepted. Access your programme materials at https://peteredochie.com/mentorship`,
-						html: `<p>Congratulations <strong>${name}</strong>!</p><p>Your application for the <strong>Pete Edochie Mentorship Programme</strong> (${tier} tier) has been accepted.</p><p><a href="https://peteredochie.com/mentorship">Click here to access programme materials and your cohort schedule</a>.</p>`,
+						subject: `Mentorship Application Accepted — The Peter Edochie Legacy`,
+						text: `Congratulations ${name}! Your application for the Peter Edochie Mentorship Programme (${tier} tier) has been accepted. Access your programme materials at https://peteredochie.com/mentorship`,
+						html: `<p>Congratulations <strong>${name}</strong>!</p><p>Your application for the <strong>Peter Edochie Mentorship Programme</strong> (${tier} tier) has been accepted.</p><p><a href="https://peteredochie.com/mentorship">Click here to access programme materials and your cohort schedule</a>.</p>`,
 					});
 					logger.info(`[mentorship email sent] to=${recipientEmail}`);
 				} catch (err) {

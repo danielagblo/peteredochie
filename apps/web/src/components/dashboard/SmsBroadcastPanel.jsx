@@ -217,7 +217,7 @@ const SmsBroadcastPanel = () => {
                                 rows={6}
                                 value={form.message}
                                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                                placeholder="Pete Edochie Legacy: We are thrilled to announce the Ghana Launch Tour dates! Tickets are now live at peteredochie.com/events."
+                                placeholder="Peter Edochie Legacy: We are thrilled to announce the Ghana Launch Tour dates! Tickets are now live at peteredochie.com/events."
                                 className={`${inputClasses} mt-1.5 font-mono text-sm leading-relaxed`}
                             />
                             <p className="mt-2 text-[0.68rem] text-muted-foreground">

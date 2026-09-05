@@ -52,8 +52,8 @@ const ForgotPasswordPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title="Reset your password | The Pete Edochie Legacy"
-                description="Request a secure password reset link for your Pete Edochie Legacy platform account."
+                title="Reset your password | The Peter Edochie Legacy"
+                description="Request a secure password reset link for your Peter Edochie Legacy platform account."
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">

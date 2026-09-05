@@ -89,7 +89,7 @@ const controller = crudController(prisma.user, {
 			if (userRecord.phone) {
 				logger.info(`[approval] Dispatching SMS to ${userRecord.phone} for user ${userRecord.id}`);
 				try {
-					const smsText = `Pete Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at peteredochie.com/dashboard to access your wholesale portal and trade tools.`;
+					const smsText = `Peter Edochie Legacy: Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at peteredochie.com/dashboard to access your wholesale portal and trade tools.`;
 					const smsRes = await sendSms({
 						to: userRecord.phone,
 						message: smsText,
@@ -117,7 +117,7 @@ const controller = crudController(prisma.user, {
 				try {
 					await sendEmail({
 						to: userRecord.email,
-						subject: `Your ${typeLabel} Account Has Been Approved — The Pete Edochie Legacy`,
+						subject: `Your ${typeLabel} Account Has Been Approved — The Peter Edochie Legacy`,
 						text: `Congratulations! Your ${typeLabel} account has been approved${territoryInfo} by King Dawie Publishing. Log in at https://peteredochie.com/dashboard to access your portal.`,
 						html: `<p>Congratulations! Your <strong>${typeLabel}</strong> account has been approved${territoryInfo ? ` for <strong>${userRecord.territory}</strong>` : ''} by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Click here to access your dashboard</a>.</p>`,
 					});

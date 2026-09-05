@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, CalendarDays, Users } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import { Section, SectionTitle } from '@/components/Section';
-import { BRAND, IMG, LAUNCH, MESSAGING_PILLARS } from '@/lib/content';
+import { BRAND, LAUNCH, MESSAGING_PILLARS } from '@/lib/content';
 
 const LaunchSection = () => (
     <div className="border-y border-border bg-[hsl(var(--primary))] py-24 text-white md:py-32">
@@ -70,14 +70,6 @@ const LaunchSection = () => (
                     </Reveal>
                 ))}
             </div>
-
-            <Reveal delay={0.12}>
-                <img
-                    src={IMG.stage}
-                    alt="Pete Edochie legacy launch"
-                    className="mt-14 w-full object-cover [filter:brightness(0.85)]"
-                />
-            </Reveal>
         </Section>
     </div>
 );

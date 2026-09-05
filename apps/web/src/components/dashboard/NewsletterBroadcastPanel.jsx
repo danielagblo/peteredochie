@@ -514,7 +514,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. Special Announcement: The Pete Edochie Continental Tour"
+                                    placeholder="e.g. Special Announcement: The Peter Edochie Continental Tour"
                                     value={form.subject}
                                     onChange={(e) => setForm({ ...form, subject: e.target.value })}
                                     className={inputClasses}
@@ -623,7 +623,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                             {/* Letterhead Header / Crest */}
                             <div className="border-b border-[#ececef] px-6 py-6 text-center select-none">
                                 <p className="font-serif text-[11px] font-semibold uppercase tracking-[0.28em] text-[#18181b]">
-                                    THE PETE EDOCHIE LEGACY
+                                    THE Peter Edochie LEGACY
                                 </p>
                                 <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-[#71717a]">
                                     King Dawie Publishing &bull; Official Dispatch
@@ -704,15 +704,15 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                 {/* Signoff */}
                                 <div className="pt-6 border-t border-[#ececef] text-xs text-[#52525b] leading-normal select-none">
                                     Warm regards,<br />
-                                    <strong className="text-[#18181b]">The Pete Edochie Legacy Team</strong><br />
+                                    <strong className="text-[#18181b]">The Peter Edochie Legacy Team</strong><br />
                                     <span className="text-[11px] text-[#71717a]">King Dawie Publishing</span>
                                 </div>
                             </div>
 
                             {/* Letterhead Footer */}
                             <div className="border-t border-[#ececef] bg-[#f4f4f5] px-6 py-5 text-center text-[10px] text-[#71717a] leading-relaxed select-none">
-                                <p>You received this email because you subscribed to updates from the Pete Edochie Legacy platform.</p>
-                                <p className="mt-1 text-[#52525b]">&copy; {new Date().getFullYear()} The Pete Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.</p>
+                                <p>You received this email because you subscribed to updates from the Peter Edochie Legacy platform.</p>
+                                <p className="mt-1 text-[#52525b]">&copy; {new Date().getFullYear()} The Peter Edochie Legacy &bull; King Dawie Publishing &bull; All Rights Reserved.</p>
                             </div>
                         </div>
                     </div>

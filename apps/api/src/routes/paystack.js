@@ -198,7 +198,7 @@ async function markOrderPaid(reference) {
 		if (customerPhone) {
 			await sendSms({
 				to: customerPhone,
-				message: `Pete Edochie Legacy: Thank you! Your order ${reference} (${order.currency || "USD"} ${order.totalPrice}) is confirmed. Track status at peteredochie.com/track`,
+				message: `Peter Edochie Legacy: Thank you! Your order ${reference} (${order.currency || "USD"} ${order.totalPrice}) is confirmed. Track status at peteredochie.com/track`,
 			});
 		}
 	} catch (smsErr) {
@@ -226,10 +226,10 @@ async function markTicketPaid(reference) {
 	try {
 		const recipientPhone = ticket.owner?.phone;
 		if (recipientPhone) {
-			const eventTitle = ticket.event?.title || "Pete Edochie Meet & Greet";
+			const eventTitle = ticket.event?.title || "Peter Edochie Meet & Greet";
 			await sendSms({
 				to: recipientPhone,
-				message: `Pete Edochie Legacy: Your ${ticket.tier?.toUpperCase()} pass for ${eventTitle} is confirmed! Pass Code: ${ticket.confirmationCode}. View pass at peteredochie.com/dashboard`,
+				message: `Peter Edochie Legacy: Your ${ticket.tier?.toUpperCase()} pass for ${eventTitle} is confirmed! Pass Code: ${ticket.confirmationCode}. View pass at peteredochie.com/dashboard`,
 			});
 		}
 	} catch (smsErr) {
@@ -260,7 +260,7 @@ async function markSponsorshipPaid(reference) {
 			const tier = (sponsorship.packageTier || sponsorship.package?.name || "Sponsorship").toUpperCase();
 			await sendEmail({
 				to: recipientEmail,
-				subject: `Payment received — ${tier} Sponsorship | The Pete Edochie Legacy`,
+				subject: `Payment received — ${tier} Sponsorship | The Peter Edochie Legacy`,
 				text: `Thank you! Your ${tier} sponsorship payment (reference ${reference}) has been received. Our team will contact you to finalise the partnership.`,
 				html: `<p>Thank you! Your <strong>${tier}</strong> sponsorship payment (reference <strong>${reference}</strong>) has been received.</p><p>Our team will contact you to finalise the partnership.</p>`,
 			});

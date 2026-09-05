@@ -1,7 +1,7 @@
 export const PUBLISHER = {
   name: "King Dawie Publishing",
   short: "King Dawie Publishing",
-  role: "Official owner, publisher and rights holder of the Pete Edochie Legacy platform",
+  role: "Official owner, publisher and rights holder of the Peter Edochie Legacy platform",
   email: "rights@kingdawiepublishing.com",
   phoneDisplay: "+233 53 333 30810",
   whatsapp: "2330533330810",
@@ -20,10 +20,10 @@ export const BRAND = {
   },
 };
 
-/** The actor this platform celebrates — Pete Edochie, Nigerian screen legend. */
+/** The actor this platform celebrates — Peter Edochie, Nigerian screen legend. */
 export const LEGACY = {
-  name: "Pete Edochie",
-  legacyName: "Pete Edochie Legacy",
+  name: "Peter Edochie",
+  legacyName: "Peter Edochie Legacy",
   title: "Actor",
   descriptor:
     "Nigerian actor, broadcaster and elder statesman of African cinema",
@@ -36,7 +36,7 @@ export const ASSET_HOST = "https://images.hostinger.com";
 
 export const assetUrl = (file) => `${ASSET_HOST}/${file}`;
 
-/** Curated Pete Edochie / platform imagery from the original site build. */
+/** Curated Peter Edochie / platform imagery from the original site build. */
 export const ASSETS = {
   portrait: "1a411ea8-babd-45bc-add6-73e265f0453a.png",
   launch: "64c337f2-f627-4055-9d43-d348d976dc63.png",
@@ -54,23 +54,31 @@ export const ASSETS = {
 
 export const IMG = {
   portrait: assetUrl(ASSETS.portrait),
-  stage: assetUrl(ASSETS.launch),
+  stage: assetUrl(ASSETS.portrait),
   set: assetUrl(ASSETS.premiere),
   book: assetUrl(ASSETS.book),
   award: assetUrl(ASSETS.honours),
-  youth: assetUrl(ASSETS.mentorship),
+  youth: assetUrl(ASSETS.tour),
   podium: assetUrl(ASSETS.tour),
   family: assetUrl(ASSETS.okonkwo),
-  artifact: assetUrl(ASSETS.tee),
-  theatre: assetUrl(ASSETS.launch),
+  artifact: assetUrl(ASSETS.premiere),
+  theatre: assetUrl(ASSETS.honours),
 };
 
-/** Shop preview tiles on the homepage. */
+/** Shop preview tiles on the homepage — mix of his image and imprint pieces. */
 export const MERCH_PREVIEW = [
-  assetUrl(ASSETS.tee),
   assetUrl(ASSETS.portrait),
   assetUrl(ASSETS.okonkwo),
-  assetUrl(ASSETS.tote),
+  assetUrl(ASSETS.honours),
+  assetUrl(ASSETS.tour),
+];
+
+/** Curated archive strip — photographs of Peter Edochie. */
+export const ARCHIVE_PREVIEW = [
+  assetUrl(ASSETS.portrait),
+  assetUrl(ASSETS.premiere),
+  assetUrl(ASSETS.honours),
+  assetUrl(ASSETS.tour),
 ];
 
 /** Ghana launch activation — master plan page 5–7. */
@@ -255,12 +263,12 @@ export const FAQ_SECTIONS = [
     title: "The platform",
     items: [
       {
-        q: "What is the Pete Edochie Legacy platform?",
-        a: "It is the official digital home of Pete Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
+        q: "What is the Peter Edochie Legacy platform?",
+        a: "It is the official digital home of Peter Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
       },
       {
         q: "Who operates this website?",
-        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Pete Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
+        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Peter Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
       },
       {
         q: "Do I need an account to browse the site?",

@@ -9,7 +9,7 @@ const WhatsAppIcon = ({ size = 26 }) => (
 );
 
 const WhatsAppButton = () => {
-    const greeting = `Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`;
+    const greeting = `Hello ${PUBLISHER.name}. I am writing from the Peter Edochie Legacy platform.`;
 
     return (
         <a

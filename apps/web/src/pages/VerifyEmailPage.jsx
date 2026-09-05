@@ -40,8 +40,8 @@ const VerifyEmailPage = () => {
     return (
         <div className="flex min-h-screen items-center justify-center px-5 py-24">
             <PageHead
-                title="Verify Email | The Pete Edochie Legacy"
-                description="Verify your email address on The Pete Edochie Legacy platform."
+                title="Verify Email | The Peter Edochie Legacy"
+                description="Verify your email address on The Peter Edochie Legacy platform."
             />
             <div className="w-full max-w-md border border-border bg-card p-8 md:p-10 text-center">
                 {status === 'verifying' ? (

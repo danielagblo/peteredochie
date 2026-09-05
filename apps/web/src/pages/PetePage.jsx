@@ -24,7 +24,7 @@ const PetePage = () => (
                 </p>
                 <p>
                     Enugu in the years after independence was a city of radio. Voices carried further than pictures, and
-                    the young Pete Edochie learned early that a sentence delivered with patience defeats a sentence
+                    the young Peter Edochie learned early that a sentence delivered with patience defeats a sentence
                     delivered with volume. That training — first in the classroom, then in broadcasting — became the
                     foundation of everything the cameras would later capture.
                 </p>
@@ -48,7 +48,7 @@ const PetePage = () => (
             </div>
             <div className="space-y-10">
                 <Reveal>
-                    <img src={IMG.podium} alt="Pete Edochie speaking at a university convocation" className="w-full object-cover" />
+                    <img src={IMG.podium} alt="Peter Edochie speaking at a university convocation" className="w-full object-cover" />
                 </Reveal>
                 <Reveal delay={0.1}>
                     <div className="border-t border-border pt-8">
@@ -106,7 +106,7 @@ const PetePage = () => (
                 </ul>
             </div>
             <Reveal delay={0.1}>
-                <img src={IMG.award} alt="Pete Edochie receiving a lifetime achievement award" className="w-full object-cover" />
+                <img src={IMG.award} alt="Peter Edochie receiving a lifetime achievement award" className="w-full object-cover" />
             </Reveal>
         </Section>
 
@@ -118,7 +118,7 @@ const PetePage = () => (
                         <p className="mt-4 font-display text-3xl text-[hsl(var(--gold))]">{PUBLISHER.name}</p>
                     </div>
                     <p className="text-sm leading-relaxed text-muted-foreground">
-                        The Pete Edochie Legacy — including this biography, the archive, the autobiography and the
+                        The Peter Edochie Legacy — including this biography, the archive, the autobiography and the
                         events — is owned, published and administered by {PUBLISHER.name} as the official rights
                         holder. All biographical material, photographs and recordings on this platform are protected
                         under copyright held by {PUBLISHER.name}. Reproduction, adaptation or commercial use requires

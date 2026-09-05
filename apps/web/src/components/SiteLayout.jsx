@@ -256,7 +256,7 @@ const SiteLayout = ({ children }) => {
             </p>
             <a
               href={whatsappHref(
-                `Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`,
+                `Hello ${PUBLISHER.name}. I am writing from the Peter Edochie Legacy platform.`,
               )}
               target="_blank"
               rel="noopener noreferrer"

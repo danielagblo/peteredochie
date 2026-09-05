@@ -9,7 +9,7 @@ import { PageHead, Section, SectionTitle } from '@/components/Section';
 import SubscribeSection from '@/components/SubscribeSection';
 import LaunchSection from '@/components/LaunchSection';
 import LaunchCountdown from '@/components/LaunchCountdown';
-import { BRAND, IMG, LEGACY, MERCH_PREVIEW, MILESTONES, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
+import { BRAND, IMG, LEGACY, MERCH_PREVIEW, ARCHIVE_PREVIEW, MILESTONES, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
 import { apiCrud } from '@/lib/api';
 const HomePage = () => {
   const [events, setEvents] = useState([]);
@@ -17,13 +17,13 @@ const HomePage = () => {
     apiCrud.list('events', { sort: 'starts', page: 1, perPage: 3 }).then(setEvents).catch(() => setEvents([]));
   }, []);
   return <div>
-            <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
-            <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
+            <PageHead title="Peter Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Peter Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
+            <Seo title="Peter Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Peter Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Peter Edochie Legacy — King Dawie Publishing" />
 
             {/* HERO — compact viewport */}
             <section className="relative flex min-h-[36svh] flex-col justify-end md:min-h-[40svh]">
                 <div className="absolute inset-0 overflow-hidden">
-                    <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
+                    <motion.img src={IMG.portrait} alt="Peter Edochie" initial={{
         scale: 1.08,
         opacity: 0
       }} animate={{
@@ -36,35 +36,31 @@ const HomePage = () => {
                     <div className="img-veil absolute inset-0" />
                 </div>
                 <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-7 pt-20 md:px-10 md:pb-9">
-                    <motion.p initial={{
-          opacity: 0,
-          y: 12
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: 0.5,
-          duration: 0.9
-        }} className="eyebrow text-white/85">{LEGACY.heroEyebrow.toUpperCase()}</motion.p>
-                    <p className="mt-2 max-w-xl text-[0.68rem] uppercase tracking-[0.28em] text-white/60">
+                    <motion.p
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5, duration: 0.9 }}
+                        className="max-w-xl text-[0.68rem] uppercase tracking-[0.28em] text-white/60"
+                    >
                         {BRAND.tagline}
-                    </p>
-                    <h1 className="mt-3 max-w-4xl font-display text-3xl leading-[0.94] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.75rem]">
-                        {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
-                                <motion.span className="block" initial={{
-              y: '110%'
-            }} animate={{
-              y: 0
-            }} transition={{
-              delay: 0.65 + i * 0.14,
-              duration: 1.1,
-              ease: [0.22, 1, 0.36, 1]
-            }}>
-                                    {i === 2 ? <>
-                                            a <span className="italic text-white">continent</span>
-                                        </> : line}
+                    </motion.p>
+                    <h1 className="font-hero mt-4 max-w-4xl text-[2.65rem] leading-[0.98] text-white sm:text-5xl md:text-6xl lg:text-[4.35rem]">
+                        {['A voice', 'that taught', 'a continent'].map((line, i) => (
+                            <span key={line} className="block overflow-hidden pb-[0.08em]">
+                                <motion.span
+                                    className={`block ${i === 2 ? 'italic font-normal text-white/95' : 'font-medium'}`}
+                                    initial={{ y: '110%' }}
+                                    animate={{ y: 0 }}
+                                    transition={{
+                                        delay: 0.65 + i * 0.14,
+                                        duration: 1.1,
+                                        ease: [0.22, 1, 0.36, 1],
+                                    }}
+                                >
+                                    {line}
                                 </motion.span>
-                            </span>)}
+                            </span>
+                        ))}
                     </h1>
                     <motion.div initial={{
           opacity: 0
@@ -93,11 +89,33 @@ const HomePage = () => {
 
             <LaunchCountdown />
 
+            {/* SUPPORTERS — under countdown */}
+            <div className="border-b border-border bg-background py-8 md:py-10">
+                <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-5 px-5 md:flex-row md:items-center md:gap-10 md:px-10">
+                    <p className="shrink-0 text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground">
+                        Supported by
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 md:gap-x-10">
+                        {SPONSORS.map((s) => (
+                            <span key={s} className="font-display text-base text-foreground/70 md:text-lg">
+                                {s}
+                            </span>
+                        ))}
+                    </div>
+                    <Link
+                        to="/sponsors"
+                        className="shrink-0 text-[0.62rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] md:ml-auto"
+                    >
+                        Become a partner
+                    </Link>
+                </div>
+            </div>
+
             {/* MARQUEE */}
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
                 <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
                     {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'Meet & Greet with Pete Edochie'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'Meet & Greet with Peter Edochie'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
                                         {t}
                                         <span className="text-[hsl(var(--gold))]">◆</span>
                                     </span>)}
@@ -112,7 +130,7 @@ const HomePage = () => {
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
                     <div className="relative">
-                        <img src={IMG.portrait} alt="Portrait of Pete Edochie" className="w-full object-cover" />
+                        <img src={IMG.portrait} alt="Portrait of Peter Edochie" className="w-full object-cover" />
                         <div className="absolute -bottom-6 -right-4 hidden bg-background px-6 py-5 md:block">
                             <p className="font-display text-4xl text-[hsl(var(--gold))]">
                                 <CountUp value={60} suffix="+" />
@@ -189,7 +207,7 @@ const HomePage = () => {
                     <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
                         {MERCH_PREVIEW.map((src, i) => <Reveal key={src} delay={i * 0.06}>
                                 <Link to="/shop" className="group block overflow-hidden">
-                                    <img src={src} alt="Official Pete Edochie Legacy merchandise" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                                    <img src={src} alt="Peter Edochie Legacy archive image" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
                                 </Link>
                             </Reveal>)}
                     </div>
@@ -264,9 +282,9 @@ const HomePage = () => {
             <Section className="py-24 md:py-32" width="max-w-[90rem]">
                 <SectionTitle eyebrow="Gallery" title="From the archive" />
                 <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
-                    {[IMG.award, IMG.family, IMG.podium, IMG.artifact].map((src, i) => <Reveal key={src} delay={i * 0.06}>
+                    {[...ARCHIVE_PREVIEW].map((src, i) => <Reveal key={src} delay={i * 0.06}>
                             <div className="group overflow-hidden">
-                                <img src={src} alt="Archive photograph from the Pete Edochie collection" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
+                                <img src={src} alt="Archive photograph of Peter Edochie" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
                             </div>
                         </Reveal>)}
                 </div>
@@ -314,21 +332,11 @@ const HomePage = () => {
                 </div>
             </Section>
 
-            {/* SPONSORS */}
-            <div className="border-t border-border py-16">
-                <Section width="max-w-[80rem]">
-                    <p className="eyebrow">Supported by</p>
-                    <div className="mt-8 grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-6">
-                        {SPONSORS.map(s => <span key={s} className="font-display text-lg text-muted-foreground">{s}</span>)}
-                    </div>
-                </Section>
-            </div>
-
             {/* CTA */}
             <SubscribeSection />
 
             <section className="relative overflow-hidden border-t border-border">
-                <img src={IMG.theatre} alt="" className="h-[60vh] w-full object-cover" />
+                <img src={IMG.portrait} alt="Peter Edochie" className="h-[60vh] w-full object-cover" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute inset-0 flex items-center justify-center text-center text-white">
                     <Section width="max-w-[56rem]">
