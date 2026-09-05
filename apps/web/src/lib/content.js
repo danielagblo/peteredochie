@@ -52,44 +52,107 @@ export const ASSETS = {
   mug: "110ca3ea-224e-437e-a9df-df4ae11a443a.png",
 };
 
+/** Local hero / portrait assets. */
+export const COVER = "/images/peter-edochie-cover.jpg";
+export const PORTRAIT = "/images/peter-edochie-portrait.jpg";
+export const PORTRAIT_ART = "/images/peter-edochie-portrait-art.jpg";
+
 export const IMG = {
-  portrait: assetUrl(ASSETS.portrait),
-  stage: assetUrl(ASSETS.portrait),
+  cover: COVER,
+  /** Formal seated portrait — biography, story, login. */
+  portrait: PORTRAIT,
+  /** Painterly red portrait — closing CTAs, gallery, cultural pages. */
+  portraitArt: PORTRAIT_ART,
+  stage: COVER,
   set: assetUrl(ASSETS.premiere),
   book: assetUrl(ASSETS.book),
-  award: assetUrl(ASSETS.honours),
+  award: PORTRAIT,
   youth: assetUrl(ASSETS.tour),
-  podium: assetUrl(ASSETS.tour),
+  podium: PORTRAIT,
   family: assetUrl(ASSETS.okonkwo),
-  artifact: assetUrl(ASSETS.premiere),
-  theatre: assetUrl(ASSETS.honours),
+  artifact: PORTRAIT_ART,
+  theatre: PORTRAIT_ART,
 };
 
 /** Shop preview tiles on the homepage — mix of his image and imprint pieces. */
 export const MERCH_PREVIEW = [
-  assetUrl(ASSETS.portrait),
+  PORTRAIT,
+  PORTRAIT_ART,
   assetUrl(ASSETS.okonkwo),
   assetUrl(ASSETS.honours),
-  assetUrl(ASSETS.tour),
 ];
 
 /** Curated archive strip — photographs of Peter Edochie. */
 export const ARCHIVE_PREVIEW = [
-  assetUrl(ASSETS.portrait),
+  PORTRAIT,
+  PORTRAIT_ART,
+  COVER,
   assetUrl(ASSETS.premiere),
-  assetUrl(ASSETS.honours),
-  assetUrl(ASSETS.tour),
 ];
 
-/** Ghana launch activation — master plan page 5–7. */
+/** Ghana activation — master plan: The Legacy Experience, 20 September 2026. */
 export const LAUNCH = {
   activationDate: "20 September 2026",
   activationAt: "2026-09-20T18:00:00+00:00",
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
-  headline: "Ghana activation",
-  lead: "The continental launch begins in Accra on 20 September 2026 — pre-order the autobiography, register for the launch event and apply to the mentorship programme.",
+  headline: "The Legacy Experience",
+  lead: "The continental launch peaks in Accra on 20 September 2026 — pre-order the autobiography, register for The Legacy Experience, and apply to the mentorship programme.",
+  revealDate: "12 September 2026",
+  revealLabel: "Official reveal & media briefing",
 };
+
+/**
+ * Official calendar from the master plan (used when the API has no events yet).
+ * Seed `apps/api/prisma/seed.js` mirrors this list.
+ */
+export const OFFICIAL_EVENTS = [
+  {
+    id: "legacy-experience-ghana",
+    title: "The Legacy Experience — Ghana Activation",
+    city: "Accra",
+    venue: "Accra International Conference Centre",
+    starts: "2026-09-20T18:00:00.000Z",
+    ends: "2026-09-20T21:00:00.000Z",
+    summary:
+      "The peak moment of The Legacy Project campaign in Ghana: a celebration of purpose, mentorship and impact with Peter Edochie — book sales, speeches, mentorship moments and community gathering. Distinct from book pre-order; register to attend.",
+    category: "launch",
+    event_type: "ghana_launch",
+    invitation_only: false,
+    ticket_tiers: [],
+    image: PORTRAIT,
+  },
+  {
+    id: "media-briefing-accra",
+    title: "Press Conference & Media Briefing",
+    city: "Accra",
+    venue: "Venue to be confirmed",
+    starts: "2026-09-12T10:00:00.000Z",
+    ends: "2026-09-12T12:00:00.000Z",
+    summary:
+      "Official reveal and media engagement: introduce Peter Edochie in Ghana, announce the 20 September activation, open the pre-order campaign and brief press partners. Invitation only.",
+    category: "media",
+    event_type: "masterclass",
+    invitation_only: true,
+    ticket_tiers: [],
+    image: PORTRAIT_ART,
+  },
+  {
+    id: "private-legacy-session",
+    title: "Private Legacy Session with Peter Edochie",
+    city: "Accra",
+    venue: "Venue to be confirmed",
+    starts: "2026-09-18T15:00:00.000Z",
+    ends: "2026-09-18T17:00:00.000Z",
+    summary:
+      "An invitation-only Legacy Project session with the author — a lead engagement for selected community members around the Ghana activation week (16–20 September).",
+    category: "session",
+    event_type: "meet_and_greet",
+    invitation_only: true,
+    ticket_tiers: [],
+    image: COVER,
+  },
+];
 
 /** Messaging pillars from the master plan. */
 export const MESSAGING_PILLARS = [

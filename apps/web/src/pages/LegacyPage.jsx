@@ -30,7 +30,7 @@ const LegacyPage = () => (
             eyebrow="Legacy"
             title="The archive"
             lead="A curated record of the work, and of what the work changed."
-            image={IMG.artifact}
+            image={IMG.portraitArt}
         />
 
         <Section className="py-24 md:py-32" width="max-w-[80rem]">

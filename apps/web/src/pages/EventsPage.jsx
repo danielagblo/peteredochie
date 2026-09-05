@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { CalendarDays, Camera, Clock, Gift, Lock, Mail, MapPin, Mic, QrCode, Users } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
-import { IMG } from '@/lib/content';
+import { IMG, OFFICIAL_EVENTS } from '@/lib/content';
 import { verifyOrder } from '@/lib/commerce';
 import { apiCrud } from '@/lib/api';
 import EventParticipateDialog from '@/components/EventParticipateDialog';
@@ -24,9 +24,9 @@ const fmtTime = (iso) =>
         : '';
 
 const TYPE_META = {
-    ghana_launch: { label: 'Ghana Launch', icon: Gift, badge: 'By invitation only' },
-    masterclass: { label: 'MasterClass & Lecture', icon: Mic, badge: 'Open registration' },
-    meet_and_greet: { label: 'Meet & Greet', icon: Users, badge: 'Ticketed — two tiers' },
+    ghana_launch: { label: 'Ghana Activation', icon: Gift, badge: 'Open registration' },
+    masterclass: { label: 'Session / Briefing', icon: Mic, badge: 'Open registration' },
+    meet_and_greet: { label: 'Private Session', icon: Users, badge: 'Ticketed when published' },
 };
 
 const EventCard = ({ event, onParticipate }) => {
@@ -82,13 +82,13 @@ const EventCard = ({ event, onParticipate }) => {
                                             <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
                                                 {isVip ? (
                                                     <>
-                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Pete</li>
+                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Peter Edochie</li>
                                                         <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> Professional photographer on standby</li>
                                                         <li>Photos included · limited slots</li>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <li>General address and conversation by Pete</li>
+                                                        <li>General address and conversation by Peter Edochie</li>
                                                         <li>Group setting · more slots available</li>
                                                     </>
                                                 )}
@@ -104,21 +104,21 @@ const EventCard = ({ event, onParticipate }) => {
                             <span className="flex items-center gap-2 border border-border px-6 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground">
                                 <Lock size={14} strokeWidth={1.4} /> Invitation only — no public registration
                             </span>
-                        ) : event.event_type === 'masterclass' ? (
-                            <button
-                                type="button"
-                                onClick={() => onParticipate(event)}
-                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
-                            >
-                                Register now
-                            </button>
-                        ) : (
+                        ) : event.event_type === 'meet_and_greet' && tiers.length > 0 ? (
                             <button
                                 type="button"
                                 onClick={() => onParticipate(event)}
                                 className="bg-[hsl(var(--primary))] px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.99]"
                             >
                                 Buy ticket
+                            </button>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => onParticipate(event)}
+                                className="border border-[hsl(var(--gold))]/60 px-7 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] transition-colors hover:bg-[hsl(var(--gold))] hover:text-white"
+                            >
+                                Register now
                             </button>
                         )}
                         <span className="flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground">
@@ -151,10 +151,17 @@ const EventsPage = () => {
         apiCrud
             .list('events', { sort: 'starts' })
             .then((items) => {
-                setEvents(items);
+                const stale =
+                    /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening/i;
+                const cleaned = (items || []).filter((e) => !stale.test(e.title || ''));
+                const hasLaunch = cleaned.some((e) => e.event_type === 'ghana_launch');
+                setEvents(hasLaunch ? cleaned : OFFICIAL_EVENTS);
                 setStatus('ready');
             })
-            .catch(() => setStatus('error'));
+            .catch(() => {
+                setEvents(OFFICIAL_EVENTS);
+                setStatus('ready');
+            });
     }, []);
 
     const ordered = useMemo(() => {
@@ -215,13 +222,13 @@ const EventsPage = () => {
     return (
         <div>
             <PageHead
-                title="Events, Meet & Greet & Mentorship | The Peter Edochie Legacy"
-                description="The Ghana Launch (by invitation), an open MasterClass & Lecture, a ticketed Meet & Greet with VIP and Standard tiers, and the African Youth Mentorship Initiative — 2027 cohort."
+                title="Events & Ghana Activation | The Peter Edochie Legacy"
+                description="The Legacy Experience — Ghana Activation on 20 September 2026 in Accra, the official reveal media briefing, and the African Youth Mentorship Initiative."
             />
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="The Ghana Launch, an open masterclass, a ticketed Meet & Greet with Peter Edochie, and the African Youth Mentorship Initiative. Every registration and ticket carries a QR pass in your dashboard."
+                lead="The Legacy Experience peaks in Accra on 20 September 2026. Register for the Ghana activation, note invitation-only media and private sessions, and apply separately to the mentorship programme."
                 image={IMG.theatre}
             />
 
@@ -273,12 +280,12 @@ const EventsPage = () => {
 
             {/* HOW IT WORKS */}
             <Section className="py-20 md:py-28" width="max-w-[80rem]">
-                <SectionTitle eyebrow="How it works" title="Register, pay, scan" lead="Each event type has its own path — invitation, open registration or ticketed purchase — and every confirmed place carries a QR pass." />
+                <SectionTitle eyebrow="How it works" title="Register or wait for an invitation" lead="The master plan separates book pre-order from event attendance. Every confirmed place carries a QR pass in your dashboard." />
                 <div className="mt-12 grid gap-10 md:grid-cols-3">
                     {[
-                        ['01', 'Invitation', 'The Ghana Launch is strictly by invitation. Invited guests receive their confirmation and QR pass directly.'],
-                        ['02', 'Registration', 'The MasterClass is open to all members. Register in one step and a free QR pass is issued to your dashboard.'],
-                        ['03', 'Ticketing', 'The Meet & Greet offers VIP and Standard tiers. Secure checkout, instant confirmation and a scannable QR pass.'],
+                        ['01', 'Ghana Activation', 'The Legacy Experience on 20 September 2026 is open for registration. Sign in, register, and receive your QR pass.'],
+                        ['02', 'Invitation', 'The media briefing and private author sessions are invitation only — confirmed guests receive their pass directly.'],
+                        ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track — not as an event ticket.'],
                     ].map(([n, t, d]) => (
                         <Reveal key={n}>
                             <div className="border-t border-border pt-6">

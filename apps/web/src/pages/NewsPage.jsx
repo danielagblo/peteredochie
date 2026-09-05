@@ -24,7 +24,7 @@ const NewsPage = () => {
                 title="Journal — News from the Peter Edochie Legacy"
                 description="Announcements and dispatches from the Peter Edochie Legacy: the autobiography, events, mentorship cohorts and honours."
             />
-            <PageHero eyebrow="Journal" title="Dispatches" lead="Announcements, notes from the archive and news from the road." image={IMG.award} />
+            <PageHero eyebrow="Journal" title="Dispatches" lead="Announcements, notes from the archive and news from the road." image={IMG.portraitArt} />
 
             <Section className="py-20 md:py-28" width="max-w-[80rem]">
                 {status === 'loading' ? (

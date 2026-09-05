@@ -48,7 +48,7 @@ const PetePage = () => (
             </div>
             <div className="space-y-10">
                 <Reveal>
-                    <img src={IMG.podium} alt="Peter Edochie speaking at a university convocation" className="w-full object-cover" />
+                    <img src={IMG.podium} alt="Peter Edochie in traditional attire" className="aspect-[3/4] w-full object-cover object-[center_15%]" />
                 </Reveal>
                 <Reveal delay={0.1}>
                     <div className="border-t border-border pt-8">
@@ -106,7 +106,7 @@ const PetePage = () => (
                 </ul>
             </div>
             <Reveal delay={0.1}>
-                <img src={IMG.award} alt="Peter Edochie receiving a lifetime achievement award" className="w-full object-cover" />
+                <img src={IMG.award} alt="Peter Edochie seated among his awards" className="w-full object-cover object-[center_20%]" />
             </Reveal>
         </Section>
 

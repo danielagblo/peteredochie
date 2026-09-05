@@ -41,7 +41,7 @@ const LaunchSection = () => (
                             <CalendarDays size={22} strokeWidth={1.4} className="shrink-0 text-white" />
                             <div className="flex-1">
                                 <p className="font-display text-xl">Launch event registration</p>
-                                <p className="mt-1 text-sm text-white/70">Accra International Conference Centre</p>
+                                <p className="mt-1 text-sm text-white/70">{LAUNCH.venue} · {LAUNCH.activationCity}</p>
                             </div>
                             <ArrowRight size={16} className="text-white/70 transition-transform group-hover:translate-x-1" />
                         </Link>

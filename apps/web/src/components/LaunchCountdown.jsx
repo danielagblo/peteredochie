@@ -34,10 +34,11 @@ const LaunchCountdown = ({ target = LAUNCH.activationAt }) => {
                 <div className="max-w-md">
                     <p className="text-[0.62rem] uppercase tracking-[0.24em] text-white/60">{LAUNCH.headline}</p>
                     <h2 className="mt-2 font-display text-2xl md:text-3xl">
-                        {remaining.done ? 'Ghana launch is live' : 'Countdown to Ghana launch'}
+                        {remaining.done ? 'The Legacy Experience is live' : 'Countdown to The Legacy Experience'}
                     </h2>
                     <p className="mt-2 text-sm text-white/70">
                         {LAUNCH.activationCity} · {LAUNCH.activationDate}
+                        {LAUNCH.venue ? ` · ${LAUNCH.venue}` : ''}
                     </p>
                 </div>
 

@@ -40,7 +40,7 @@ const LoginPage = () => {
                 description="Sign in to your Peter Edochie Legacy account to access tickets, orders, the screening room and your dashboard."
             />
             <div className="relative hidden md:block">
-                <img src={IMG.portrait} alt="" className="h-full w-full object-cover" />
+                <img src={IMG.portrait} alt="" className="h-full w-full object-cover object-[center_18%]" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute bottom-12 left-10 right-10">
                     <p className="font-display text-4xl leading-tight text-white">A legacy is only alive if it is handed on.</p>

@@ -26,9 +26,9 @@ const fmtDate = (iso) =>
 const fmtTime = (iso) => (iso ? new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '');
 
 const TYPE_LABEL = {
-    ghana_launch: 'Ghana Launch',
-    masterclass: 'MasterClass',
-    meet_and_greet: 'Meet & Greet',
+    ghana_launch: 'Ghana Activation',
+    masterclass: 'Session',
+    meet_and_greet: 'Private Session',
 };
 
 const STATUS_META = {
@@ -172,7 +172,7 @@ const SubscriberDashboard = () => {
                                 <Stat label="Upcoming events" value={events.length} hint="Across the programme" />
                             </div>
                             <div className="mt-6">
-                                <Panel title="Upcoming events" lead="Your standing across the Ghana Launch, MasterClass and Meet & Greet.">
+                                <Panel title="Upcoming events" lead="Your standing across The Legacy Experience, media briefings and private sessions.">
                                     {loading ? (
                                         <EmptyState>Loading events…</EmptyState>
                                     ) : (
@@ -183,7 +183,9 @@ const SubscriberDashboard = () => {
                                                         <p className="font-display text-xl">{ghanaLaunch.title}</p>
                                                         <p className="mt-1 text-xs text-muted-foreground">{fmtDate(ghanaLaunch.starts)} · {ghanaLaunch.venue}</p>
                                                     </div>
-                                                    <span className="border border-border px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">By invitation</span>
+                                                    <span className="border border-border px-3 py-1.5 text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">
+                                                        {e.invitation_only ? 'By invitation' : e.event_type === 'ghana_launch' ? 'Open registration' : 'Open'}
+                                                    </span>
                                                 </li>
                                             ) : null}
                                             {masterclassEvents.map((e) => {
@@ -239,7 +241,7 @@ const SubscriberDashboard = () => {
                                     {events.map((e) => {
                                         const ticket = tickets.find((t) => t.event === e.id);
                                         const reg = registrations.find((r) => r.event === e.id);
-                                        const state = ticket ? `${ticket.tier === 'vip' ? 'VIP' : 'Standard'} ticket` : reg ? 'Registered' : e.event_type === 'ghana_launch' ? 'By invitation' : 'Not registered';
+                                        const state = ticket ? `${ticket.tier === 'vip' ? 'VIP' : 'Standard'} ticket` : reg ? 'Registered' : e.invitation_only ? 'By invitation' : 'Not registered';
                                         return (
                                             <li key={e.id} className="py-4">
                                                 <div className="flex flex-wrap items-center justify-between gap-3">

@@ -5,15 +5,15 @@ import { PageHead, PageHero, Section } from '@/components/Section';
 import { ASSETS, assetUrl, IMG } from '@/lib/content';
 
 const ITEMS = [
-    { src: assetUrl(ASSETS.portrait), cat: 'Portraits', caption: 'The Elder — official portrait' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'In the study — seated portrait with fan' },
+    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Painted likeness — red cap' },
+    { src: IMG.cover, cat: 'Legacy', caption: 'The Legacy Project cover collage' },
     { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'Documentary premiere, Enugu' },
     { src: assetUrl(ASSETS.honours), cat: 'Honours', caption: 'Continental screen awards' },
     { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
     { src: assetUrl(ASSETS.okonkwo), cat: 'Legacy', caption: 'Okonkwo — landmark screen role' },
     { src: assetUrl(ASSETS.book), cat: 'The Book', caption: 'The autobiography' },
     { src: assetUrl(ASSETS.launch), cat: 'Events', caption: 'Legacy launch evening' },
-    { src: assetUrl(ASSETS.portrait), cat: 'Portraits', caption: 'Studio portrait' },
-    { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Addressing the next generation' },
 ];
 
 const GalleryPage = () => {

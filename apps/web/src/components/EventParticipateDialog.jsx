@@ -53,7 +53,7 @@ const TIER_META = {
         price: 500,
         headline: 'Group address and conversation',
         perks: [
-            'General address and conversation by Pete',
+            'General address and conversation by Peter Edochie',
             'Group setting with fellow attendees',
             'More slots available',
             'QR pass for check-in',
@@ -64,7 +64,9 @@ const TIER_META = {
 const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
     const { isAuthed, user } = useAuth();
     const isMeetGreet = event?.event_type === 'meet_and_greet';
-    const isMasterclass = event?.event_type === 'masterclass';
+    const isOpenRegistration =
+        event?.event_type === 'masterclass' || event?.event_type === 'ghana_launch';
+    const isMasterclass = isOpenRegistration;
 
     const [tier, setTier] = useState('standard');
     const [step, setStep] = useState('select'); // select | pay | done
@@ -213,8 +215,8 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                             <p className="eyebrow">Sign in required</p>
                             <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
                                 {isMeetGreet
-                                    ? 'Purchase a Meet & Greet ticket through Paystack and receive your QR pass in your dashboard.'
-                                    : 'Register for the masterclass and receive a QR pass in your dashboard.'}
+                                    ? 'Purchase a ticket through Paystack and receive your QR pass in your dashboard.'
+                                    : 'Register for this event and receive a QR pass in your dashboard.'}
                             </p>
                             <div className="mt-7 flex flex-col gap-3">
                                 <Link
