@@ -27,24 +27,23 @@ const HomePage = () => {
             <Seo title="Peter Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Peter Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Peter Edochie Legacy — King Dawie Publishing" />
 
             {/* HERO — legacy cover collage */}
-            <section className="relative flex min-h-[52svh] flex-col justify-end overflow-hidden bg-[#07101c] md:min-h-[58svh]">
+            <section className="relative flex min-h-[58svh] flex-col justify-end overflow-hidden bg-[#07101c] md:min-h-[68svh]">
                 <div className="absolute inset-0">
                     <motion.img
                         src={IMG.cover}
                         alt="Peter Edochie — The Legacy Project cover"
-                        initial={{ scale: 1.06, opacity: 0 }}
+                        initial={{ scale: 1.04, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 h-full w-full object-cover object-[center_28%] md:object-center"
+                        className="absolute inset-0 h-full w-full object-cover object-[center_42%] md:object-[center_48%]"
                     />
                     <div
                         className="absolute inset-0"
                         style={{
                             background:
-                                "linear-gradient(to top, rgba(4,10,18,0.96) 0%, rgba(4,10,18,0.78) 38%, rgba(4,10,18,0.55) 62%, rgba(4,10,18,0.62) 100%)",
+                                "linear-gradient(to top, rgba(4,10,18,0.88) 0%, rgba(4,10,18,0.45) 36%, rgba(4,10,18,0.18) 65%, rgba(4,10,18,0.28) 100%)",
                         }}
                     />
-                    <div className="absolute inset-0 bg-black/25" />
                 </div>
                 <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-24 md:px-10 md:pb-11">
                     <motion.p

@@ -1,13 +1,17 @@
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
-// Load .env locally if present; on cloud platforms like Railway, env vars are injected directly into process.env
-if (fs.existsSync('.env')) {
+// Load apps/api/.env regardless of process cwd (monorepo root vs package dir).
+const apiRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const envPath = path.join(apiRoot, '.env');
+if (fs.existsSync(envPath)) {
 	try {
-		process.loadEnvFile('.env');
+		process.loadEnvFile(envPath);
 	} catch (_) {
 		/* ignore */
 	}

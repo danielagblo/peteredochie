@@ -145,21 +145,21 @@ const BookPage = () => {
                     <Section width="max-w-[80rem]">
                         <div className="flex flex-wrap items-center gap-10 md:gap-16">
                             <div className="flex items-center gap-4">
-                                <BookOpen size={28} strokeWidth={1.4} className="text-black/80" />
+                                <BookOpen size={28} strokeWidth={1.4} className="text-white/85" />
                                 <div>
                                     <p className="font-display text-4xl">
                                         <CountUp value={preregStats.totalCopies} />
                                     </p>
-                                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-black/65">Copies reserved</p>
+                                    <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/65">Copies reserved</p>
                                 </div>
                             </div>
                             <div>
                                 <p className="font-display text-4xl">
                                     <CountUp value={preregStats.totalRegistrations} />
                                 </p>
-                                <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-black/65">Preorders</p>
+                                <p className="mt-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/65">Preorders</p>
                             </div>
-                            <p className="max-w-md text-sm leading-relaxed text-black/75">
+                            <p className="max-w-md text-sm leading-relaxed text-white/75">
                                 Readers across the continent are securing their editions ahead of the Ghana launch. Payment confirms your copy.
                             </p>
                         </div>

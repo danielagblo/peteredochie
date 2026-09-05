@@ -16,53 +16,53 @@ body {
 
 @layer base {
   :root {
-    /* Editorial white with classic gold accents */
+    /* Deep burgundy on clean white — no yellow cast */
     --background: 0 0% 100%;
     --foreground: 0 0% 8%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 8%;
-    --primary: 40 48% 38%;
-    --primary-foreground: 0 0% 6%;
-    --secondary: 40 12% 96%;
+    --primary: 356 58% 28%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 8%;
-    --muted: 40 10% 96%;
+    --muted: 0 0% 96%;
     --muted-foreground: 0 0% 38%;
-    --accent: 40 48% 38%;
-    --accent-foreground: 0 0% 6%;
+    --accent: 356 48% 34%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 55% 40%;
     --destructive-foreground: 0 0% 100%;
-    --border: 40 8% 88%;
-    --input: 40 8% 88%;
-    --ring: 40 48% 38%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 356 58% 28%;
     --radius: 0.15rem;
-    --gold: 40 52% 42%;
-    --surface: 40 14% 97%;
+    --gold: 356 48% 34%;
+    --surface: 0 0% 98%;
   }
   .dark {
-    /* Night with luminous gold */
+    /* Night with deep burgundy accents */
     --background: 0 0% 5%;
-    --foreground: 40 10% 96%;
+    --foreground: 0 0% 98%;
     --card: 0 0% 7%;
-    --card-foreground: 40 10% 96%;
+    --card-foreground: 0 0% 98%;
     --popover: 0 0% 7%;
-    --popover-foreground: 40 10% 96%;
-    --primary: 40 55% 52%;
-    --primary-foreground: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 356 50% 42%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 10%;
-    --secondary-foreground: 40 10% 96%;
+    --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 12%;
-    --muted-foreground: 40 8% 68%;
-    --accent: 40 55% 52%;
-    --accent-foreground: 0 0% 6%;
+    --muted-foreground: 0 0% 68%;
+    --accent: 356 45% 48%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 40 55% 52%;
+    --ring: 356 50% 42%;
     --radius: 0.15rem;
-    --gold: 40 58% 58%;
+    --gold: 356 48% 58%;
     --surface: 0 0% 4%;
   }
   * {

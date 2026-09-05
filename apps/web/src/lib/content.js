@@ -14,7 +14,7 @@ export const BRAND = {
   hashtag: "#TheLegacyProject",
   tagline: "What will you leave behind?",
   colors: {
-    burgundy: "#9A7A2F",
+    burgundy: "#7A1F2C",
     black: "#141414",
     white: "#FFFFFF",
   },
