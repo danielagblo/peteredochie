@@ -27,6 +27,7 @@ const COUNTRIES = [
 
 const EVENTS = [
 	{
+		id: 'legacy-experience-ghana',
 		title: 'The Legacy Experience — Ghana Activation',
 		city: 'Accra',
 		venue: 'Accra International Conference Centre',
@@ -40,6 +41,7 @@ const EVENTS = [
 		ticketTiers: [],
 	},
 	{
+		id: 'media-briefing-accra',
 		title: 'Press Conference & Media Briefing',
 		city: 'Accra',
 		venue: 'Venue to be confirmed',
@@ -53,6 +55,7 @@ const EVENTS = [
 		ticketTiers: [],
 	},
 	{
+		id: 'private-legacy-session',
 		title: 'Private Legacy Session with Peter Edochie',
 		city: 'Accra',
 		venue: 'Venue to be confirmed',
@@ -145,17 +148,12 @@ async function main() {
 	console.log(`  countries: ${COUNTRIES.length}, with regions`);
 
 	for (const ev of EVENTS) {
-		const existing = await prisma.event.findFirst({ where: { title: ev.title } });
-		if (!existing) {
-			await prisma.event.create({
-				data: {
-					title: ev.title, city: ev.city, venue: ev.venue,
-					starts: ev.starts, ends: ev.ends, summary: ev.summary,
-					category: ev.category, eventType: ev.eventType,
-					invitationOnly: ev.invitationOnly, ticketTiers: ev.ticketTiers,
-				},
-			});
-		}
+		const { id, ...fields } = ev;
+		await prisma.event.upsert({
+			where: { id },
+			update: fields,
+			create: { id, ...fields },
+		});
 	}
 	console.log(`  events: ${EVENTS.length}`);
 

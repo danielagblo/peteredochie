@@ -34,6 +34,26 @@ const fmtTime = (iso) =>
 const code = (prefix) =>
     `${prefix}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Resolve the authoritative DB id for an event. The public calendar can fall
+// back to hard-coded OFFICIAL_EVENTS whose `id` is a slug; the database stores
+// real records (UUIDs or stable seeded ids), so look the record up by title
+// whenever the id is not already a real DB id.
+const resolveEventId = async (event) => {
+    const id = event?.id;
+    if (id && UUID_RE.test(id)) return id;
+    try {
+        const matches = await apiCrud.list('events', {
+            filter: `title = "${String(event?.title || '').replace(/"/g, '\\"')}"`,
+        });
+        if (matches[0]?.id) return matches[0].id;
+    } catch (_) {
+        /* fall through */
+    }
+    return null;
+};
+
 const TIER_META = {
     vip: {
         label: 'VIP',
@@ -98,10 +118,16 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         setBusy(true);
         setError('');
         try {
+            const eventId = await resolveEventId(event);
+            if (!eventId) {
+                setError('This event is not open for registration yet. Please try again later.');
+                setBusy(false);
+                return;
+            }
             const confirm = code('MC');
             const rec = await apiCrud.create('event-registrations', {
                 owner: user.id,
-                event: event.id,
+                event: eventId,
                 status: 'registered',
                 confirmation_code: confirm,
             });
@@ -121,8 +147,14 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         setBusy(true);
         setError('');
         try {
+            const eventId = await resolveEventId(event);
+            if (!eventId) {
+                setError('This event is not open for ticket purchase yet. Please try again later.');
+                setBusy(false);
+                return;
+            }
             const result = await initializeTicket({
-                event_id: event.id,
+                event_id: eventId,
                 tier,
                 email: user.email,
                 return_origin: window.location.origin,
