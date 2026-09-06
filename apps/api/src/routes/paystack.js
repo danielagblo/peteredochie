@@ -6,6 +6,7 @@ import logger from "../utils/logger.js";
 import { sendEmail } from "../utils/email.js";
 import { sendSms } from "../utils/sms.js";
 import { getUsdRate } from "../services/rateService.js";
+import { resolveEventForWrite } from "../utils/resolveEvent.js";
 
 const router = Router();
 
@@ -460,7 +461,7 @@ router.post("/tickets/initialize", async (req, res) => {
 	if (verifier && !verifier.verified) {
 		return res.status(403).json({ error: "Please verify your email address before purchasing tickets." });
 	}
-	const { event_id, tier, email, return_origin, country, fulfillment_method, distributor_id } = req.body || {};
+	const { event_id, tier, email, return_origin, country, fulfillment_method, distributor_id, _event } = req.body || {};
 	if (!event_id || !tier) {
 		return res.status(422).json({ error: "Event and ticket tier are required." });
 	}
@@ -468,9 +469,11 @@ router.post("/tickets/initialize", async (req, res) => {
 		return res.status(422).json({ error: "An email address is required." });
 	}
 
-	const event = await prisma.event.findUnique({ where: { id: event_id } });
-	if (!event) {
-		return res.status(422).json({ error: "Event not found." });
+	let event;
+	try {
+		event = await resolveEventForWrite(prisma, event_id, _event);
+	} catch (err) {
+		return res.status(err.status || 422).json({ error: err.message });
 	}
 	if (event.eventType !== "meet_and_greet") {
 		return res.status(422).json({ error: "This event is not ticketed." });
@@ -505,7 +508,7 @@ router.post("/tickets/initialize", async (req, res) => {
 		ticket = await prisma.meetAndGreetTicket.create({
 			data: {
 				ownerId: userId,
-				eventId: event_id,
+				eventId: event.id,
 				tier,
 				price,
 				status: "pending",

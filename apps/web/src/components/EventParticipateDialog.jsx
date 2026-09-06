@@ -36,22 +36,38 @@ const code = (prefix) =>
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Resolve the authoritative DB id for an event. The public calendar can fall
-// back to hard-coded OFFICIAL_EVENTS whose `id` is a slug; the database stores
-// real records (UUIDs or stable seeded ids), so look the record up by title
-// whenever the id is not already a real DB id.
-const resolveEventId = async (event) => {
+// Produce the `event` part of a registration/ticket payload. Uses the real DB
+// id when the calendar came from the API; otherwise falls back to a title
+// lookup against the API and, as a last resort, sends the static
+// OFFICIAL_EVENTS metadata so the backend can bootstrap the event record from
+// it (keeps registrations working before the events table is seeded).
+const registrationTarget = async (event) => {
     const id = event?.id;
-    if (id && UUID_RE.test(id)) return id;
+    if (id && UUID_RE.test(id)) return { event: id };
     try {
         const matches = await apiCrud.list('events', {
             filter: `title = "${String(event?.title || '').replace(/"/g, '\\"')}"`,
         });
-        if (matches[0]?.id) return matches[0].id;
+        if (matches[0]?.id) return { event: matches[0].id };
     } catch (_) {
         /* fall through */
     }
-    return null;
+    return {
+        event: id || '',
+        _event: {
+            id,
+            title: event?.title,
+            city: event?.city,
+            venue: event?.venue,
+            starts: event?.starts,
+            ends: event?.ends,
+            summary: event?.summary,
+            category: event?.category,
+            event_type: event?.event_type,
+            invitation_only: event?.invitation_only,
+            ticket_tiers: event?.ticket_tiers || [],
+        },
+    };
 };
 
 const TIER_META = {
@@ -118,18 +134,14 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         setBusy(true);
         setError('');
         try {
-            const eventId = await resolveEventId(event);
-            if (!eventId) {
-                setError('This event is not open for registration yet. Please try again later.');
-                setBusy(false);
-                return;
-            }
+            const { event: eventId, _event } = await registrationTarget(event);
             const confirm = code('MC');
             const rec = await apiCrud.create('event-registrations', {
                 owner: user.id,
                 event: eventId,
                 status: 'registered',
                 confirmation_code: confirm,
+                ...(_event ? { _event } : {}),
             });
             setTicket({ ...rec, kind: 'registration' });
             setStep('done');
@@ -147,17 +159,13 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
         setBusy(true);
         setError('');
         try {
-            const eventId = await resolveEventId(event);
-            if (!eventId) {
-                setError('This event is not open for ticket purchase yet. Please try again later.');
-                setBusy(false);
-                return;
-            }
+            const { event: eventId, _event } = await registrationTarget(event);
             const result = await initializeTicket({
                 event_id: eventId,
                 tier,
                 email: user.email,
                 return_origin: window.location.origin,
+                ...(_event ? { _event } : {}),
             });
             if (result.configured && result.authorization_url) {
                 window.location.href = result.authorization_url;

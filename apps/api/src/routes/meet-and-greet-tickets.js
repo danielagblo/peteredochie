@@ -2,6 +2,7 @@ import { Router } from 'express';
 import prisma from '../utils/prisma.js';
 import { crudController, registerCrudRoutes } from '../controllers/crud.js';
 import { requireAuth, requireRole, optionalAuth } from '../middleware/auth.js';
+import { resolveEventForWrite } from '../utils/resolveEvent.js';
 
 const isAdminRole = (role) =>
 	['super_admin', 'sales_manager', 'fulfillment_officer', 'country_manager'].includes(role);
@@ -25,6 +26,8 @@ const controller = crudController(prisma.meetAndGreetTicket, {
 	},
 	preCreate: async (req, data) => {
 		if (req.user?.id) data.ownerId = req.user.id;
+		const event = await resolveEventForWrite(prisma, data.eventId, req.body?._event);
+		data.eventId = event.id;
 		return data;
 	},
 });
