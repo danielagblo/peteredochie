@@ -391,8 +391,8 @@ export const FAQ_SECTIONS = [
         a: "Browse Events, select a programme and complete registration or ticket purchase. Confirmed tickets appear in your dashboard as QR passes. Present your pass at the venue for entry.",
       },
       {
-        q: "Can I choose how to receive event materials?",
-        a: "Yes. For some events you can select home delivery or collection through a local distributor, similar to book orders. The available options are shown during registration.",
+        q: "How do I receive my event pass?",
+        a: "When you register or buy a ticket, a QR pass is issued to your dashboard automatically. Present the pass at the venue for check-in.",
       },
       {
         q: "Are tickets transferable?",
