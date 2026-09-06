@@ -104,7 +104,7 @@ const SponsorApplyPage = () => {
         return (
             <div className="pt-32 pb-28">
                 <PageHead
-                    title="Sponsorship application received | The Pete Edochie Legacy"
+                    title="Sponsorship application received | The Peter Edochie Legacy"
                     description="Your sponsorship application has been received and is under review by King Dawie Publishing."
                 />
                 <Section width="max-w-[48rem]">
@@ -118,7 +118,7 @@ const SponsorApplyPage = () => {
                             Status: {rec.status || 'pending'} · Payment: {rec.payment_status || 'unpaid'}
                         </p>
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
-                            <Link to="/dashboard" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white">Go to dashboard</Link>
+                            <Link to="/dashboard" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">Go to dashboard</Link>
                             <Link to="/sponsors" className="border border-border px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground">Back to sponsors</Link>
                         </div>
                     </div>
@@ -156,7 +156,7 @@ const SponsorApplyPage = () => {
         return (
             <div className="pt-32 pb-28">
                 <PageHead
-                    title="Resume sponsorship payment | The Pete Edochie Legacy"
+                    title="Resume sponsorship payment | The Peter Edochie Legacy"
                     description="Finish payment for your pending sponsorship application."
                 />
                 <Section width="max-w-[48rem]">
@@ -172,7 +172,7 @@ const SponsorApplyPage = () => {
                         </p>
                         {error ? <p className="mt-4 text-xs text-[hsl(var(--primary))]">{error}</p> : null}
                         <div className="mt-8 flex flex-wrap justify-center gap-3">
-                            <button type="button" onClick={onResume} disabled={submitting} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60">
+                            <button type="button" onClick={onResume} disabled={submitting} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] disabled:opacity-60">
                                 {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                                 {submitting ? 'Starting…' : 'Pay now'}
                             </button>
@@ -187,8 +187,8 @@ const SponsorApplyPage = () => {
     return (
         <div className="pt-32 pb-28">
             <PageHead
-                title="Become a Sponsor | The Pete Edochie Legacy | King Dawie Publishing"
-                description="Apply to become a corporate sponsor or partner of the Pete Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
+                title="Become a Sponsor | The Peter Edochie Legacy | King Dawie Publishing"
+                description="Apply to become a corporate sponsor or partner of the Peter Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
             />
             <Section width="max-w-[64rem]">
                 <SectionTitle
@@ -272,7 +272,7 @@ const SponsorApplyPage = () => {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-white disabled:opacity-60"
+                                className="flex items-center justify-center gap-2 bg-[hsl(var(--primary))] px-8 py-4 text-[0.68rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                             >
                                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} strokeWidth={1.6} />}
                                 Continue to payment

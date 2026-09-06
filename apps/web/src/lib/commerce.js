@@ -79,7 +79,6 @@ export const initializeTicket = async (payload) => {
 // Returns { configured, authorization_url, reference, order_id } or
 // { configured: false, order_id, reference } when Paystack is not set up.
 export const initializeOrder = async (payload) => {
-    await requireVerified();
     const res = await apiServerClient.fetch('/paystack/initialize', {
         method: 'POST',
         headers: authHeaders(),

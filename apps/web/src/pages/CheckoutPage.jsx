@@ -148,8 +148,8 @@ const CheckoutPage = () => {
     return (
         <div className="pt-28">
             <Helmet>
-                <title>Checkout | Pete Edochie Legacy | King Dawie Publishing</title>
-                <meta name="description" content="Review your order and complete secure payment for Pete Edochie Legacy books and merchandise." />
+                <title>Checkout | Peter Edochie Legacy | King Dawie Publishing</title>
+                <meta name="description" content="Review your order and complete secure payment for Peter Edochie Legacy books and merchandise." />
             </Helmet>
             <div className="mx-auto max-w-[64rem] px-5 py-12 md:px-10">
                 <p className="eyebrow">Checkout</p>
@@ -301,7 +301,7 @@ const CheckoutPage = () => {
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="mt-6 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.66rem] uppercase tracking-[0.22em] text-white transition-transform active:scale-[0.98] disabled:opacity-60"
+                                    className="mt-6 flex w-full items-center justify-center gap-2 bg-[hsl(var(--primary))] py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98] disabled:opacity-60"
                                 >
                                     {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
                                     {configured ? 'Make Payment' : 'Place order'}

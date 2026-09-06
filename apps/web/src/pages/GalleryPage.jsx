@@ -2,18 +2,19 @@ import React, { useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section } from '@/components/Section';
-import { IMG } from '@/lib/content';
+import { ASSETS, assetUrl, IMG } from '@/lib/content';
 
 const ITEMS = [
-    { src: IMG.portrait, cat: 'Portraits', caption: 'The Elder — official portrait' },
-    { src: IMG.stage, cat: 'Events', caption: 'Nigeria Launch, Lagos' },
-    { src: IMG.set, cat: 'On screen', caption: 'Documentary premiere, Enugu' },
-    { src: IMG.award, cat: 'Honours', caption: 'Continental screen awards' },
-    { src: IMG.youth, cat: 'Mentorship', caption: 'African Youth Mentorship Masterclass, Abuja' },
-    { src: IMG.podium, cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
-    { src: IMG.family, cat: 'Legacy', caption: 'Okonkwo — limited edition art print' },
-    { src: IMG.artifact, cat: 'Merchandise', caption: 'Legacy T-shirt collection' },
-    { src: IMG.theatre, cat: 'Events', caption: 'An evening of legacy' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'In the study — seated portrait with fan' },
+    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Painted likeness — red cap' },
+    { src: IMG.cover, cat: 'Legacy', caption: 'The Legacy Project cover collage' },
+    { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'Documentary premiere, Enugu' },
+    { src: assetUrl(ASSETS.honours), cat: 'Honours', caption: 'Continental screen awards' },
+    { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
+    { src: assetUrl(ASSETS.okonkwo), cat: 'Legacy', caption: 'Okonkwo — landmark screen role' },
+    { src: assetUrl(ASSETS.launch), cat: 'Events', caption: 'Legacy launch evening' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'Elder statesman — official likeness' },
+    { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'From the archive — premiere night' },
 ];
 
 const GalleryPage = () => {
@@ -25,10 +26,10 @@ const GalleryPage = () => {
     return (
         <div>
             <PageHead
-                title="Gallery — The Pete Edochie Photographic Archive"
+                title="Gallery — The Peter Edochie Photographic Archive"
                 description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
             />
-            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images from six decades, held and captioned like a collection." image={IMG.family} />
+            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Peter Edochie from six decades, held and captioned like a collection." image={IMG.cover} />
 
             <Section className="py-20 md:py-28" width="max-w-[90rem]">
                 <div className="flex flex-wrap gap-3 border-b border-border pb-6">
@@ -38,7 +39,7 @@ const GalleryPage = () => {
                             type="button"
                             onClick={() => setFilter(c)}
                             className={`px-4 py-2 text-[0.66rem] uppercase tracking-[0.2em] transition-colors ${
-                                filter === c ? 'bg-[hsl(var(--gold))] text-white' : 'border border-border text-muted-foreground hover:text-foreground'
+                                filter === c ? 'bg-[hsl(var(--gold))] text-[hsl(var(--primary-foreground))]' : 'border border-border text-muted-foreground hover:text-foreground'
                             }`}
                         >
                             {c}

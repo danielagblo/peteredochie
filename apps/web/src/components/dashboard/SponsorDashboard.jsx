@@ -91,7 +91,7 @@ const SponsorDashboard = () => {
             {payDone ? (
                 <p className="text-sm text-[hsl(var(--gold))]">Your application is recorded. Payment will open once Paystack is connected.</p>
             ) : (
-                <button type="button" onClick={payNow} disabled={paying} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.62rem] uppercase tracking-[0.2em] text-white disabled:opacity-60">
+                <button type="button" onClick={payNow} disabled={paying} className="inline-flex items-center gap-2 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))] disabled:opacity-60">
                     {paying ? <Loader2 size={14} className="animate-spin" /> : null}
                     {paying ? 'Starting…' : 'Pay now'}
                 </button>
@@ -134,7 +134,7 @@ const SponsorDashboard = () => {
                     ) : !sponsorship ? (
                         <Panel title="No sponsorship on file" lead="You have not submitted a sponsorship application yet.">
                             <p className="text-sm text-muted-foreground">Choose a package and apply to become a corporate partner.</p>
-                            <Link to="/sponsor-apply" className="mt-5 inline-block bg-[hsl(var(--primary))] px-8 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-white">
+                            <Link to="/sponsor-apply" className="mt-5 inline-block bg-[hsl(var(--primary))] px-8 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">
                                 Become a sponsor
                             </Link>
                         </Panel>

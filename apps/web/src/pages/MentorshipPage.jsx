@@ -94,10 +94,10 @@ const MentorshipPage = () => {
     return (
         <div>
             <PageHead
-                title="African Youth Mentorship Initiative — 2027 Cohort | Pete Edochie"
+                title="African Youth Mentorship Initiative — 2027 Cohort | Peter Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
-            <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.youth} />
+            <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.cover} />
 
             <Section className="grid gap-14 py-24 md:grid-cols-2 md:py-32" width="max-w-[80rem]">
                 <div>
@@ -128,7 +128,7 @@ const MentorshipPage = () => {
                                     Applications are tied to your account so you can track their status from your dashboard.
                                 </p>
                                 <div className="mt-6 flex flex-col gap-3">
-                                    <Link to="/login?next=/mentorship" className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-white">
+                                    <Link to="/login?next=/mentorship" className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]">
                                         Sign in
                                     </Link>
                                     <Link to="/join?next=/mentorship" className="border border-border py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
@@ -204,7 +204,7 @@ const MentorshipPage = () => {
                                 <button
                                     type="submit"
                                     disabled={sending}
-                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
                                 >
                                     {sending ? 'Opening WhatsApp…' : 'Submit via WhatsApp'}
                                 </button>

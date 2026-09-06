@@ -36,11 +36,11 @@ const LoginPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title="Sign in | The Pete Edochie Legacy"
-                description="Sign in to your Pete Edochie Legacy account to access tickets, orders, the screening room and your dashboard."
+                title="Sign in | The Peter Edochie Legacy"
+                description="Sign in to your Peter Edochie Legacy account to access tickets, orders, the screening room and your dashboard."
             />
             <div className="relative hidden md:block">
-                <img src={IMG.portrait} alt="" className="h-full w-full object-cover" />
+                <img src={IMG.portrait} alt="" className="h-full w-full object-cover object-[center_18%]" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute bottom-12 left-10 right-10">
                     <p className="font-display text-4xl leading-tight text-white">A legacy is only alive if it is handed on.</p>
@@ -80,7 +80,7 @@ const LoginPage = () => {
                         <button
                             type="submit"
                             disabled={busy}
-                            className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                            className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
                         >
                             {busy ? 'Signing in…' : 'Sign in'}
                         </button>

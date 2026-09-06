@@ -43,7 +43,7 @@ const controller = crudController(prisma.sponsorship, {
 				try {
 					const smsRes = await sendSms({
 						to: recipientPhone,
-						message: `Pete Edochie Legacy: Congratulations ${company}! Your ${tier} sponsorship proposal has been approved by King Dawie Publishing. View details in your dashboard: peteredochie.com/dashboard`,
+						message: `Peter Edochie Legacy: Congratulations ${company}! Your ${tier} sponsorship proposal has been approved by King Dawie Publishing. View details in your dashboard: peteredochie.com/dashboard`,
 					});
 					logger.info('[sponsorship approval sms result]', JSON.stringify(smsRes));
 				} catch (err) {
@@ -55,7 +55,7 @@ const controller = crudController(prisma.sponsorship, {
 				try {
 					await sendEmail({
 						to: recipientEmail,
-						subject: `Sponsorship Approved — ${tier} Package | The Pete Edochie Legacy`,
+						subject: `Sponsorship Approved — ${tier} Package | The Peter Edochie Legacy`,
 						text: `Congratulations ${company}! Your ${tier} sponsorship has been approved. Access your partner dashboard at https://peteredochie.com/dashboard`,
 						html: `<p>Congratulations <strong>${company}</strong>!</p><p>Your <strong>${tier}</strong> sponsorship has been approved by King Dawie Publishing.</p><p><a href="https://peteredochie.com/dashboard">Access your partner portal here</a>.</p>`,
 					});

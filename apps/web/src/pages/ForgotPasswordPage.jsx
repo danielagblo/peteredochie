@@ -52,8 +52,8 @@ const ForgotPasswordPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title="Reset your password | The Pete Edochie Legacy"
-                description="Request a secure password reset link for your Pete Edochie Legacy platform account."
+                title="Reset your password | The Peter Edochie Legacy"
+                description="Request a secure password reset link for your Peter Edochie Legacy platform account."
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
@@ -74,7 +74,7 @@ const ForgotPasswordPage = () => {
                                 <div className="pt-2">
                                     <Link
                                         to="/login"
-                                        className="inline-block bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                                        className="inline-block bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                                     >
                                         Sign In Now
                                     </Link>
@@ -114,7 +114,7 @@ const ForgotPasswordPage = () => {
                                 <button
                                     type="submit"
                                     disabled={state === 'busy'}
-                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                                    className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                                 >
                                     {state === 'busy' ? 'Updating…' : 'Update password'}
                                 </button>
@@ -140,7 +140,7 @@ const ForgotPasswordPage = () => {
                             <button
                                 type="submit"
                                 disabled={state === 'busy'}
-                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                             >
                                 {state === 'busy' ? 'Sending…' : 'Send reset link'}
                             </button>
@@ -152,7 +152,7 @@ const ForgotPasswordPage = () => {
                 </div>
             </div>
             <div className="relative hidden md:block">
-                <img src={IMG.artifact} alt="" className="h-full w-full object-cover" />
+                <img src={IMG.portrait} alt="" className="h-full w-full object-cover object-[center_18%]" />
                 <div className="img-veil absolute inset-0" />
             </div>
         </div>

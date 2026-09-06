@@ -74,8 +74,8 @@ const SignupPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title={`Create your ${meta.title} account | The Pete Edochie Legacy`}
-                description={`Register a ${meta.title} account on the Pete Edochie Legacy platform, operated by King Dawie Publishing.`}
+                title={`Create your ${meta.title} account | The Peter Edochie Legacy`}
+                description={`Register a ${meta.title} account on the Peter Edochie Legacy platform, operated by King Dawie Publishing.`}
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
@@ -154,7 +154,7 @@ const SignupPage = () => {
                         <button
                             type="submit"
                             disabled={busy}
-                            className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                            className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                         >
                             {busy ? 'Creating…' : 'Create account'}
                         </button>
@@ -170,7 +170,7 @@ const SignupPage = () => {
                 </div>
             </div>
             <div className="relative hidden md:block">
-                <img src={IMG.theatre} alt="" className="h-full w-full object-cover" />
+                <img src={IMG.portraitArt} alt="Peter Edochie" className="h-full w-full object-cover object-[center_22%]" />
                 <div className="img-veil absolute inset-0" />
             </div>
         </div>

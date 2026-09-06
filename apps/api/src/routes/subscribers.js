@@ -70,7 +70,7 @@ router.post('/', async (req, res, next) => {
 			interests: created.interests,
 			created: created.createdAt,
 			updated: created.updatedAt,
-			message: 'Thank you for subscribing to The Pete Edochie Legacy updates.',
+			message: 'Thank you for subscribing to The Peter Edochie Legacy updates.',
 		});
 	} catch (err) {
 		return next(err);

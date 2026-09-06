@@ -23,14 +23,14 @@ const IMPACT = [
 const LegacyPage = () => (
     <div>
         <PageHead
-            title="Legacy Archive — The Work and Cultural Impact of Pete Edochie"
-            description="A curated archive of Pete Edochie's screen work and an account of his cultural impact on African cinema, language and craft."
+            title="Legacy Archive — The Work and Cultural Impact of Peter Edochie"
+            description="A curated archive of Peter Edochie's screen work and an account of his cultural impact on African cinema, language and craft."
         />
         <PageHero
             eyebrow="Legacy"
             title="The archive"
             lead="A curated record of the work, and of what the work changed."
-            image={IMG.artifact}
+            image={IMG.cover}
         />
 
         <Section className="py-24 md:py-32" width="max-w-[80rem]">

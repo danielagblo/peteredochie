@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
 @import url("https://fonts.cdnfonts.com/css/aileron");
 
 @tailwind base;
@@ -16,54 +16,54 @@ body {
 
 @layer base {
   :root {
-    /* The Legacy Project — light editorial (white 50% / black 30% / burgundy 20%) */
+    /* Deep burgundy on clean white — no yellow cast */
     --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --foreground: 0 0% 8%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
-    --primary: 356 82% 26%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 356 58% 28%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 4%;
+    --secondary-foreground: 0 0% 8%;
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 35%;
-    --accent: 356 82% 26%;
+    --muted-foreground: 0 0% 38%;
+    --accent: 356 48% 34%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 46%;
+    --destructive: 0 55% 40%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 356 82% 26%;
+    --ring: 356 58% 28%;
     --radius: 0.15rem;
-    --gold: 356 82% 26%;
+    --gold: 356 48% 34%;
     --surface: 0 0% 98%;
   }
   .dark {
-    /* The Legacy Project — cinematic black with burgundy accents */
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 356 82% 26%;
+    /* Night with deep burgundy accents */
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 356 50% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 10%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
     --muted-foreground: 0 0% 68%;
-    --accent: 356 82% 26%;
+    --accent: 356 45% 48%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 46%;
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 356 82% 26%;
+    --ring: 356 50% 42%;
     --radius: 0.15rem;
-    --gold: 356 82% 26%;
-    --surface: 0 0% 3%;
+    --gold: 356 48% 58%;
+    --surface: 0 0% 4%;
   }
   * {
     border-color: hsl(var(--border));
@@ -80,9 +80,15 @@ body {
 
 @layer components {
   .font-display {
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Aileron", "Inter", system-ui, sans-serif;
     font-weight: 500;
     letter-spacing: -0.02em;
+  }
+  .font-hero {
+    font-family: "Cormorant Garamond", "Times New Roman", Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    font-feature-settings: "liga" 1, "kern" 1;
   }
   .eyebrow {
     font-size: 0.68rem;

@@ -8,93 +8,113 @@ import Seo from '@/components/Seo';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import SubscribeSection from '@/components/SubscribeSection';
 import LaunchSection from '@/components/LaunchSection';
-import { BRAND, IMG, LEGACY, MERCH_PREVIEW, MILESTONES, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
+import LaunchCountdown from '@/components/LaunchCountdown';
+import { BRAND, IMG, LEGACY, MERCH_PREVIEW, ARCHIVE_PREVIEW, MILESTONES, OFFICIAL_EVENTS, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
 import { apiCrud } from '@/lib/api';
 const HomePage = () => {
   const [events, setEvents] = useState([]);
   useEffect(() => {
-    apiCrud.list('events', { sort: 'starts', page: 1, perPage: 3 }).then(setEvents).catch(() => setEvents([]));
+    apiCrud.list('events', { sort: 'starts', page: 1, perPage: 3 }).then((items) => {
+      const stale =
+        /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening/i;
+      const cleaned = (items || []).filter((e) => !stale.test(e.title || ''));
+      const hasLaunch = cleaned.some((e) => e.event_type === 'ghana_launch');
+      setEvents(hasLaunch ? cleaned.slice(0, 3) : OFFICIAL_EVENTS.slice(0, 3));
+    }).catch(() => setEvents(OFFICIAL_EVENTS.slice(0, 3)));
   }, []);
   return <div>
-            <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
-            <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.stage} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
+            <PageHead title="Peter Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Peter Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
+            <Seo title="Peter Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Peter Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Peter Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO */}
-            <section className="relative flex min-h-[100svh] flex-col justify-end">
-                <div className="absolute inset-0 overflow-hidden">
-                    <motion.img src={IMG.stage} alt="Pete Edochie standing under a single spotlight on an empty theatre stage" initial={{
-        scale: 1.08,
-        opacity: 0
-      }} animate={{
-        scale: 1,
-        opacity: 1
-      }} transition={{
-        duration: 2.4,
-        ease: [0.22, 1, 0.36, 1]
-      }} className="absolute inset-0 h-full w-full object-cover [filter:brightness(0.72)]" />
-                    <div className="img-veil absolute inset-0" />
+            {/* HERO — full-bleed cover, below fixed header */}
+            <section className="relative mt-[4.25rem] flex min-h-[52svh] flex-col justify-end overflow-hidden bg-[#07101c] md:mt-[4.5rem] md:min-h-[62svh]">
+                <div className="absolute inset-0">
+                    <motion.img
+                        src={IMG.cover}
+                        alt="Peter Edochie — The Legacy Project cover"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute inset-0 h-full w-full object-cover object-[center_18%] md:object-[center_22%]"
+                    />
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            background:
+                                "linear-gradient(to top, rgba(4,10,18,0.9) 0%, rgba(4,10,18,0.42) 38%, rgba(4,10,18,0.12) 68%, rgba(4,10,18,0.22) 100%)",
+                        }}
+                    />
                 </div>
-                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-16 pt-28 md:px-10 md:pb-24">
-                    <motion.p initial={{
-          opacity: 0,
-          y: 12
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          delay: 0.5,
-          duration: 0.9
-        }} className="eyebrow">{LEGACY.heroEyebrow.toUpperCase()}</motion.p>
-                    <p className="mt-4 max-w-xl text-[0.72rem] uppercase tracking-[0.28em] text-white/60">
+                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-10 md:px-10 md:pb-11 md:pt-12">
+                    <motion.p
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4, duration: 0.85 }}
+                        className="text-[0.68rem] uppercase tracking-[0.28em] text-white/65"
+                    >
+                        {LEGACY.name} · {BRAND.projectName}
+                    </motion.p>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.55, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                        className="font-hero mt-4 max-w-5xl text-[clamp(2.35rem,5.8vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-white"
+                    >
+                        <span className="md:hidden">
+                            A voice that taught
+                            <br />
+                            a continent
+                        </span>
+                        <span className="hidden md:inline">A voice that taught a continent</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.05, duration: 0.8 }}
+                        className="mt-4 max-w-xl text-[0.72rem] uppercase tracking-[0.26em] text-white/55"
+                    >
                         {BRAND.tagline}
-                    </p>
-                    <h1 className="mt-5 max-w-4xl font-display text-5xl leading-[0.94] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[6.5rem]">
-                        {['A voice', 'that taught', 'a continent'].map((line, i) => <span key={line} className="block overflow-hidden">
-                                <motion.span className="block" initial={{
-              y: '110%'
-            }} animate={{
-              y: 0
-            }} transition={{
-              delay: 0.65 + i * 0.14,
-              duration: 1.1,
-              ease: [0.22, 1, 0.36, 1]
-            }}>
-                                    {i === 2 ? <>
-                                            a <span className="italic text-[hsl(var(--gold))]">continent</span>
-                                        </> : line}
-                                </motion.span>
-                            </span>)}
-                    </h1>
-                    <motion.div initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          delay: 1.3,
-          duration: 1
-        }} className="mt-9 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <p className="max-w-md text-sm leading-relaxed text-white/75 md:text-base">
-                            {LEGACY.descriptor}. Six decades on screen — from <em>Things Fall Apart</em> to over two
-                            hundred roles — gathered into one archive and given forward to the next generation.
+                    </motion.p>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2, duration: 1 }}
+                        className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+                    >
+                        <p className="max-w-md text-sm leading-relaxed text-white/80">
+                            Six decades on screen — from <em>Things Fall Apart</em> to over two hundred roles —
+                            gathered into one archive and given forward to the next generation.
                         </p>
-                        <div className="flex flex-wrap items-center gap-4">
-                            <Link to="/peter-edochie" className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.98]">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Link
+                                to="/peter-edochie"
+                                className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
+                            >
                                 Enter the story
-                                <ArrowRight size={15} strokeWidth={1.6} className="transition-transform group-hover:translate-x-1" />
+                                <ArrowRight
+                                    size={15}
+                                    strokeWidth={1.6}
+                                    className="text-[hsl(var(--primary-foreground))] transition-transform group-hover:translate-x-1"
+                                />
                             </Link>
-                            <Link to="/events" className="flex items-center gap-3 border border-white/35 px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
-                                <CalendarDays size={14} strokeWidth={1.6} /> View events
+                            <Link
+                                to="/events"
+                                className="flex items-center gap-3 border border-white/50 px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-white hover:bg-white/10"
+                            >
+                                <CalendarDays size={14} strokeWidth={1.6} className="text-white" /> View events
                             </Link>
                         </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* MARQUEE */}
+            <LaunchCountdown />
+
+            {/* MARQUEE — rolling catalogue */}
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
                 <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
                     {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'Meet & Greet with Pete Edochie'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic', 'The Autobiography — 2026', 'African Youth Mentorship Initiative', 'The Legacy Experience — Accra'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
                                         {t}
                                         <span className="text-[hsl(var(--gold))]">◆</span>
                                     </span>)}
@@ -103,13 +123,35 @@ const HomePage = () => {
                 <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
             </div>
 
+            {/* SUPPORTERS — after catalogue */}
+            <div className="border-b border-border bg-background py-8 md:py-10">
+                <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-5 px-5 md:flex-row md:items-center md:gap-10 md:px-10">
+                    <p className="shrink-0 text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground">
+                        Supported by
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-8 gap-y-3 md:gap-x-10">
+                        {SPONSORS.map((s) => (
+                            <span key={s} className="font-display text-base text-foreground/70 md:text-lg">
+                                {s}
+                            </span>
+                        ))}
+                    </div>
+                    <Link
+                        to="/sponsors"
+                        className="shrink-0 text-[0.62rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))] md:ml-auto"
+                    >
+                        Become a partner
+                    </Link>
+                </div>
+            </div>
+
             <LaunchSection />
 
             {/* STORY */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
                     <div className="relative">
-                        <img src={IMG.portrait} alt="Portrait of Pete Edochie" className="w-full object-cover" />
+                        <img src={IMG.portrait} alt="Portrait of Peter Edochie in traditional attire" className="aspect-[3/4] w-full object-cover object-[center_15%]" />
                         <div className="absolute -bottom-6 -right-4 hidden bg-background px-6 py-5 md:block">
                             <p className="font-display text-4xl text-[hsl(var(--gold))]">
                                 <CountUp value={60} suffix="+" />
@@ -160,8 +202,8 @@ const HomePage = () => {
                     <SectionTitle eyebrow="The Autobiography" title={<>The life, told in his own cadence</>} lead="Three years of recorded conversation, edited into a single volume: childhood in Enugu, the broadcasting years, the making of Okonkwo, family, faith, and the discipline of a public life." />
                     <Reveal delay={0.1}>
                         <div className="mt-9 flex flex-wrap gap-4">
-                            <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
-                                Reserve your copy
+                            <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
+                                Preorder the book
                             </Link>
                             <Link to="/book" className="border border-border px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                 Read an extract
@@ -186,7 +228,7 @@ const HomePage = () => {
                     <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
                         {MERCH_PREVIEW.map((src, i) => <Reveal key={src} delay={i * 0.06}>
                                 <Link to="/shop" className="group block overflow-hidden">
-                                    <img src={src} alt="Official Pete Edochie Legacy merchandise" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
+                                    <img src={src} alt="Peter Edochie Legacy archive image" className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" />
                                 </Link>
                             </Reveal>)}
                     </div>
@@ -199,7 +241,7 @@ const HomePage = () => {
             {/* MENTORSHIP */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1.1fr_1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
-                    <img src={IMG.youth} alt="Young African storytellers in a mentorship workshop" className="w-full object-cover" />
+                    <img src={IMG.portraitArt} alt="Peter Edochie — mentorship and legacy" className="w-full object-cover object-[center_20%]" />
                 </Reveal>
                 <div>
                     <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="A structured programme for young storytellers across the continent — craft, discipline, cultural memory and the business of a creative life." />
@@ -261,9 +303,9 @@ const HomePage = () => {
             <Section className="py-24 md:py-32" width="max-w-[90rem]">
                 <SectionTitle eyebrow="Gallery" title="From the archive" />
                 <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
-                    {[IMG.award, IMG.family, IMG.podium, IMG.artifact].map((src, i) => <Reveal key={src} delay={i * 0.06}>
+                    {[...ARCHIVE_PREVIEW].map((src, i) => <Reveal key={src} delay={i * 0.06}>
                             <div className="group overflow-hidden">
-                                <img src={src} alt="Archive photograph from the Pete Edochie collection" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
+                                <img src={src} alt="Archive photograph of Peter Edochie" className="aspect-[3/4] w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.03] group-hover:grayscale-0" />
                             </div>
                         </Reveal>)}
                 </div>
@@ -311,21 +353,11 @@ const HomePage = () => {
                 </div>
             </Section>
 
-            {/* SPONSORS */}
-            <div className="border-t border-border py-16">
-                <Section width="max-w-[80rem]">
-                    <p className="eyebrow">Supported by</p>
-                    <div className="mt-8 grid grid-cols-2 gap-x-8 gap-y-6 md:grid-cols-6">
-                        {SPONSORS.map(s => <span key={s} className="font-display text-lg text-muted-foreground">{s}</span>)}
-                    </div>
-                </Section>
-            </div>
-
             {/* CTA */}
             <SubscribeSection />
 
             <section className="relative overflow-hidden border-t border-border">
-                <img src={IMG.theatre} alt="" className="h-[60vh] w-full object-cover" />
+                <img src={IMG.portraitArt} alt="Peter Edochie" className="h-[60vh] w-full object-cover object-[center_20%]" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute inset-0 flex items-center justify-center text-center text-white">
                     <Section width="max-w-[56rem]">
@@ -334,7 +366,7 @@ const HomePage = () => {
                                 A legacy is only alive if it is <span className="italic text-[hsl(var(--gold))]">handed on</span>.
                             </h2>
                             <div className="mt-10 flex flex-wrap justify-center gap-4">
-                                <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white active:scale-[0.98]">
+                                <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
                                     Create your account
                                 </Link>
                                 <Link to="/contact" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">

@@ -22,7 +22,7 @@ export const emptyBookForm = {
     edition: '',
     description: '',
     excerpt: '',
-    author: 'Pete Edochie',
+    author: 'Peter Edochie',
     isbn: '',
     pages: '',
     language: 'English',

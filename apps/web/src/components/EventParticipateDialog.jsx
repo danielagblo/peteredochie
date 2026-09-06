@@ -42,7 +42,7 @@ const TIER_META = {
         price: 1000,
         headline: 'One-on-one exclusive access',
         perks: [
-            'Exclusive one-on-one access to Pete Edochie',
+            'Exclusive one-on-one access to Peter Edochie',
             'Professional photographer on standby',
             'All photos included and delivered after the event',
             'Limited slots — intimate setting',
@@ -53,7 +53,7 @@ const TIER_META = {
         price: 500,
         headline: 'Group address and conversation',
         perks: [
-            'General address and conversation by Pete',
+            'General address and conversation by Peter Edochie',
             'Group setting with fellow attendees',
             'More slots available',
             'QR pass for check-in',
@@ -64,7 +64,9 @@ const TIER_META = {
 const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
     const { isAuthed, user } = useAuth();
     const isMeetGreet = event?.event_type === 'meet_and_greet';
-    const isMasterclass = event?.event_type === 'masterclass';
+    const isOpenRegistration =
+        event?.event_type === 'masterclass' || event?.event_type === 'ghana_launch';
+    const isMasterclass = isOpenRegistration;
 
     const [tier, setTier] = useState('standard');
     const [step, setStep] = useState('select'); // select | pay | done
@@ -213,13 +215,13 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                             <p className="eyebrow">Sign in required</p>
                             <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
                                 {isMeetGreet
-                                    ? 'Purchase a Meet & Greet ticket through Paystack and receive your QR pass in your dashboard.'
-                                    : 'Register for the masterclass and receive a QR pass in your dashboard.'}
+                                    ? 'Purchase a ticket through Paystack and receive your QR pass in your dashboard.'
+                                    : 'Register for this event and receive a QR pass in your dashboard.'}
                             </p>
                             <div className="mt-7 flex flex-col gap-3">
                                 <Link
                                     to={`/login?next=${encodeURIComponent(signInNext)}`}
-                                    className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                                    className="bg-[hsl(var(--primary))] py-4 text-center text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                                 >
                                     Sign in
                                 </Link>
@@ -335,7 +337,7 @@ const TierSelect = ({ event, tiers, tier, onTier, onContinue }) => (
         <button
             type="button"
             onClick={onContinue}
-            className="mt-7 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+            className="mt-7 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
         >
             Continue to payment
         </button>
@@ -413,7 +415,7 @@ const PaymentReview = ({
                     type="button"
                     onClick={onPay}
                     disabled={busy}
-                    className="flex-[2] bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+                    className="flex-[2] bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
                 >
                     {busy ? 'Redirecting…' : 'Make Payment'}
                 </button>
@@ -464,7 +466,7 @@ const MasterclassRegister = ({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="mt-6 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white disabled:opacity-60"
+            className="mt-6 w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] disabled:opacity-60"
         >
             {busy ? 'Registering…' : 'Confirm registration'}
         </button>
@@ -527,7 +529,7 @@ const ConfirmationView = ({ event, ticket, tier, onDone }) => {
             <div className="mt-6 flex flex-col gap-3">
                 <Link
                     to="/dashboard"
-                    className="bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white"
+                    className="bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))]"
                 >
                     Go to dashboard
                 </Link>

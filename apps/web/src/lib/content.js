@@ -1,7 +1,7 @@
 export const PUBLISHER = {
   name: "King Dawie Publishing",
   short: "King Dawie Publishing",
-  role: "Official owner, publisher and rights holder of the Pete Edochie Legacy platform",
+  role: "Official owner, publisher and rights holder of the Peter Edochie Legacy platform",
   email: "rights@kingdawiepublishing.com",
   phoneDisplay: "+233 53 333 30810",
   whatsapp: "2330533330810",
@@ -14,16 +14,16 @@ export const BRAND = {
   hashtag: "#TheLegacyProject",
   tagline: "What will you leave behind?",
   colors: {
-    burgundy: "#7A0C19",
-    black: "#0A0A0A",
+    burgundy: "#7A1F2C",
+    black: "#141414",
     white: "#FFFFFF",
   },
 };
 
-/** The actor this platform celebrates — Pete Edochie, Nigerian screen legend. */
+/** The actor this platform celebrates — Peter Edochie, Nigerian screen legend. */
 export const LEGACY = {
-  name: "Pete Edochie",
-  legacyName: "Pete Edochie Legacy",
+  name: "Peter Edochie",
+  legacyName: "Peter Edochie Legacy",
   title: "Actor",
   descriptor:
     "Nigerian actor, broadcaster and elder statesman of African cinema",
@@ -36,7 +36,7 @@ export const ASSET_HOST = "https://images.hostinger.com";
 
 export const assetUrl = (file) => `${ASSET_HOST}/${file}`;
 
-/** Curated Pete Edochie / platform imagery from the original site build. */
+/** Curated Peter Edochie / platform imagery from the original site build. */
 export const ASSETS = {
   portrait: "1a411ea8-babd-45bc-add6-73e265f0453a.png",
   launch: "64c337f2-f627-4055-9d43-d348d976dc63.png",
@@ -52,35 +52,113 @@ export const ASSETS = {
   mug: "110ca3ea-224e-437e-a9df-df4ae11a443a.png",
 };
 
+/** Local hero / portrait assets. */
+export const COVER = "/images/peter-edochie-cover.jpg";
+export const PORTRAIT = "/images/peter-edochie-portrait.jpg";
+export const PORTRAIT_ART = "/images/peter-edochie-portrait-art.jpg";
+/** Optional atmospheric banner (kept for reuse). */
+export const PAGE_HERO = "/images/page-hero-cover.jpg";
+
 export const IMG = {
-  portrait: assetUrl(ASSETS.portrait),
-  stage: assetUrl(ASSETS.launch),
+  cover: COVER,
+  /** Interior page headers — Peter collage / portraits. */
+  pageHero: COVER,
+  /** Formal seated portrait — biography, story, login. */
+  portrait: PORTRAIT,
+  /** Painterly red portrait — closing CTAs, gallery, cultural pages. */
+  portraitArt: PORTRAIT_ART,
+  stage: COVER,
   set: assetUrl(ASSETS.premiere),
   book: assetUrl(ASSETS.book),
-  award: assetUrl(ASSETS.honours),
-  youth: assetUrl(ASSETS.mentorship),
-  podium: assetUrl(ASSETS.tour),
+  award: PORTRAIT,
+  youth: PORTRAIT_ART,
+  podium: PORTRAIT,
   family: assetUrl(ASSETS.okonkwo),
-  artifact: assetUrl(ASSETS.tee),
-  theatre: assetUrl(ASSETS.launch),
+  artifact: assetUrl(ASSETS.honours),
+  theatre: COVER,
 };
 
-/** Shop preview tiles on the homepage. */
+/** Shop preview tiles on the homepage — photographs of Peter Edochie. */
 export const MERCH_PREVIEW = [
-  assetUrl(ASSETS.tee),
-  assetUrl(ASSETS.portrait),
+  PORTRAIT,
+  PORTRAIT_ART,
+  COVER,
   assetUrl(ASSETS.okonkwo),
-  assetUrl(ASSETS.tote),
 ];
 
-/** Ghana launch activation — master plan page 5–7. */
+/** Curated archive strip — photographs of Peter Edochie. */
+export const ARCHIVE_PREVIEW = [
+  PORTRAIT,
+  PORTRAIT_ART,
+  COVER,
+  assetUrl(ASSETS.premiere),
+  assetUrl(ASSETS.honours),
+  assetUrl(ASSETS.tour),
+];
+
+/** Ghana activation — master plan: The Legacy Experience, 20 September 2026. */
 export const LAUNCH = {
   activationDate: "20 September 2026",
+  activationAt: "2026-09-20T18:00:00+00:00",
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
-  headline: "Ghana activation",
-  lead: "The continental launch begins in Accra on 20 September 2026 — pre-order the autobiography, register for the launch event and apply to the mentorship programme.",
+  headline: "The Legacy Experience",
+  lead: "The continental launch peaks in Accra on 20 September 2026 — pre-order the autobiography, register for The Legacy Experience, and apply to the mentorship programme.",
+  revealDate: "12 September 2026",
+  revealLabel: "Official reveal & media briefing",
 };
+
+/**
+ * Official calendar from the master plan (used when the API has no events yet).
+ * Seed `apps/api/prisma/seed.js` mirrors this list.
+ */
+export const OFFICIAL_EVENTS = [
+  {
+    id: "legacy-experience-ghana",
+    title: "The Legacy Experience — Ghana Activation",
+    city: "Accra",
+    venue: "Accra International Conference Centre",
+    starts: "2026-09-20T18:00:00.000Z",
+    ends: "2026-09-20T21:00:00.000Z",
+    summary:
+      "The peak moment of The Legacy Project campaign in Ghana: a celebration of purpose, mentorship and impact with Peter Edochie — book sales, speeches, mentorship moments and community gathering. Distinct from book pre-order; register to attend.",
+    category: "launch",
+    event_type: "ghana_launch",
+    invitation_only: false,
+    ticket_tiers: [],
+    image: PORTRAIT,
+  },
+  {
+    id: "media-briefing-accra",
+    title: "Press Conference & Media Briefing",
+    city: "Accra",
+    venue: "Venue to be confirmed",
+    starts: "2026-09-12T10:00:00.000Z",
+    ends: "2026-09-12T12:00:00.000Z",
+    summary:
+      "Official reveal and media engagement: introduce Peter Edochie in Ghana, announce the 20 September activation, open the pre-order campaign and brief press partners. Invitation only.",
+    category: "media",
+    event_type: "masterclass",
+    invitation_only: true,
+    ticket_tiers: [],
+    image: PORTRAIT_ART,
+  },
+  {
+    id: "private-legacy-session",
+    title: "Private Legacy Session with Peter Edochie",
+    city: "Accra",
+    venue: "Venue to be confirmed",
+    starts: "2026-09-18T15:00:00.000Z",
+    ends: "2026-09-18T17:00:00.000Z",
+    summary:
+      "An invitation-only Legacy Project session with the author — a lead engagement for selected community members around the Ghana activation week (16–20 September).",
+    category: "session",
+    event_type: "meet_and_greet",
+    invitation_only: true,
+    ticket_tiers: [],
+    image: COVER,
+  },
+];
 
 /** Messaging pillars from the master plan. */
 export const MESSAGING_PILLARS = [
@@ -254,12 +332,12 @@ export const FAQ_SECTIONS = [
     title: "The platform",
     items: [
       {
-        q: "What is the Pete Edochie Legacy platform?",
-        a: "It is the official digital home of Pete Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
+        q: "What is the Peter Edochie Legacy platform?",
+        a: "It is the official digital home of Peter Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
       },
       {
         q: "Who operates this website?",
-        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Pete Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
+        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Peter Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
       },
       {
         q: "Do I need an account to browse the site?",
@@ -272,7 +350,7 @@ export const FAQ_SECTIONS = [
     items: [
       {
         q: "How do I order the autobiography?",
-        a: "Visit The Book or Shop, add your edition to the cart, and proceed to checkout. You can complete your order as a guest or while signed in. After payment your confirmation and tracking details appear on the order page.",
+        a: "Visit The Book, choose your edition, and complete a secure preorder with payment via Paystack. You can also buy through Shop checkout. Guest checkout is available. After payment, your confirmation and tracking details appear on the order page.",
       },
       {
         q: "Can I buy without creating an account?",

@@ -27,34 +27,43 @@ const COUNTRIES = [
 
 const EVENTS = [
 	{
-		title: 'The Journey Continues: Pete Edochie Book Launch – Accra',
-		city: 'Accra', venue: 'Accra International Conference Centre',
-		starts: new Date(), ends: new Date(), summary: 'An evening of stories, mentorship and celebration as we launch Pete Edochie\u2019s latest body of work in Ghana.',
-		category: 'launch', eventType: 'ghana_launch', invitationOnly: false,
-		ticketTiers: [
-			{ name: 'Standard', price: 150, currency: 'GHS' },
-			{ name: 'VIP', price: 500, currency: 'GHS' },
-		],
+		title: 'The Legacy Experience — Ghana Activation',
+		city: 'Accra',
+		venue: 'Accra International Conference Centre',
+		starts: new Date('2026-09-20T18:00:00+00:00'),
+		ends: new Date('2026-09-20T21:00:00+00:00'),
+		summary:
+			'The peak moment of The Legacy Project campaign in Ghana: a celebration of purpose, mentorship and impact with Peter Edochie — book sales, speeches, mentorship moments and community gathering. Distinct from book pre-order; register to attend.',
+		category: 'launch',
+		eventType: 'ghana_launch',
+		invitationOnly: false,
+		ticketTiers: [],
 	},
 	{
-		title: 'The Masterclass: Writing With Purpose',
-		city: 'Lagos', venue: 'Eko Hotel & Suites',
-		starts: new Date(), ends: new Date(), summary: 'A hands-on masterclass for aspiring writers, entrepreneurs and storytellers.',
-		category: 'masterclass', eventType: 'masterclass', invitationOnly: false,
-		ticketTiers: [
-			{ name: 'Standard', price: 50000, currency: 'NGN' },
-			{ name: 'VIP', price: 150000, currency: 'NGN' },
-		],
+		title: 'Press Conference & Media Briefing',
+		city: 'Accra',
+		venue: 'Venue to be confirmed',
+		starts: new Date('2026-09-12T10:00:00+00:00'),
+		ends: new Date('2026-09-12T12:00:00+00:00'),
+		summary:
+			'Official reveal and media engagement: introduce Peter Edochie in Ghana, announce the 20 September activation, open the pre-order campaign and brief press partners. Invitation only.',
+		category: 'media',
+		eventType: 'masterclass',
+		invitationOnly: true,
+		ticketTiers: [],
 	},
 	{
-		title: 'Meet & Greet: An Intimate Evening With Pete Edochie',
-		city: 'London', venue: 'The Cumberland, London',
-		starts: new Date(), ends: new Date(), summary: 'A limited-capacity meet and greet with behind-the-scenes stories, photo opportunities and a signed copy of the book.',
-		category: 'meet_and_greet', eventType: 'meet_and_greet', invitationOnly: true,
-		ticketTiers: [
-			{ name: 'standard', price: 80, currency: 'GBP' },
-			{ name: 'vip', price: 200, currency: 'GBP' },
-		],
+		title: 'Private Legacy Session with Peter Edochie',
+		city: 'Accra',
+		venue: 'Venue to be confirmed',
+		starts: new Date('2026-09-18T15:00:00+00:00'),
+		ends: new Date('2026-09-18T17:00:00+00:00'),
+		summary:
+			'An invitation-only Legacy Project session with the author — a lead engagement for selected community members around the Ghana activation week (16–20 September).',
+		category: 'session',
+		eventType: 'meet_and_greet',
+		invitationOnly: true,
+		ticketTiers: [],
 	},
 ];
 
@@ -169,7 +178,7 @@ async function main() {
 	console.log(`  distributor tiers: ${DISTRIBUTOR_TIERS.length}`);
 
 	const CATEGORY_SEEDS = [
-		{ name: 'Hardcover Editions', slug: 'hardcover-editions', description: 'Cloth-bound and standard hardcover books from the Pete Edochie Legacy imprint.', sort: 1, enabled: true },
+		{ name: 'Hardcover Editions', slug: 'hardcover-editions', description: 'Cloth-bound and standard hardcover books from the Peter Edochie Legacy imprint.', sort: 1, enabled: true },
 		{ name: 'Digital Editions', slug: 'digital-editions', description: 'Audiobook and e-book formats fulfilled digitally or via partner retailers.', sort: 2, enabled: true },
 		{ name: 'Signed & Collector', slug: 'signed-collector', description: 'Personally signed, numbered and limited collector editions.', sort: 3, enabled: true },
 		{ name: 'Legacy Collection', slug: 'legacy-collection', description: 'Future titles, companion volumes and archive publications.', sort: 4, enabled: true },
@@ -188,7 +197,7 @@ async function main() {
 	const BOOK_IMAGE = 'https://images.hostinger.com/3283c1af-6e58-4eca-a80a-6d5dc5464e9d.png';
 	const products = [
 		{
-			name: 'The Pete Edochie Autobiography',
+			name: 'The Peter Edochie Autobiography',
 			edition: 'Signed copy',
 			format: 'hardcopy',
 			price: 85,
@@ -199,7 +208,7 @@ async function main() {
 			enabled: true,
 			mainOrderEnabled: false,
 			bookCategoryId: catBySlug['signed-collector'].id,
-			author: 'Pete Edochie',
+			author: 'Peter Edochie',
 			isbn: '978-0000000001',
 			pages: 412,
 			language: 'English',
@@ -209,7 +218,7 @@ async function main() {
 			createdById: admin.id,
 		},
 		{
-			name: 'The Pete Edochie Autobiography',
+			name: 'The Peter Edochie Autobiography',
 			edition: 'Standard copy',
 			format: 'hardcopy',
 			price: 45,
@@ -220,7 +229,7 @@ async function main() {
 			enabled: true,
 			mainOrderEnabled: false,
 			bookCategoryId: catBySlug['hardcover-editions'].id,
-			author: 'Pete Edochie',
+			author: 'Peter Edochie',
 			isbn: '978-0000000002',
 			pages: 412,
 			language: 'English',
@@ -230,7 +239,7 @@ async function main() {
 			createdById: admin.id,
 		},
 		{
-			name: 'The Pete Edochie Autobiography',
+			name: 'The Peter Edochie Autobiography',
 			edition: 'Audiobook',
 			format: 'digital',
 			price: 24.99,
@@ -241,15 +250,15 @@ async function main() {
 			enabled: true,
 			mainOrderEnabled: false,
 			bookCategoryId: catBySlug['digital-editions'].id,
-			author: 'Pete Edochie',
+			author: 'Peter Edochie',
 			isbn: '978-0000000003',
 			language: 'English',
 			publishedYear: '2026',
-			excerpt: 'Narrated by Pete Edochie with extended audio extracts from the archive recordings.',
+			excerpt: 'Narrated by Peter Edochie with extended audio extracts from the archive recordings.',
 			createdById: admin.id,
 		},
 		{
-			name: 'The Pete Edochie Autobiography',
+			name: 'The Peter Edochie Autobiography',
 			edition: 'E-book',
 			format: 'digital',
 			price: 14.99,
@@ -260,7 +269,7 @@ async function main() {
 			enabled: true,
 			mainOrderEnabled: false,
 			bookCategoryId: catBySlug['digital-editions'].id,
-			author: 'Pete Edochie',
+			author: 'Peter Edochie',
 			isbn: '978-0000000004',
 			language: 'English',
 			publishedYear: '2026',

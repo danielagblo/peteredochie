@@ -133,23 +133,23 @@ export async function register(req, res) {
 
 		const headline = isOrg
 			? `Application Received: ${validAccountType === 'distributor' ? 'Distributor' : 'Sponsor'} Account`
-			: 'Welcome to The Pete Edochie Legacy';
+			: 'Welcome to The Peter Edochie Legacy';
 
 		const introParagraph = isOrg
 			? `Thank you for submitting your ${validAccountType === 'distributor' ? 'distributor' : 'sponsorship'} application to King Dawie Publishing. Our team is currently reviewing your registration details.`
-			: `Welcome to the official platform for **The Pete Edochie Legacy**, operated by King Dawie Publishing. We are honored to have you with us.`;
+			: `Welcome to the official platform for **The Peter Edochie Legacy**, operated by King Dawie Publishing. We are honored to have you with us.`;
 
 		const content = `
 ${introParagraph}
 
 Please verify your email address to confirm your registration and unlock access to ticketing, pre-orders, and platform features.
 
-If you did not create an account on the Pete Edochie Legacy platform, you can safely disregard this email.
+If you did not create an account on the Peter Edochie Legacy platform, you can safely disregard this email.
 		`.trim();
 
 		const html = renderNewsletterHtml({
-			subject: `Verify your email — The Pete Edochie Legacy`,
-			previewText: `Welcome to The Pete Edochie Legacy. Please verify your email address.`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
+			previewText: `Welcome to The Peter Edochie Legacy. Please verify your email address.`,
 			headline,
 			content,
 			ctaText: 'Verify Email Address',
@@ -158,7 +158,7 @@ If you did not create an account on the Pete Edochie Legacy platform, you can sa
 		});
 
 		const text = renderNewsletterText({
-			subject: `Verify your email — The Pete Edochie Legacy`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
 			headline,
 			content,
 			ctaText: 'Verify Email Address',
@@ -168,7 +168,7 @@ If you did not create an account on the Pete Edochie Legacy platform, you can sa
 
 		await sendEmail({
 			to: user.email,
-			subject: `Verify your email — The Pete Edochie Legacy`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
 			html,
 			text,
 		});
@@ -234,14 +234,14 @@ export async function requestVerification(req, res) {
 
 	try {
 		const content = `
-You requested a new verification link for your Pete Edochie Legacy account.
+You requested a new verification link for your Peter Edochie Legacy account.
 
 Click the button below to verify your email address and unlock all platform features, orders, and event passes.
 		`.trim();
 
 		const html = renderNewsletterHtml({
-			subject: `Verify your email — The Pete Edochie Legacy`,
-			previewText: `Verify your email address for The Pete Edochie Legacy.`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
+			previewText: `Verify your email address for The Peter Edochie Legacy.`,
 			headline: 'Verify Your Email Address',
 			content,
 			ctaText: 'Verify Email Address',
@@ -250,7 +250,7 @@ Click the button below to verify your email address and unlock all platform feat
 		});
 
 		const text = renderNewsletterText({
-			subject: `Verify your email — The Pete Edochie Legacy`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
 			headline: 'Verify Your Email Address',
 			content,
 			ctaText: 'Verify Email Address',
@@ -260,7 +260,7 @@ Click the button below to verify your email address and unlock all platform feat
 
 		await sendEmail({
 			to: user.email,
-			subject: `Verify your email — The Pete Edochie Legacy`,
+			subject: `Verify your email — The Peter Edochie Legacy`,
 			html,
 			text,
 		});
@@ -324,14 +324,14 @@ export async function requestPasswordReset(req, res) {
 
 	try {
 		const content = `
-We received a request to reset the password for your Pete Edochie Legacy account.
+We received a request to reset the password for your Peter Edochie Legacy account.
 
 Click the button below to choose a new password. If you did not make this request, you can safely ignore this email.
 		`.trim();
 
 		const html = renderNewsletterHtml({
-			subject: `Reset your password — The Pete Edochie Legacy`,
-			previewText: `Password reset link for The Pete Edochie Legacy platform.`,
+			subject: `Reset your password — The Peter Edochie Legacy`,
+			previewText: `Password reset link for The Peter Edochie Legacy platform.`,
 			headline: 'Reset Your Password',
 			content,
 			ctaText: 'Reset Password',
@@ -340,7 +340,7 @@ Click the button below to choose a new password. If you did not make this reques
 		});
 
 		const text = renderNewsletterText({
-			subject: `Reset your password — The Pete Edochie Legacy`,
+			subject: `Reset your password — The Peter Edochie Legacy`,
 			headline: 'Reset Your Password',
 			content,
 			ctaText: 'Reset Password',
@@ -350,7 +350,7 @@ Click the button below to choose a new password. If you did not make this reques
 
 		await sendEmail({
 			to: user.email,
-			subject: `Reset your password — The Pete Edochie Legacy`,
+			subject: `Reset your password — The Peter Edochie Legacy`,
 			html,
 			text,
 		});

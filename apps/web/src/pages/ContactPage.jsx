@@ -40,10 +40,10 @@ const ContactPage = () => {
     return (
         <div>
             <PageHead
-                title="Contact & Enquiries | The Pete Edochie Legacy | King Dawie Publishing"
-                description="Contact King Dawie Publishing, official owner and rights holder of the Pete Edochie Legacy, for media, bookings, publishing, rights and licensing, partnership and general enquiries."
+                title="Contact & Enquiries | The Peter Edochie Legacy | King Dawie Publishing"
+                description="Contact King Dawie Publishing, official owner and rights holder of the Peter Edochie Legacy, for media, bookings, publishing, rights and licensing, partnership and general enquiries."
             />
-            <PageHero eyebrow="Contact" title="The office" lead="Media, bookings, publishing & rights, partnership and general enquiries are handled by the legacy office in Lagos, administered by King Dawie Publishing." image={IMG.stage} />
+            <PageHero eyebrow="Contact" title="The office" lead="Media, bookings, publishing & rights, partnership and general enquiries are handled by the legacy office in Lagos, administered by King Dawie Publishing." image={IMG.cover} />
 
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:py-32" width="max-w-[80rem]">
                 <div>
@@ -62,7 +62,7 @@ const ContactPage = () => {
                                 <p className="text-[0.62rem] uppercase tracking-[0.22em] text-muted-foreground">{k}</p>
                                 {k === 'WhatsApp' ? (
                                     <a
-                                        href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Pete Edochie Legacy platform.`)}
+                                        href={whatsappHref(`Hello ${PUBLISHER.name}. I am writing from the Peter Edochie Legacy platform.`)}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="mt-2 inline-block font-display text-2xl text-[hsl(var(--gold))] transition-colors hover:text-foreground"
@@ -128,7 +128,7 @@ const ContactPage = () => {
                             <button
                                 type="submit"
                                 disabled={sending}
-                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-transform active:scale-[0.99] disabled:opacity-60"
+                                className="w-full bg-[hsl(var(--primary))] py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.99] disabled:opacity-60"
                             >
                                 {sending ? 'Opening WhatsApp…' : 'Send via WhatsApp'}
                             </button>
