@@ -9,6 +9,7 @@ const VerifyEmailPage = () => {
     const token = params.get('token');
     const [status, setStatus] = useState('verifying'); // verifying | success | error
     const [errorMsg, setErrorMsg] = useState('');
+    const [needsApproval, setNeedsApproval] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -23,6 +24,7 @@ const VerifyEmailPage = () => {
                 if (!mounted) return;
                 if (res?.user) {
                     authStore.updateRecord({ verified: true, ...res.user });
+                    if (res.user.approval_status === 'pending') setNeedsApproval(true);
                 }
                 setStatus('success');
             })
@@ -56,9 +58,15 @@ const VerifyEmailPage = () => {
                     <div className="space-y-4">
                         <CheckCircle2 size={40} className="mx-auto text-[hsl(var(--gold))]" />
                         <h1 className="font-display text-3xl">Email verified</h1>
-                        <p className="text-sm leading-relaxed text-muted-foreground">
-                            Thank you! Your email address has been successfully verified. You now have full access to ticket passes, orders, and dashboard features.
-                        </p>
+                        {needsApproval ? (
+                            <p className="text-sm leading-relaxed text-muted-foreground">
+                                Thank you! Your email address has been successfully verified. Your application is under review — pricing, resources and ordering unlock once an administrator approves your account.
+                            </p>
+                        ) : (
+                            <p className="text-sm leading-relaxed text-muted-foreground">
+                                Thank you! Your email address has been successfully verified. You now have full access to ticket passes, orders, and dashboard features.
+                            </p>
+                        )}
                         <div className="pt-4">
                             <Link
                                 to="/dashboard"

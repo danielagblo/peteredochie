@@ -60,6 +60,23 @@ export const authStore = {
 	},
 };
 
+// Cross-tab sync: when the token or user record changes in another browser tab
+// (e.g. clicking an emailed verify link), re-sync the in-memory store so the
+// dashboard immediately reflects the updated status without a manual refresh.
+window.addEventListener('storage', (e) => {
+	if (e.key === TOKEN_KEY) {
+		cachedToken = e.newValue || null;
+		authStore.isValid = !!cachedToken;
+		notify(authStore.record, cachedToken);
+	} else if (e.key === USER_KEY) {
+		try {
+			cachedUser = e.newValue ? JSON.parse(e.newValue) : null;
+			authStore.record = cachedUser;
+			notify(cachedUser, authStore.token);
+		} catch { /* ignore malformed JSON */ }
+	}
+});
+
 // Base URL of the Express API. Same-origin by default for local dev; override
 // with VITE_API_URL (e.g. https://api.example.com/hcgi/api) when the API is
 // hosted separately from the frontend.

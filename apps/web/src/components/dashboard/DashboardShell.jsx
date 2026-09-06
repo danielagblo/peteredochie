@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, MailCheck } from 'lucide-react';
+import { LogOut, MailCheck, ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { PageHead } from '@/components/Section';
 import { useAuth } from '@/contexts/AuthContext';
@@ -128,6 +128,21 @@ const DashboardShell = ({ title, description, nav, children, defaultTab }) => {
                 {/* Main Content Area */}
                 <main className="min-w-0 flex-1 px-5 py-8 md:ml-64 md:px-10 lg:px-12">
                     <div className="mx-auto max-w-[88rem] space-y-6">
+                        {status === 'pending' ? (
+                            <div className="flex flex-wrap items-center gap-4 border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-5">
+                                <p className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <ShieldCheck size={16} strokeWidth={1.4} className="text-[hsl(var(--primary))]" />
+                                    Your {ACCOUNT_LABEL[accountType]?.toLowerCase() || 'application'} is under review. Access unlocks once an administrator approves your account.
+                                </p>
+                            </div>
+                        ) : status === 'rejected' ? (
+                            <div className="flex flex-wrap items-center gap-4 border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-5">
+                                <p className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <ShieldCheck size={16} strokeWidth={1.4} className="text-[hsl(var(--primary))]" />
+                                    Your application was not approved. Please contact {PUBLISHER.name} for more information.
+                                </p>
+                            </div>
+                        ) : null}
                         {!isVerified ? (
                             <div className="flex flex-wrap items-center justify-between gap-4 border border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5 px-6 py-5">
                                 <p className="flex items-center gap-3 text-sm text-muted-foreground">

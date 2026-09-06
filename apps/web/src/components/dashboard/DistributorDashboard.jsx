@@ -107,12 +107,6 @@ const DistributorDashboard = () => {
         >
             {(tab) => (
                 <>
-                    {!approved ? (
-                        <div className="border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-6 py-6 text-sm text-muted-foreground">
-                            Your distributor application is under review by {PUBLISHER.name}. Pricing, resources, territories and ordering all unlock once your account is approved. Contact the publisher for updates.
-                        </div>
-                    ) : null}
-
                     {approved ? (
                         <>
                     {tab === 'overview' ? (
