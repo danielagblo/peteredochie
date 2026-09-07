@@ -185,7 +185,7 @@ const BookPreregistrationForm = ({ product }) => {
                     <h2 className="mt-3 font-display text-3xl">Preorder &amp; pay</h2>
                     <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
                         Reserve <span className="text-foreground">{product.edition || product.name}</span> with payment now.
-                        You will be redirected to Paystack to complete checkout.
+                        You will be redirected to Paystack to complete checkout. Confirmation may arrive by email and SMS.
                     </p>
                 </div>
                 <div className="text-right">
@@ -303,7 +303,7 @@ const BookPreregistrationForm = ({ product }) => {
                 )}
             </button>
             <p className="mt-4 text-center text-xs text-muted-foreground">
-                Secure payment via Paystack. After payment you will receive an order confirmation.
+                Secure payment via Paystack. After payment you will receive an order confirmation by email and SMS.
             </p>
         </form>
     );

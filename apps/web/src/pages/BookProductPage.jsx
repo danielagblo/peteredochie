@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ExternalLink, Loader2 } from 'lucide-react';
+import { ExternalLink, Loader2, MessageCircle } from 'lucide-react';
 import BookPreregistrationForm from '@/components/BookPreregistrationForm';
 import CountUp from '@/components/CountUp';
 import { PageHead, Section } from '@/components/Section';
-import { IMG } from '@/lib/content';
+import { BOOK, IMG } from '@/lib/content';
 import { fetchBookPreregStats } from '@/lib/bookStats';
 import { formatUSD, isRedirectOnly } from '@/lib/commerce';
+import { composeWhatsApp, whatsappHref } from '@/lib/whatsapp';
 import { apiCrud } from '@/lib/api';
 
 const BookProductPage = () => {
@@ -48,7 +49,7 @@ const BookProductPage = () => {
         <div className="pt-28">
             <PageHead
                 title={`${title} — Preorder | Peter Edochie Legacy`}
-                description={product?.excerpt || product?.description || 'Preorder this Peter Edochie autobiography edition with secure Paystack payment.'}
+                description={product?.excerpt || product?.description || BOOK.shortDescription}
             />
             <Section className="py-12 md:py-20" width="max-w-[80rem]">
                 {loading ? (
@@ -95,7 +96,25 @@ const BookProductPage = () => {
                                 </p>
 
                                 <p className="mt-6 font-display text-5xl text-[hsl(var(--gold))]">{formatUSD(product.price)}</p>
-                                <p className="mt-2 text-sm text-muted-foreground">Payment confirms your preorder reservation.</p>
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                    Payment confirms your preorder. Confirmation may arrive by email and SMS.
+                                </p>
+
+                                {!redirect ? (
+                                    <a
+                                        href={whatsappHref(
+                                            composeWhatsApp('Book pre-order via WhatsApp', {
+                                                Edition: title,
+                                                Intent: 'I would like to pre-order this edition and need assistance completing my order.',
+                                            }),
+                                        )}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-6 inline-flex items-center gap-2 border border-border px-6 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                                    >
+                                        <MessageCircle size={14} strokeWidth={1.6} /> Order via WhatsApp
+                                    </a>
+                                ) : null}
 
                                 {editionStats?.totalRegistrations > 0 ? (
                                     <p className="mt-5 border-l border-[hsl(var(--gold))]/40 pl-4 text-sm text-muted-foreground">

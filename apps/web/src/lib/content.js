@@ -31,6 +31,70 @@ export const LEGACY = {
   bioPath: "/peter-edochie",
 };
 
+/**
+ * Website expectations brief — first-seconds clarity & primary actions.
+ * (Maps PDF “Pete” wording to Peter Edochie.)
+ */
+export const PROJECT = {
+  whatItIs:
+    "The Peter Edochie Legacy Project preserves wisdom, inspires the next generation, and turns a life of experience into a lasting legacy through a book, a documentary film, and an African Youth Mentorship Initiative.",
+  whyItMatters:
+    "It inspires people to think beyond personal success — to build a lasting legacy, develop others, and positively shape the next generation.",
+  actions: [
+    { label: "Pre-Order Now", to: "/book" },
+    { label: "Event Registration", to: "/events" },
+    { label: "Mentorship Sign Up", to: "/mentorship" },
+  ],
+};
+
+/** Autobiography marketing copy (from website expectations). */
+export const BOOK = {
+  title: "The Peter Edochie Autobiography",
+  tagline: "Build something that outlives you",
+  shortDescription:
+    "A powerful invitation to rethink leadership, purpose, mentorship and the legacy you will leave behind. Discover the book that challenges you to build a life of impact and inspire the next generation.",
+  lessons: [
+    "Discover your purpose",
+    "Lead with intention",
+    "Build a lasting legacy",
+    "Invest in others",
+    "Create meaningful impact beyond your lifetime",
+  ],
+  whoItsFor:
+    "Anyone who wants to lead with purpose, make a meaningful impact, and build a legacy that extends beyond themselves — especially leaders, entrepreneurs, professionals, mentors, young people, educators, and anyone committed to shaping the next generation. If you want your life to mean more than what you achieve, this book is for you.",
+  whyRead:
+    "Your legacy is being built today. This book challenges you to think differently about leadership, purpose, mentorship, personal growth, and the impact you will leave on the next generation. It is more than a book — it is an invitation to think, grow, act, and build something that outlives you.",
+};
+
+/** How mentorship extends the book’s message into action. */
+export const MENTORSHIP_BRIDGE = {
+  title: "From the page into practice",
+  text: "The African Youth Mentorship Initiative turns the book’s message into action by connecting experienced leadership with the next generation. It helps share wisdom, develop future leaders, and build a legacy that continues beyond us.",
+};
+
+/** Documentary pillar — teaser only (no invented synopsis). */
+export const DOCUMENTARY = {
+  eyebrow: "Documentary",
+  title: "A film in development",
+  text: "Alongside the autobiography and mentorship programme, a documentary film is in development — preserving Peter Edochie’s story for audiences across the continent and beyond.",
+};
+
+/** Static recognition / social-proof labels (editorial; not paid media claims). */
+export const ENDORSEMENTS = [
+  {
+    quote:
+      "A continental voice on purpose, craft and the responsibility of handing culture forward.",
+    name: "Community readers",
+    role: "Legacy Project audience",
+  },
+  {
+    quote:
+      "The mentorship track makes the book’s invitation concrete — develop others, don’t only succeed alone.",
+    name: "Programme partners",
+    role: "African Youth Mentorship Initiative",
+  },
+];
+
 /** Official platform image assets (Hostinger Horizons export). */
 export const ASSET_HOST = "https://images.hostinger.com";
 
@@ -103,7 +167,9 @@ export const LAUNCH = {
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
   headline: "The Legacy Experience",
-  lead: "The continental launch peaks in Accra on 20 September 2026 — pre-order the autobiography, register for The Legacy Experience, and apply to the mentorship programme.",
+  lead: "The continental launch peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page, then register here to attend The Legacy Experience — and apply separately to the mentorship programme.",
+  distinction:
+    "Pre-ordering the book does not register you for the Ghana activation. Event registration does not reserve a book. Choose each action deliberately.",
   revealDate: "12 September 2026",
   revealLabel: "Official reveal & media briefing",
 };
@@ -160,23 +226,23 @@ export const OFFICIAL_EVENTS = [
   },
 ];
 
-/** Messaging pillars from the master plan. */
+/** Messaging pillars from the master plan + documentary teaser. */
 export const MESSAGING_PILLARS = [
-  {
-    title: "Heritage",
-    text: "Six decades of screen work gathered into one living archive — biography, journal and gallery.",
-  },
-  {
-    title: "Handing on",
-    text: "The African Youth Mentorship Initiative passes craft, discipline and cultural memory to the next generation of storytellers.",
-  },
-  {
-    title: "Community",
-    text: "Join the legacy community for launch news, event dates and early access — no account required to subscribe.",
-  },
   {
     title: "The book",
     text: "The official autobiography — hardcover, signed and digital editions — published by King Dawie Publishing.",
+  },
+  {
+    title: "Documentary",
+    text: "A documentary film in development, preserving the life and wisdom of Peter Edochie for the next generation.",
+  },
+  {
+    title: "Mentorship",
+    text: "The African Youth Mentorship Initiative turns the book’s message into action — craft, discipline and cultural memory.",
+  },
+  {
+    title: "Community",
+    text: "Join the legacy community for launch news, event dates and early access — email and SMS updates when you opt in.",
   },
 ];
 

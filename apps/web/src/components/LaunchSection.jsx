@@ -17,6 +17,7 @@ const LaunchSection = () => (
                             <span className="mt-2 block text-white">{LAUNCH.activationDate}</span>
                         </h2>
                         <p className="mt-6 max-w-xl text-base leading-relaxed text-white/80">{LAUNCH.lead}</p>
+                        <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/65">{LAUNCH.distinction}</p>
                         <p className="mt-4 text-sm text-white/60">{LAUNCH.venue}</p>
                         <p className="mt-6 text-[0.68rem] uppercase tracking-[0.24em] text-white/50">{BRAND.hashtag}</p>
                     </div>

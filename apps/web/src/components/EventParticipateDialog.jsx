@@ -395,7 +395,7 @@ const PaymentReview = ({
                 </button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-                You will be redirected to Paystack to complete payment. Your QR pass is issued on confirmation.
+                You will be redirected to Paystack to complete payment. Your QR pass is issued on confirmation — look for email and SMS.
             </p>
         </div>
     );

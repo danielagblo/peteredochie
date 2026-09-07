@@ -53,12 +53,20 @@ const LaunchCountdown = ({ target = LAUNCH.activationAt }) => {
                     ))}
                 </div>
 
-                <Link
-                    to="/events"
-                    className="shrink-0 border border-white/50 px-5 py-2.5 text-center text-[0.62rem] uppercase tracking-[0.22em] text-white transition-colors hover:border-white hover:bg-white/10"
-                >
-                    View launch events
-                </Link>
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+                    <Link
+                        to="/book"
+                        className="shrink-0 bg-white px-5 py-2.5 text-center text-[0.62rem] uppercase tracking-[0.22em] text-[hsl(var(--primary))] transition-colors hover:bg-white/90"
+                    >
+                        Pre-Order Now
+                    </Link>
+                    <Link
+                        to="/events"
+                        className="shrink-0 border border-white/50 px-5 py-2.5 text-center text-[0.62rem] uppercase tracking-[0.22em] text-white transition-colors hover:border-white hover:bg-white/10"
+                    >
+                        Event registration
+                    </Link>
+                </div>
             </div>
         </section>
     );

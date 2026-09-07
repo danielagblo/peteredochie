@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, CalendarDays } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Users } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import CountUp from '@/components/CountUp';
 import Seo from '@/components/Seo';
@@ -9,7 +9,25 @@ import { PageHead, Section, SectionTitle } from '@/components/Section';
 import SubscribeSection from '@/components/SubscribeSection';
 import LaunchSection from '@/components/LaunchSection';
 import LaunchCountdown from '@/components/LaunchCountdown';
-import { BRAND, IMG, LEGACY, MERCH_PREVIEW, ARCHIVE_PREVIEW, MILESTONES, OFFICIAL_EVENTS, SPONSORS, TESTIMONIALS, TIERS } from '@/lib/content';
+import PreOrderCta from '@/components/PreOrderCta';
+import {
+  AWARDS,
+  BOOK,
+  BRAND,
+  DOCUMENTARY,
+  ENDORSEMENTS,
+  IMG,
+  LEGACY,
+  MENTORSHIP_BRIDGE,
+  MERCH_PREVIEW,
+  ARCHIVE_PREVIEW,
+  MILESTONES,
+  OFFICIAL_EVENTS,
+  PROJECT,
+  SPONSORS,
+  TESTIMONIALS,
+  TIERS,
+} from '@/lib/content';
 import { apiCrud } from '@/lib/api';
 const HomePage = () => {
   const [events, setEvents] = useState([]);
@@ -70,8 +88,16 @@ const HomePage = () => {
                     <motion.p
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.9, duration: 0.8 }}
+                        className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-[0.95rem]"
+                    >
+                        {PROJECT.whatItIs}
+                    </motion.p>
+                    <motion.p
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.05, duration: 0.8 }}
-                        className="mt-4 max-w-xl text-[0.72rem] uppercase tracking-[0.26em] text-white/55"
+                        className="mt-3 max-w-xl text-[0.72rem] uppercase tracking-[0.26em] text-white/55"
                     >
                         {BRAND.tagline}
                     </motion.p>
@@ -81,16 +107,15 @@ const HomePage = () => {
                         transition={{ delay: 1.2, duration: 1 }}
                         className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
                     >
-                        <p className="max-w-md text-sm leading-relaxed text-white/80">
-                            Six decades on screen — from <em>Things Fall Apart</em> to over two hundred roles —
-                            gathered into one archive and given forward to the next generation.
+                        <p className="max-w-md text-sm leading-relaxed text-white/75">
+                            {PROJECT.whyItMatters}
                         </p>
                         <div className="flex flex-wrap items-center gap-3">
                             <Link
-                                to="/peter-edochie"
+                                to="/book"
                                 className="group flex items-center gap-3 bg-[hsl(var(--primary))] px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
                             >
-                                Enter the story
+                                <BookOpen size={14} strokeWidth={1.6} /> Pre-Order Now
                                 <ArrowRight
                                     size={15}
                                     strokeWidth={1.6}
@@ -101,7 +126,13 @@ const HomePage = () => {
                                 to="/events"
                                 className="flex items-center gap-3 border border-white/50 px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-white hover:bg-white/10"
                             >
-                                <CalendarDays size={14} strokeWidth={1.6} className="text-white" /> View events
+                                <CalendarDays size={14} strokeWidth={1.6} className="text-white" /> Event Registration
+                            </Link>
+                            <Link
+                                to="/mentorship"
+                                className="flex items-center gap-3 border border-white/50 px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-white hover:bg-white/10"
+                            >
+                                <Users size={14} strokeWidth={1.6} className="text-white" /> Mentorship Sign Up
                             </Link>
                         </div>
                     </motion.div>
@@ -147,6 +178,28 @@ const HomePage = () => {
 
             <LaunchSection />
 
+            {/* CREDIBILITY */}
+            <div className="border-b border-border bg-[hsl(var(--surface))] py-16 md:py-20">
+                <Section width="max-w-[80rem]">
+                    <div className="grid gap-12 md:grid-cols-[1fr_1.2fr] md:items-end">
+                        <div>
+                            <SectionTitle eyebrow="Credibility" title="A life recognised" lead="Professional biography, national honours and a public voice on craft and culture." />
+                            <Link to={LEGACY.bioPath} className="mt-6 inline-flex items-center gap-3 text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
+                                Read the full biography <ArrowRight size={14} strokeWidth={1.6} />
+                            </Link>
+                        </div>
+                        <ul className="space-y-4 border-t border-border pt-6">
+                            {AWARDS.slice(0, 3).map((a) => (
+                                <li key={a.name} className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border pb-4">
+                                    <span className="font-display text-lg">{a.name}</span>
+                                    <span className="text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground">{a.year} · {a.body}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </Section>
+            </div>
+
             {/* STORY */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
@@ -173,9 +226,12 @@ const HomePage = () => {
                             on screen: the father, the elder, the conscience in the room. This platform gathers that
                             work, and the life behind it, with the care of an archive rather than the noise of publicity.
                         </p>
-                        <Link to="/peter-edochie" className="mt-9 inline-flex items-center gap-3 border-b border-[hsl(var(--gold))]/60 pb-2 text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
-                            Read the full biography <ArrowRight size={14} strokeWidth={1.6} />
-                        </Link>
+                        <div className="mt-9 flex flex-wrap items-center gap-4">
+                            <Link to="/peter-edochie" className="inline-flex items-center gap-3 border-b border-[hsl(var(--gold))]/60 pb-2 text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
+                                Read the full biography <ArrowRight size={14} strokeWidth={1.6} />
+                            </Link>
+                            <PreOrderCta variant="gold" />
+                        </div>
                     </Reveal>
                 </div>
             </Section>
@@ -199,12 +255,11 @@ const HomePage = () => {
             {/* BOOK */}
             <Section className="grid gap-14 py-24 md:grid-cols-2 md:items-center md:py-32" width="max-w-[80rem]">
                 <div>
-                    <SectionTitle eyebrow="The Autobiography" title={<>The life, told in his own cadence</>} lead="Three years of recorded conversation, edited into a single volume: childhood in Enugu, the broadcasting years, the making of Okonkwo, family, faith, and the discipline of a public life." />
+                    <SectionTitle eyebrow="The Autobiography" title={BOOK.title} lead={BOOK.shortDescription} />
+                    <p className="mt-4 text-[0.72rem] uppercase tracking-[0.22em] text-[hsl(var(--gold))]">{BOOK.tagline}</p>
                     <Reveal delay={0.1}>
                         <div className="mt-9 flex flex-wrap gap-4">
-                            <Link to="/book" className="bg-[hsl(var(--primary))] px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
-                                Preorder the book
-                            </Link>
+                            <PreOrderCta />
                             <Link to="/book" className="border border-border px-8 py-4 text-[0.7rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
                                 Read an extract
                             </Link>
@@ -215,6 +270,17 @@ const HomePage = () => {
                     <img src={IMG.book} alt="The autobiography, hardcover edition" className="w-full object-cover" />
                 </Reveal>
             </Section>
+
+            {/* DOCUMENTARY TEASER */}
+            <div className="border-y border-border bg-[hsl(var(--surface))] py-16 md:py-20">
+                <Section width="max-w-[80rem]">
+                    <Reveal>
+                        <p className="eyebrow">{DOCUMENTARY.eyebrow}</p>
+                        <h2 className="mt-4 font-display text-3xl md:text-4xl">{DOCUMENTARY.title}</h2>
+                        <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground">{DOCUMENTARY.text}</p>
+                    </Reveal>
+                </Section>
+            </div>
 
             {/* SHOP */}
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
@@ -244,7 +310,7 @@ const HomePage = () => {
                     <img src={IMG.portraitArt} alt="Peter Edochie — mentorship and legacy" className="w-full object-cover object-[center_20%]" />
                 </Reveal>
                 <div>
-                    <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="A structured programme for young storytellers across the continent — craft, discipline, cultural memory and the business of a creative life." />
+                    <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead={MENTORSHIP_BRIDGE.text} />
                     <div className="mt-10 grid grid-cols-3 gap-6 border-t border-border pt-8">
                         {[{
             v: 1200,
@@ -265,9 +331,12 @@ const HomePage = () => {
                                 <p className="mt-2 text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">{s.l}</p>
                             </div>)}
                     </div>
-                    <Link to="/mentorship" className="mt-9 inline-flex items-center gap-3 border-b border-[hsl(var(--gold))]/60 pb-2 text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
-                        Apply to the programme <ArrowRight size={14} strokeWidth={1.6} />
-                    </Link>
+                    <div className="mt-9 flex flex-wrap items-center gap-4">
+                        <Link to="/mentorship" className="inline-flex items-center gap-3 border-b border-[hsl(var(--gold))]/60 pb-2 text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
+                            Apply to the programme <ArrowRight size={14} strokeWidth={1.6} />
+                        </Link>
+                        <PreOrderCta variant="gold" label="Pre-Order the book" />
+                    </div>
                 </div>
             </Section>
 
@@ -275,9 +344,13 @@ const HomePage = () => {
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
                 <Section width="max-w-[80rem]">
                     <div className="flex flex-wrap items-end justify-between gap-6">
-                        <SectionTitle eyebrow="Events" title="Where to meet the legacy" />
+                        <SectionTitle
+                            eyebrow="Events"
+                            title="Where to meet the legacy"
+                            lead="The Legacy Experience — Accra, 20 September 2026. Book pre-order and event registration are separate actions."
+                        />
                         <Link to="/events" className="text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
-                            All dates & tickets
+                            Event registration
                         </Link>
                     </div>
                     <div className="mt-12 space-y-px">
@@ -314,10 +387,11 @@ const HomePage = () => {
                 </Link>
             </Section>
 
-            {/* TESTIMONIALS */}
+            {/* TESTIMONIALS + ENDORSEMENTS */}
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
-                <Section width="max-w-[72rem]">
-                    <div className="grid gap-12 md:grid-cols-3">
+                <Section width="max-w-[80rem]">
+                    <SectionTitle eyebrow="Social proof" title="Voices around the legacy" />
+                    <div className="mt-12 grid gap-12 md:grid-cols-3">
                         {TESTIMONIALS.map((t, i) => <Reveal key={t.name} delay={i * 0.08}>
                                 <figure>
                                     <span className="font-display text-5xl text-[hsl(var(--gold))]">“</span>
@@ -327,6 +401,18 @@ const HomePage = () => {
                                     </figcaption>
                                 </figure>
                             </Reveal>)}
+                    </div>
+                    <div className="mt-16 grid gap-8 border-t border-border pt-12 md:grid-cols-2">
+                        {ENDORSEMENTS.map((e, i) => (
+                            <Reveal key={e.name} delay={i * 0.06}>
+                                <figure>
+                                    <blockquote className="font-display text-xl leading-snug text-foreground/90">{e.quote}</blockquote>
+                                    <figcaption className="mt-4 text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground">
+                                        {e.name} · {e.role}
+                                    </figcaption>
+                                </figure>
+                            </Reveal>
+                        ))}
                     </div>
                 </Section>
             </div>
@@ -366,11 +452,14 @@ const HomePage = () => {
                                 A legacy is only alive if it is <span className="italic text-[hsl(var(--gold))]">handed on</span>.
                             </h2>
                             <div className="mt-10 flex flex-wrap justify-center gap-4">
-                                <Link to="/join" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
-                                    Create your account
+                                <Link to="/book" className="bg-[hsl(var(--primary))] px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-[hsl(var(--primary-foreground))] active:scale-[0.98]">
+                                    Pre-Order Now
                                 </Link>
-                                <Link to="/contact" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
-                                    Partner with us
+                                <Link to="/events" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-white hover:bg-white/10">
+                                    Event Registration
+                                </Link>
+                                <Link to="/mentorship" className="border border-white/40 px-9 py-4 text-[0.7rem] uppercase tracking-[0.24em] text-white transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
+                                    Mentorship Sign Up
                                 </Link>
                             </div>
                         </Reveal>

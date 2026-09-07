@@ -13,7 +13,11 @@ const SubscribeSection = () => {
     const [country, setCountry] = useState('');
     const [referralSource, setReferralSource] = useState('');
     const [consent, setConsent] = useState(false);
-    const [interests, setInterests] = useState(['General newsletter', 'Event announcements']);
+    const [interests, setInterests] = useState([
+        'General newsletter',
+        'Event announcements',
+        'SMS updates (pre-order, events & campaigns)',
+    ]);
     const [state, setState] = useState('idle');
     const [message, setMessage] = useState('');
 
@@ -67,8 +71,9 @@ const SubscribeSection = () => {
                         <p className="eyebrow">Stay close to the legacy</p>
                         <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">Join the community</h2>
                         <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-                            No account required. Receive event announcements, Meet & Greet news, book launch news,
-                            mentorship programme calls and future country launches across Africa — first, and directly.
+                            No account required. Receive event announcements, Meet &amp; Greet news, book launch news,
+                            mentorship programme calls and future country launches across Africa — by email and, when you
+                            opt in, by SMS.
                         </p>
                         <p className="mt-6 text-sm text-muted-foreground">
                             Want tickets, orders and a dashboard?{' '}
@@ -81,7 +86,8 @@ const SubscribeSection = () => {
                         <div className="border border-[hsl(var(--gold))]/40 p-9">
                             <p className="font-display text-3xl">You are on the list.</p>
                             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                                WhatsApp should have opened with your details. Updates will also be noted for {email}.
+                                WhatsApp should have opened with your details. We will also keep {email} on the list
+                                {phone ? ` and may send SMS updates to ${phone}` : ''} for book, event and mentorship news.
                             </p>
                         </div>
                     ) : (
@@ -135,7 +141,8 @@ const SubscribeSection = () => {
                                     onChange={(e) => setConsent(e.target.checked)}
                                     className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
                                 />
-                                I agree to receive updates from King Dawie Publishing about the Peter Edochie Legacy platform.
+                                I agree to receive email and SMS updates from King Dawie Publishing about the Peter Edochie
+                                Legacy platform (book, events, mentorship and campaigns).
                             </label>
                             {state === 'error' ? <p className="text-sm text-[hsl(var(--destructive))]">{message}</p> : null}
                             <button

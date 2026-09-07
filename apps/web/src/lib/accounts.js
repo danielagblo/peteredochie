@@ -58,6 +58,7 @@ export const INTEREST_OPTIONS = [
     'Book launch news',
     'Mentorship programme',
     'Future country launches',
+    'SMS updates (pre-order, events & campaigns)',
     'General newsletter',
 ];
 

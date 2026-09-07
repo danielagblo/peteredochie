@@ -228,11 +228,34 @@ const EventsPage = () => {
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="The Legacy Experience peaks in Accra on 20 September 2026. Register for the Ghana activation, note invitation-only media and private sessions, and apply separately to the mentorship programme."
+                lead="The Legacy Experience peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page; register here to attend. Mentorship is a third, independent track."
                 image={IMG.cover}
             />
 
-            <Section className="py-20 md:py-28" width="max-w-[84rem]">
+            <Section className="border-b border-border py-10 md:py-12" width="max-w-[84rem]">
+                <div className="flex flex-col gap-4 border border-[hsl(var(--gold))]/35 bg-[hsl(var(--surface))] p-6 md:flex-row md:items-center md:justify-between md:p-8">
+                    <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                        Pre-ordering the autobiography does <strong className="text-foreground">not</strong> register you for
+                        the Ghana activation. Event registration does <strong className="text-foreground">not</strong> reserve a book.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                        <Link
+                            to="/book"
+                            className="bg-[hsl(var(--primary))] px-5 py-3 text-[0.66rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]"
+                        >
+                            Pre-Order the book
+                        </Link>
+                        <a
+                            href="#calendar"
+                            className="border border-border px-5 py-3 text-[0.66rem] uppercase tracking-[0.2em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                        >
+                            Register for events
+                        </a>
+                    </div>
+                </div>
+            </Section>
+
+            <Section id="calendar" className="scroll-mt-28 py-20 md:py-28" width="max-w-[84rem]">
                 {status === 'loading' ? (
                     <div className="space-y-4">
                         {[0, 1, 2].map((i) => (
@@ -280,12 +303,16 @@ const EventsPage = () => {
 
             {/* HOW IT WORKS */}
             <Section className="py-20 md:py-28" width="max-w-[80rem]">
-                <SectionTitle eyebrow="How it works" title="Register or wait for an invitation" lead="The master plan separates book pre-order from event attendance. Every confirmed place carries a QR pass in your dashboard." />
+                <SectionTitle
+                    eyebrow="How it works"
+                    title="Book, event and mentorship are separate"
+                    lead="The master plan separates book pre-order from event attendance. Every confirmed event place carries a QR pass in your dashboard. Mentorship is an application, not a ticket."
+                />
                 <div className="mt-12 grid gap-10 md:grid-cols-3">
                     {[
-                        ['01', 'Ghana Activation', 'The Legacy Experience on 20 September 2026 is open for registration. Sign in, register, and receive your QR pass.'],
-                        ['02', 'Invitation', 'The media briefing and private author sessions are invitation only — confirmed guests receive their pass directly.'],
-                        ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track — not as an event ticket.'],
+                        ['01', 'Book pre-order', 'Reserve your autobiography edition on The Book page with Paystack or Order via WhatsApp. This does not register you for Accra.'],
+                        ['02', 'Ghana Activation', 'The Legacy Experience on 20 September 2026 is open for registration. Sign in, register, and receive your QR pass — separate from buying the book.'],
+                        ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track — not as an event ticket and not as a book purchase.'],
                     ].map(([n, t, d]) => (
                         <Reveal key={n}>
                             <div className="border-t border-border pt-6">

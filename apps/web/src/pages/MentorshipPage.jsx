@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Check, Clock, X } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section, SectionTitle } from '@/components/Section';
-import { IMG } from '@/lib/content';
+import PreOrderCta from '@/components/PreOrderCta';
+import { IMG, MENTORSHIP_BRIDGE } from '@/lib/content';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { composeWhatsApp, openWhatsApp } from '@/lib/whatsapp';
@@ -97,7 +98,29 @@ const MentorshipPage = () => {
                 title="African Youth Mentorship Initiative — 2027 Cohort | Peter Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
-            <PageHero eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead="Two hundred places each cohort, across twelve countries. Applications are read personally by the programme team — this is an application, not a registration." image={IMG.cover} />
+            <PageHero
+                eyebrow="Mentorship"
+                title="The African Youth Mentorship Initiative"
+                lead={MENTORSHIP_BRIDGE.text}
+                image={IMG.cover}
+            />
+
+            <Section className="border-b border-border py-14 md:py-16" width="max-w-[80rem]">
+                <div className="grid gap-8 md:grid-cols-[1.2fr_auto] md:items-center">
+                    <div>
+                        <p className="eyebrow">{MENTORSHIP_BRIDGE.title}</p>
+                        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                            {MENTORSHIP_BRIDGE.text} Pre-order the autobiography to carry the message; apply here to live it.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        <PreOrderCta label="Pre-Order the book" />
+                        <a href="#apply" className="inline-flex items-center border border-border px-6 py-3.5 text-[0.68rem] uppercase tracking-[0.24em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
+                            Apply below
+                        </a>
+                    </div>
+                </div>
+            </Section>
 
             <Section className="grid gap-14 py-24 md:grid-cols-2 md:py-32" width="max-w-[80rem]">
                 <div>
@@ -111,13 +134,14 @@ const MentorshipPage = () => {
                         ))}
                     </div>
                     <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
-                        The mentorship programme runs independently of the Ghana Launch event. Applying to the 2027 cohort
-                        does not require an event ticket, and event attendance does not guarantee a mentorship place.
+                        The mentorship programme runs independently of the Ghana Launch event and of book pre-order.
+                        Applying to the 2027 cohort does not require an event ticket or a book purchase, and event
+                        attendance does not guarantee a mentorship place.
                     </p>
                 </div>
 
                 <Reveal delay={0.1}>
-                    <div className="border border-border p-8 md:p-10">
+                    <div id="apply" className="scroll-mt-28 border border-border p-8 md:p-10">
                         <p className="eyebrow">Apply</p>
                         <h2 className="mt-4 font-display text-3xl">2027 cohort application</h2>
 

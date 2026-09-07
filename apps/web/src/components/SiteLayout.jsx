@@ -155,6 +155,16 @@ const SiteLayout = ({ children }) => {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:ml-5">
+            <Link
+              to="/book"
+              className={`hidden items-center px-4 py-2.5 text-[0.66rem] uppercase tracking-[0.2em] transition-colors sm:inline-flex ${
+                overlay
+                  ? "border border-white/50 text-white hover:border-white hover:bg-white/10"
+                  : "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]"
+              }`}
+            >
+              Pre-Order
+            </Link>
             <ThemeToggle compact onDark={overlay} />
             <Link
               to={isAuthed ? "/dashboard" : "/login"}
@@ -223,9 +233,9 @@ const SiteLayout = ({ children }) => {
                 </Link>
                 <Link
                   to="/book"
-                  className="border border-[hsl(var(--gold))]/70 py-3.5 text-center text-[0.7rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]"
+                  className="bg-[hsl(var(--primary))] py-3.5 text-center text-[0.7rem] uppercase tracking-[0.2em] text-[hsl(var(--primary-foreground))]"
                 >
-                  The Book
+                  Pre-Order Now
                 </Link>
               </div>
             </div>
