@@ -43,22 +43,22 @@ const HomePage = () => {
             <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
             <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO — full-bleed cover, below fixed header */}
-            <section className="relative mt-[4.25rem] flex min-h-[52svh] flex-col justify-end overflow-hidden bg-[#07101c] md:mt-[4.5rem] md:min-h-[62svh]">
+            {/* HERO — Pete campaign portrait, below fixed header */}
+            <section className="relative mt-[4.25rem] flex min-h-[56svh] flex-col justify-end overflow-hidden bg-[#0A0A0A] md:mt-[4.5rem] md:min-h-[68svh]">
                 <div className="absolute inset-0">
                     <motion.img
                         src={IMG.cover}
-                        alt="Pete Edochie — The Legacy Project cover"
+                        alt="Pete Edochie — The Legacy Project"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 h-full w-full object-cover object-[center_18%] md:object-[center_22%]"
+                        className="absolute inset-0 h-full w-full object-cover object-[center_22%] md:object-[center_28%]"
                     />
                     <div
                         className="absolute inset-0"
                         style={{
                             background:
-                                "linear-gradient(to top, rgba(4,10,18,0.9) 0%, rgba(4,10,18,0.42) 38%, rgba(4,10,18,0.12) 68%, rgba(4,10,18,0.22) 100%)",
+                                "linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.48) 40%, rgba(10,10,10,0.18) 70%, rgba(10,10,10,0.35) 100%)",
                         }}
                     />
                 </div>
@@ -145,7 +145,7 @@ const HomePage = () => {
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
                     <div className="relative">
-                        <img src={IMG.portrait} alt="Portrait of Pete Edochie in traditional attire" className="aspect-[3/4] w-full object-cover object-[center_15%]" />
+                        <img src={IMG.portrait} alt="Portrait of Pete Edochie in traditional attire" className="aspect-[3/4] w-full object-cover object-[center_18%]" />
                         <div className="absolute -bottom-6 -right-4 hidden bg-background px-6 py-5 md:block">
                             <p className="font-display text-4xl text-[hsl(var(--gold))]">
                                 <CountUp value={60} suffix="+" />
@@ -248,7 +248,7 @@ const HomePage = () => {
             {/* MENTORSHIP */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1.1fr_1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
-                    <img src={IMG.portraitArt} alt="Pete Edochie — mentorship and legacy" className="w-full object-cover object-[center_20%]" />
+                    <img src={IMG.portraitArt} alt="Pete Edochie — mentorship and legacy" className="w-full object-cover object-[center_22%]" />
                 </Reveal>
                 <div>
                     <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead={MENTORSHIP_BRIDGE.text} />
@@ -380,7 +380,7 @@ const HomePage = () => {
             <SubscribeSection />
 
             <section className="relative overflow-hidden border-t border-border">
-                <img src={IMG.portraitArt} alt="Pete Edochie" className="h-[60vh] w-full object-cover object-[center_20%]" />
+                <img src={IMG.portraitBw} alt="Pete Edochie" className="h-[60vh] w-full object-cover object-[center_25%]" />
                 <div className="img-veil absolute inset-0" />
                 <div className="absolute inset-0 flex items-center justify-center text-center text-white">
                     <Section width="max-w-[56rem]">

@@ -23,21 +23,22 @@ body {
     --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 8%;
-    --primary: 356 58% 28%;
+    /* Legacy Burgundy #7A0C19 — brand guide */
+    --primary: 353 82% 26%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 8%;
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 38%;
-    --accent: 356 48% 34%;
+    --accent: 353 70% 32%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 55% 40%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 88%;
     --input: 0 0% 88%;
-    --ring: 356 58% 28%;
+    --ring: 353 82% 26%;
     --radius: 0.15rem;
-    --gold: 356 48% 34%;
+    --gold: 353 70% 32%;
     --surface: 0 0% 98%;
   }
   .dark {
@@ -48,21 +49,21 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
-    --primary: 356 50% 42%;
+    --primary: 353 70% 38%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 68%;
-    --accent: 356 45% 48%;
+    --accent: 353 60% 44%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 55% 45%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 356 50% 42%;
+    --ring: 353 70% 38%;
     --radius: 0.15rem;
-    --gold: 356 48% 58%;
+    --gold: 353 55% 52%;
     --surface: 0 0% 4%;
   }
   * {

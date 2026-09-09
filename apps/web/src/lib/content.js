@@ -14,8 +14,8 @@ export const BRAND = {
   hashtag: "#TheLegacyProject",
   tagline: "What will you leave behind?",
   colors: {
-    burgundy: "#7A1F2C",
-    black: "#141414",
+    burgundy: "#7A0C19",
+    black: "#0A0A0A",
     white: "#FFFFFF",
   },
 };
@@ -116,29 +116,38 @@ export const ASSETS = {
   mug: "110ca3ea-224e-437e-a9df-df4ae11a443a.png",
 };
 
-/** Local hero / portrait assets. */
-export const COVER = "/images/peter-edochie-cover.jpg";
-export const PORTRAIT = "/images/peter-edochie-portrait.jpg";
-export const PORTRAIT_ART = "/images/peter-edochie-portrait-art.jpg";
+/** Local Pete Edochie photography (PETE PICTURES + campaign portraits). */
+export const COVER = "/images/pete-hero-wide.jpg";
+export const PORTRAIT = "/images/pete-portrait-seated.jpg";
+export const PORTRAIT_ART = "/images/pete-portrait-red.jpg";
+export const PORTRAIT_BW = "/images/pete-portrait-bw.jpg";
+export const PORTRAIT_EXTRA = "/images/pete-portrait-extra.jpg";
 /** Optional atmospheric banner (kept for reuse). */
 export const PAGE_HERO = "/images/page-hero-cover.jpg";
+/** Legacy collage — still available for gallery / archive. */
+export const COLLAGE = "/images/peter-edochie-cover.jpg";
 
 export const IMG = {
+  /** Homepage & page heroes — wide campaign portrait. */
   cover: COVER,
-  /** Interior page headers — Peter collage / portraits. */
   pageHero: COVER,
   /** Formal seated portrait — biography, story, login. */
   portrait: PORTRAIT,
-  /** Painterly red portrait — closing CTAs, gallery, cultural pages. */
+  /** Red isiagu portrait — mentorship, closing CTAs, cultural pages. */
   portraitArt: PORTRAIT_ART,
+  /** Black-and-white contemplative portrait. */
+  portraitBw: PORTRAIT_BW,
+  /** Additional campaign frame. */
+  portraitExtra: PORTRAIT_EXTRA,
+  collage: COLLAGE,
   stage: COVER,
-  set: assetUrl(ASSETS.premiere),
+  set: PORTRAIT,
   book: assetUrl(ASSETS.book),
   award: PORTRAIT,
   youth: PORTRAIT_ART,
   podium: PORTRAIT,
-  family: assetUrl(ASSETS.okonkwo),
-  artifact: assetUrl(ASSETS.honours),
+  family: PORTRAIT_BW,
+  artifact: PORTRAIT_ART,
   theatre: COVER,
 };
 
@@ -147,7 +156,7 @@ export const MERCH_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
   COVER,
-  assetUrl(ASSETS.okonkwo),
+  PORTRAIT_BW,
 ];
 
 /** Curated archive strip — photographs of Pete Edochie. */
@@ -155,9 +164,9 @@ export const ARCHIVE_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
   COVER,
+  PORTRAIT_BW,
+  COLLAGE,
   assetUrl(ASSETS.premiere),
-  assetUrl(ASSETS.honours),
-  assetUrl(ASSETS.tour),
 ];
 
 /** Ghana activation — master plan: Project Launch, 20 September 2026. */

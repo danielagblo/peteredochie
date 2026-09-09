@@ -5,16 +5,17 @@ import { PageHead, PageHero, Section } from '@/components/Section';
 import { ASSETS, assetUrl, IMG } from '@/lib/content';
 
 const ITEMS = [
-    { src: IMG.portrait, cat: 'Portraits', caption: 'In the study — seated portrait with fan' },
-    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Painted likeness — red cap' },
-    { src: IMG.cover, cat: 'Legacy', caption: 'The Legacy Project cover collage' },
+    { src: IMG.cover, cat: 'Portraits', caption: 'Campaign portrait — The Legacy Project' },
+    { src: IMG.portrait, cat: 'Portraits', caption: 'Seated in blue isiagu with coral beads' },
+    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Red isiagu — smile and coral' },
+    { src: IMG.portraitBw, cat: 'Portraits', caption: 'Black and white — contemplative study' },
+    { src: IMG.portraitExtra, cat: 'Portraits', caption: 'Campaign study — warm light' },
+    { src: IMG.collage, cat: 'Legacy', caption: 'Legacy Project cover collage' },
     { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'Documentary premiere, Enugu' },
     { src: assetUrl(ASSETS.honours), cat: 'Honours', caption: 'Continental screen awards' },
     { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
     { src: assetUrl(ASSETS.okonkwo), cat: 'Legacy', caption: 'Okonkwo — landmark screen role' },
     { src: assetUrl(ASSETS.launch), cat: 'Events', caption: 'Legacy launch evening' },
-    { src: IMG.portrait, cat: 'Portraits', caption: 'Elder statesman — official likeness' },
-    { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'From the archive — premiere night' },
 ];
 
 const GalleryPage = () => {

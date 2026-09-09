@@ -102,7 +102,7 @@ const MentorshipPage = () => {
                 eyebrow="Mentorship"
                 title="The African Youth Mentorship Initiative"
                 lead={MENTORSHIP_BRIDGE.text}
-                image={IMG.cover}
+                image={IMG.portraitArt}
             />
 
             <Section className="border-b border-border py-14 md:py-16" width="max-w-[80rem]">
