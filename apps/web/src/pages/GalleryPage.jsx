@@ -26,10 +26,10 @@ const GalleryPage = () => {
     return (
         <div>
             <PageHead
-                title="Gallery — The Peter Edochie Photographic Archive"
+                title="Gallery — The Pete Edochie Photographic Archive"
                 description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
             />
-            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Peter Edochie from six decades, held and captioned like a collection." image={IMG.cover} />
+            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Pete Edochie from six decades, held and captioned like a collection." image={IMG.cover} />
 
             <Section className="py-20 md:py-28" width="max-w-[90rem]">
                 <div className="flex flex-wrap gap-3 border-b border-border pb-6">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, Check, Send } from 'lucide-react';
 import { PageHead, Section, SectionTitle } from '@/components/Section';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,10 @@ const field = 'w-full border border-border bg-transparent px-4 py-3 text-sm outl
 const SponsorApplyPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const intentParam = (searchParams.get('intent') || 'sponsor').toLowerCase();
+    const packageParam = searchParams.get('package') || '';
+    const intentLabel = intentParam === 'partner' ? 'Partner' : 'Sponsor';
     const [packages, setPackages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [existing, setExisting] = useState(null);
@@ -27,17 +31,31 @@ const SponsorApplyPage = () => {
         phone: user?.phone || '',
         website: '',
         country: 'GH',
-        package_tier: '',
-        message: '',
+        package_tier: packageParam,
+        message: intentParam === 'partner'
+            ? 'Interest: Click to Partner'
+            : 'Interest: Click to Sponsor',
     });
 
     useEffect(() => {
         apiCrud
             .list('sponsorship-packages', { filter: `enabled = true`, sort: 'sort' })
-            .then(setPackages)
+            .then((items) => {
+                setPackages(items);
+                if (!packageParam) return;
+                const match = (items || []).find(
+                    (p) =>
+                        String(p.tier || '').toLowerCase() === packageParam.toLowerCase() ||
+                        String(p.id) === packageParam ||
+                        String(p.name || '').toLowerCase() === packageParam.toLowerCase(),
+                );
+                if (match?.tier) {
+                    setForm((prev) => ({ ...prev, package_tier: match.tier }));
+                }
+            })
             .catch(() => setPackages([]))
             .finally(() => setLoading(false));
-    }, []);
+    }, [packageParam]);
 
     useEffect(() => {
         if (!user?.id) return;
@@ -79,7 +97,8 @@ const SponsorApplyPage = () => {
             // Paystack not configured yet — record kept as pending; also open
             // WhatsApp so the partnership team still receives the enquiry.
             openWhatsApp(
-                composeWhatsApp('Sponsorship application', {
+                composeWhatsApp(`${intentLabel} application`, {
+                    Intent: intentLabel,
                     Company: form.company_name,
                     Industry: form.industry,
                     Contact: form.contact_person,
@@ -104,7 +123,7 @@ const SponsorApplyPage = () => {
         return (
             <div className="pt-32 pb-28">
                 <PageHead
-                    title="Sponsorship application received | The Peter Edochie Legacy"
+                    title="Sponsorship application received | The Pete Edochie Legacy"
                     description="Your sponsorship application has been received and is under review by King Dawie Publishing."
                 />
                 <Section width="max-w-[48rem]">
@@ -156,7 +175,7 @@ const SponsorApplyPage = () => {
         return (
             <div className="pt-32 pb-28">
                 <PageHead
-                    title="Resume sponsorship payment | The Peter Edochie Legacy"
+                    title="Resume sponsorship payment | The Pete Edochie Legacy"
                     description="Finish payment for your pending sponsorship application."
                 />
                 <Section width="max-w-[48rem]">
@@ -187,13 +206,13 @@ const SponsorApplyPage = () => {
     return (
         <div className="pt-32 pb-28">
             <PageHead
-                title="Become a Sponsor | The Peter Edochie Legacy | King Dawie Publishing"
-                description="Apply to become a corporate sponsor or partner of the Peter Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
+                title="Become a Sponsor | The Pete Edochie Legacy | King Dawie Publishing"
+                description="Apply to become a corporate sponsor or partner of the Pete Edochie Legacy. Choose a package and submit your company details for review by King Dawie Publishing."
             />
             <Section width="max-w-[64rem]">
                 <SectionTitle
                     eyebrow="Partnership application"
-                    title="Become a sponsor"
+                    title={intentLabel === 'Partner' ? 'Become a partner' : 'Become a sponsor'}
                     lead="Choose the package that matches your brand's ambition and tell us about your company. A partnership director at King Dawie Publishing will review and respond."
                 />
 

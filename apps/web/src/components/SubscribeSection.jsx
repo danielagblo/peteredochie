@@ -141,7 +141,7 @@ const SubscribeSection = () => {
                                     onChange={(e) => setConsent(e.target.checked)}
                                     className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
                                 />
-                                I agree to receive email and SMS updates from King Dawie Publishing about the Peter Edochie
+                                I agree to receive email and SMS updates from King Dawie Publishing about the Pete Edochie
                                 Legacy platform (book, events, mentorship and campaigns).
                             </label>
                             {state === 'error' ? <p className="text-sm text-[hsl(var(--destructive))]">{message}</p> : null}

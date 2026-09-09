@@ -24,9 +24,12 @@ const fmtTime = (iso) =>
         : '';
 
 const TYPE_META = {
-    ghana_launch: { label: 'Ghana Activation', icon: Gift, badge: 'Open registration' },
-    masterclass: { label: 'Session / Briefing', icon: Mic, badge: 'Open registration' },
-    meet_and_greet: { label: 'Private Session', icon: Users, badge: 'Ticketed when published' },
+    arrival: { label: 'Arrival', icon: MapPin, badge: 'Open registration' },
+    amc: { label: 'AMC', icon: Mic, badge: 'Open registration' },
+    ghana_launch: { label: 'Gala', icon: Gift, badge: 'Open registration' },
+    meet_and_greet: { label: 'Meet and Greet', icon: Users, badge: 'Ticketed when published' },
+    lecture_series: { label: 'Lecture Series · Mentorship 2027', icon: Mic, badge: 'Open registration' },
+    masterclass: { label: 'Session', icon: Mic, badge: 'Open registration' },
 };
 
 const EventCard = ({ event, onParticipate }) => {
@@ -82,13 +85,13 @@ const EventCard = ({ event, onParticipate }) => {
                                             <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
                                                 {isVip ? (
                                                     <>
-                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Peter Edochie</li>
+                                                        <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> One-on-one exclusive access to Pete Edochie</li>
                                                         <li className="flex gap-2"><Camera size={12} strokeWidth={1.6} className="mt-0.5 shrink-0 text-[hsl(var(--gold))]" /> Professional photographer on standby</li>
                                                         <li>Photos included · limited slots</li>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <li>General address and conversation by Peter Edochie</li>
+                                                        <li>General address and conversation by Pete Edochie</li>
                                                         <li>Group setting · more slots available</li>
                                                     </>
                                                 )}
@@ -152,10 +155,11 @@ const EventsPage = () => {
             .list('events', { sort: 'starts' })
             .then((items) => {
                 const stale =
-                    /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening/i;
+                    /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening|Press Conference|Private Legacy Session|Project Launch — Ghana/i;
                 const cleaned = (items || []).filter((e) => !stale.test(e.title || ''));
-                const hasLaunch = cleaned.some((e) => e.event_type === 'ghana_launch');
-                setEvents(hasLaunch ? cleaned : OFFICIAL_EVENTS);
+                const lineupTitles = /^(Arrival|AMC|Gala|Meet and Greet|Lecture Series)/i;
+                const hasLineup = cleaned.filter((e) => lineupTitles.test(e.title || '')).length >= 3;
+                setEvents(hasLineup ? cleaned : OFFICIAL_EVENTS);
                 setStatus('ready');
             })
             .catch(() => {
@@ -165,7 +169,7 @@ const EventsPage = () => {
     }, []);
 
     const ordered = useMemo(() => {
-        const rank = { ghana_launch: 0, masterclass: 1, meet_and_greet: 2 };
+        const rank = { arrival: 0, amc: 1, ghana_launch: 2, meet_and_greet: 3, lecture_series: 4 };
         return events.slice().sort((a, b) => (rank[a.event_type] ?? 9) - (rank[b.event_type] ?? 9));
     }, [events]);
 
@@ -222,13 +226,13 @@ const EventsPage = () => {
     return (
         <div>
             <PageHead
-                title="Events & Ghana Activation | The Peter Edochie Legacy"
-                description="The Legacy Experience — Ghana Activation on 20 September 2026 in Accra, the official reveal media briefing, and the African Youth Mentorship Initiative."
+                title="Events & Ghana Activation | The Pete Edochie Legacy"
+                description="Project Launch event lineup in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series — plus the African Youth Mentorship Initiative."
             />
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="The Legacy Experience peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page; register here to attend. Mentorship is a third, independent track."
+                lead="Project Launch week in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series (African Youth Mentorship — 2027 Cohort). Book pre-order and event registration are separate: secure your edition on The Book page; register here to attend. Mentorship applications remain a separate track."
                 image={IMG.cover}
             />
 
@@ -275,7 +279,7 @@ const EventsPage = () => {
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
                 <Section className="grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center" width="max-w-[84rem]">
                     <Reveal>
-                        <img src={IMG.youth} alt="Peter Edochie — handing on the craft" className="w-full object-cover object-[center_20%]" />
+                        <img src={IMG.youth} alt="Pete Edochie — handing on the craft" className="w-full object-cover object-[center_20%]" />
                     </Reveal>
                     <div>
                         <SectionTitle
@@ -283,9 +287,8 @@ const EventsPage = () => {
                             title="African Youth Mentorship — 2027 cohort"
                             lead="A structured six-month programme for young storytellers across the continent. Applications are read personally by the programme team — this is an application, not a registration."
                         />
-                        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                            <Detail icon={Users} label="Places" value="200 per cohort" />
-                            <Detail icon={MapPin} label="Countries" value="12 across Africa" />
+                        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                            <Detail icon={Users} label="Places" value="5,000 per cohort" />
                             <Detail icon={CalendarDays} label="Cohort" value="2027 intake open" />
                         </div>
                         <Link
@@ -311,7 +314,7 @@ const EventsPage = () => {
                 <div className="mt-12 grid gap-10 md:grid-cols-3">
                     {[
                         ['01', 'Book pre-order', 'Reserve your autobiography edition on The Book page with Paystack or Order via WhatsApp. This does not register you for Accra.'],
-                        ['02', 'Ghana Activation', 'The Legacy Experience on 20 September 2026 is open for registration. Sign in, register, and receive your QR pass — separate from buying the book.'],
+                        ['02', 'Event lineup', 'Register separately for Arrival, AMC, Gala, Meet and Greet, and the Lecture Series (African Youth Mentorship — 2027 Cohort) during Project Launch week.'],
                         ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track — not as an event ticket and not as a book purchase.'],
                     ].map(([n, t, d]) => (
                         <Reveal key={n}>

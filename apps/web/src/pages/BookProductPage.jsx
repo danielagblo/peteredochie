@@ -48,7 +48,7 @@ const BookProductPage = () => {
     return (
         <div className="pt-28">
             <PageHead
-                title={`${title} — Preorder | Peter Edochie Legacy`}
+                title={`${title} — Preorder | Pete Edochie Legacy`}
                 description={product?.excerpt || product?.description || BOOK.shortDescription}
             />
             <Section className="py-12 md:py-20" width="max-w-[80rem]">

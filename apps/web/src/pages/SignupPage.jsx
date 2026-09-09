@@ -74,8 +74,8 @@ const SignupPage = () => {
     return (
         <div className="grid min-h-screen md:grid-cols-2">
             <PageHead
-                title={`Create your ${meta.title} account | The Peter Edochie Legacy`}
-                description={`Register a ${meta.title} account on the Peter Edochie Legacy platform, operated by King Dawie Publishing.`}
+                title={`Create your ${meta.title} account | The Pete Edochie Legacy`}
+                description={`Register a ${meta.title} account on the Pete Edochie Legacy platform, operated by King Dawie Publishing.`}
             />
             <div className="flex items-center justify-center px-5 py-32 md:px-16">
                 <div className="w-full max-w-md">
@@ -170,7 +170,7 @@ const SignupPage = () => {
                 </div>
             </div>
             <div className="relative hidden md:block">
-                <img src={IMG.portraitArt} alt="Peter Edochie" className="h-full w-full object-cover object-[center_22%]" />
+                <img src={IMG.portraitArt} alt="Pete Edochie" className="h-full w-full object-cover object-[center_22%]" />
                 <div className="img-veil absolute inset-0" />
             </div>
         </div>

@@ -76,7 +76,7 @@ const TIER_META = {
         price: 1000,
         headline: 'One-on-one exclusive access',
         perks: [
-            'Exclusive one-on-one access to Peter Edochie',
+            'Exclusive one-on-one access to Pete Edochie',
             'Professional photographer on standby',
             'All photos included and delivered after the event',
             'Limited slots — intimate setting',
@@ -87,7 +87,7 @@ const TIER_META = {
         price: 500,
         headline: 'Group address and conversation',
         perks: [
-            'General address and conversation by Peter Edochie',
+            'General address and conversation by Pete Edochie',
             'Group setting with fellow attendees',
             'More slots available',
             'QR pass for check-in',

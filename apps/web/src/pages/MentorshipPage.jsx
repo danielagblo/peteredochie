@@ -95,7 +95,7 @@ const MentorshipPage = () => {
     return (
         <div>
             <PageHead
-                title="African Youth Mentorship Initiative — 2027 Cohort | Peter Edochie"
+                title="African Youth Mentorship Initiative — 2027 Cohort | Pete Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
             <PageHero

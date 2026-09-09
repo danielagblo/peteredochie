@@ -23,11 +23,20 @@ const SponsorsPage = () => {
 
     const applyTo = isAuthed ? '/sponsor-apply' : '/join?type=sponsor&next=/sponsor-apply';
 
+    const applyHref = (pkg, intent) => {
+        const params = new URLSearchParams({
+            package: pkg.tier || pkg.id || '',
+            intent,
+        });
+        const next = `/sponsor-apply?${params.toString()}`;
+        return isAuthed ? next : `/join?type=sponsor&next=${encodeURIComponent(next)}`;
+    };
+
     return (
         <div>
             <PageHead
-                title="Sponsors & Partners | The Peter Edochie Legacy | King Dawie Publishing"
-                description="Partnership opportunities with the Peter Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
+                title="Sponsors & Partners | The Pete Edochie Legacy | King Dawie Publishing"
+                description="Partnership opportunities with the Pete Edochie Legacy: Platinum, Gold, Silver and Bronze sponsorship packages with benefits, deliverables and event visibility."
             />
             <PageHero eyebrow="Sponsors & Partners" title="Institutions that carry this forward" lead="The archive, the events and the mentorship cohorts are sustained by partners who think in decades. Choose a package and apply to partner with the legacy." image={IMG.cover} />
 
@@ -89,9 +98,20 @@ const SponsorsPage = () => {
                                                 ))}
                                             </ul>
 
-                                            <Link to={applyTo} className="mt-7 border border-border py-3.5 text-center text-[0.64rem] uppercase tracking-[0.22em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]">
-                                                Apply as {p.name}
-                                            </Link>
+                                            <div className="mt-auto grid gap-3 pt-7">
+                                                <Link
+                                                    to={applyHref(p, 'sponsor')}
+                                                    className="bg-[hsl(var(--primary))] py-3.5 text-center text-[0.64rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
+                                                >
+                                                    Click to Sponsor
+                                                </Link>
+                                                <Link
+                                                    to={applyHref(p, 'partner')}
+                                                    className="border border-border py-3.5 text-center text-[0.64rem] uppercase tracking-[0.22em] transition-colors hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]"
+                                                >
+                                                    Click to Partner
+                                                </Link>
+                                            </div>
                                         </div>
                                     </Reveal>
                                 );

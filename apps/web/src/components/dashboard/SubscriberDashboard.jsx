@@ -157,8 +157,8 @@ const SubscriberDashboard = () => {
 
     return (
         <DashboardShell
-            title="Subscriber dashboard | The Peter Edochie Legacy"
-            description="Your Meet & Greet tickets, MasterClass registrations, mentorship application, book orders, notifications and newsletter preferences on the Peter Edochie Legacy platform."
+            title="Subscriber dashboard | The Pete Edochie Legacy"
+            description="Your Meet & Greet tickets, MasterClass registrations, mentorship application, book orders, notifications and newsletter preferences on the Pete Edochie Legacy platform."
             nav={nav}
         >
             {(tab) => (
@@ -172,7 +172,7 @@ const SubscriberDashboard = () => {
                                 <Stat label="Upcoming events" value={events.length} hint="Across the programme" />
                             </div>
                             <div className="mt-6">
-                                <Panel title="Upcoming events" lead="Your standing across The Legacy Experience, media briefings and private sessions.">
+                                <Panel title="Upcoming events" lead="Your standing across Project Launch, media briefings and private sessions.">
                                     {loading ? (
                                         <EmptyState>Loading events…</EmptyState>
                                     ) : (

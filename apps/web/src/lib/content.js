@@ -1,10 +1,10 @@
 export const PUBLISHER = {
   name: "King Dawie Publishing",
   short: "King Dawie Publishing",
-  role: "Official owner, publisher and rights holder of the Peter Edochie Legacy platform",
+  role: "Official owner, publisher and rights holder of the Pete Edochie Legacy platform",
   email: "rights@kingdawiepublishing.com",
-  phoneDisplay: "+233 53 333 30810",
-  whatsapp: "2330533330810",
+  phoneDisplay: "+233 533 330 800",
+  whatsapp: "233533330800",
   note: "All works on this platform — the autobiography, the archive, the events and the journal — are published and administered by King Dawie Publishing as the official rights holder.",
 };
 
@@ -20,10 +20,10 @@ export const BRAND = {
   },
 };
 
-/** The actor this platform celebrates — Peter Edochie, Nigerian screen legend. */
+/** The actor this platform celebrates — Pete Edochie, Nigerian screen legend. */
 export const LEGACY = {
-  name: "Peter Edochie",
-  legacyName: "Peter Edochie Legacy",
+  name: "Pete Edochie",
+  legacyName: "Pete Edochie Legacy",
   title: "Actor",
   descriptor:
     "Nigerian actor, broadcaster and elder statesman of African cinema",
@@ -33,11 +33,11 @@ export const LEGACY = {
 
 /**
  * Website expectations brief — first-seconds clarity & primary actions.
- * (Maps PDF “Pete” wording to Peter Edochie.)
+ * (Maps PDF “Pete” wording to Pete Edochie.)
  */
 export const PROJECT = {
   whatItIs:
-    "The Peter Edochie Legacy Project preserves wisdom, inspires the next generation, and turns a life of experience into a lasting legacy through a book, a documentary film, and an African Youth Mentorship Initiative.",
+    "The Pete Edochie Legacy Project preserves wisdom, inspires the next generation, and turns a life of experience into a lasting legacy through a book, a documentary film, and an African Youth Mentorship Initiative.",
   whyItMatters:
     "It inspires people to think beyond personal success — to build a lasting legacy, develop others, and positively shape the next generation.",
   actions: [
@@ -49,7 +49,7 @@ export const PROJECT = {
 
 /** Autobiography marketing copy (from website expectations). */
 export const BOOK = {
-  title: "The Peter Edochie Autobiography",
+  title: "The Pete Edochie Autobiography",
   tagline: "Build something that outlives you",
   shortDescription:
     "A powerful invitation to rethink leadership, purpose, mentorship and the legacy you will leave behind. Discover the book that challenges you to build a life of impact and inspire the next generation.",
@@ -76,7 +76,7 @@ export const MENTORSHIP_BRIDGE = {
 export const DOCUMENTARY = {
   eyebrow: "Documentary",
   title: "A film in development",
-  text: "Alongside the autobiography and mentorship programme, a documentary film is in development — preserving Peter Edochie’s story for audiences across the continent and beyond.",
+  text: "Alongside the autobiography and mentorship programme, a documentary film is in development — preserving Pete Edochie’s story for audiences across the continent and beyond.",
 };
 
 /** Static recognition / social-proof labels (editorial; not paid media claims). */
@@ -100,7 +100,7 @@ export const ASSET_HOST = "https://images.hostinger.com";
 
 export const assetUrl = (file) => `${ASSET_HOST}/${file}`;
 
-/** Curated Peter Edochie / platform imagery from the original site build. */
+/** Curated Pete Edochie / platform imagery from the original site build. */
 export const ASSETS = {
   portrait: "1a411ea8-babd-45bc-add6-73e265f0453a.png",
   launch: "64c337f2-f627-4055-9d43-d348d976dc63.png",
@@ -142,7 +142,7 @@ export const IMG = {
   theatre: COVER,
 };
 
-/** Shop preview tiles on the homepage — photographs of Peter Edochie. */
+/** Shop preview tiles on the homepage — photographs of Pete Edochie. */
 export const MERCH_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
@@ -150,7 +150,7 @@ export const MERCH_PREVIEW = [
   assetUrl(ASSETS.okonkwo),
 ];
 
-/** Curated archive strip — photographs of Peter Edochie. */
+/** Curated archive strip — photographs of Pete Edochie. */
 export const ARCHIVE_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
@@ -160,14 +160,14 @@ export const ARCHIVE_PREVIEW = [
   assetUrl(ASSETS.tour),
 ];
 
-/** Ghana activation — master plan: The Legacy Experience, 20 September 2026. */
+/** Ghana activation — master plan: Project Launch, 20 September 2026. */
 export const LAUNCH = {
   activationDate: "20 September 2026",
   activationAt: "2026-09-20T18:00:00+00:00",
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
-  headline: "The Legacy Experience",
-  lead: "The continental launch peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page, then register here to attend The Legacy Experience — and apply separately to the mentorship programme.",
+  headline: "Project Launch",
+  lead: "The continental launch peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page, then register here to attend Project Launch — and apply separately to the mentorship programme.",
   distinction:
     "Pre-ordering the book does not register you for the Ghana activation. Event registration does not reserve a book. Choose each action deliberately.",
   revealDate: "12 September 2026",
@@ -175,19 +175,49 @@ export const LAUNCH = {
 };
 
 /**
- * Official calendar from the master plan (used when the API has no events yet).
+ * Official Project Launch week lineup (Accra).
  * Seed `apps/api/prisma/seed.js` mirrors this list.
  */
 export const OFFICIAL_EVENTS = [
   {
-    id: "legacy-experience-ghana",
-    title: "The Legacy Experience — Ghana Activation",
+    id: "arrival-accra",
+    title: "Arrival",
+    city: "Accra",
+    venue: "Accra International Conference Centre",
+    starts: "2026-09-16T14:00:00.000Z",
+    ends: "2026-09-16T18:00:00.000Z",
+    summary:
+      "Welcome into Project Launch week in Accra — guest check-in, orientation and the opening of the activation programme. Distinct from book pre-order; register to attend.",
+    category: "arrival",
+    event_type: "arrival",
+    invitation_only: false,
+    ticket_tiers: [],
+    image: COVER,
+  },
+  {
+    id: "amc-accra",
+    title: "AMC",
+    city: "Accra",
+    venue: "Accra International Conference Centre",
+    starts: "2026-09-17T10:00:00.000Z",
+    ends: "2026-09-17T16:00:00.000Z",
+    summary:
+      "AMC — a flagship session in the Project Launch lineup. Programme details and speakers will be published closer to the date. Register to attend.",
+    category: "amc",
+    event_type: "amc",
+    invitation_only: false,
+    ticket_tiers: [],
+    image: PORTRAIT_ART,
+  },
+  {
+    id: "gala-accra",
+    title: "Gala",
     city: "Accra",
     venue: "Accra International Conference Centre",
     starts: "2026-09-20T18:00:00.000Z",
-    ends: "2026-09-20T21:00:00.000Z",
+    ends: "2026-09-20T22:00:00.000Z",
     summary:
-      "The peak moment of The Legacy Project campaign in Ghana: a celebration of purpose, mentorship and impact with Peter Edochie — book sales, speeches, mentorship moments and community gathering. Distinct from book pre-order; register to attend.",
+      "The Project Launch gala evening in Accra — celebration, speeches and community gathering with Pete Edochie. Distinct from book pre-order; register to attend.",
     category: "launch",
     event_type: "ghana_launch",
     invitation_only: false,
@@ -195,34 +225,34 @@ export const OFFICIAL_EVENTS = [
     image: PORTRAIT,
   },
   {
-    id: "media-briefing-accra",
-    title: "Press Conference & Media Briefing",
+    id: "meet-and-greet-accra",
+    title: "Meet and Greet",
     city: "Accra",
     venue: "Venue to be confirmed",
-    starts: "2026-09-12T10:00:00.000Z",
-    ends: "2026-09-12T12:00:00.000Z",
+    starts: "2026-09-19T15:00:00.000Z",
+    ends: "2026-09-19T18:00:00.000Z",
     summary:
-      "Official reveal and media engagement: introduce Peter Edochie in Ghana, announce the 20 September activation, open the pre-order campaign and brief press partners. Invitation only.",
-    category: "media",
-    event_type: "masterclass",
-    invitation_only: true,
-    ticket_tiers: [],
-    image: PORTRAIT_ART,
-  },
-  {
-    id: "private-legacy-session",
-    title: "Private Legacy Session with Peter Edochie",
-    city: "Accra",
-    venue: "Venue to be confirmed",
-    starts: "2026-09-18T15:00:00.000Z",
-    ends: "2026-09-18T17:00:00.000Z",
-    summary:
-      "An invitation-only Legacy Project session with the author — a lead engagement for selected community members around the Ghana activation week (16–20 September).",
+      "An in-person Meet and Greet with Pete Edochie during Project Launch week. Ticket tiers open when published; VIP and standard options may apply.",
     category: "session",
     event_type: "meet_and_greet",
-    invitation_only: true,
+    invitation_only: false,
     ticket_tiers: [],
     image: COVER,
+  },
+  {
+    id: "lecture-series-accra",
+    title: "Lecture Series — African Youth Mentorship 2027 Cohort",
+    city: "Accra",
+    venue: "Accra International Conference Centre",
+    starts: "2026-09-18T10:00:00.000Z",
+    ends: "2026-09-18T13:00:00.000Z",
+    summary:
+      "Lecture series for the African Youth Mentorship Initiative — 2027 cohort: leadership, purpose, craft and legacy. Apply to the mentorship programme separately; register here to attend the sessions.",
+    category: "lecture",
+    event_type: "lecture_series",
+    invitation_only: false,
+    ticket_tiers: [],
+    image: PORTRAIT_ART,
   },
 ];
 
@@ -234,7 +264,7 @@ export const MESSAGING_PILLARS = [
   },
   {
     title: "Documentary",
-    text: "A documentary film in development, preserving the life and wisdom of Peter Edochie for the next generation.",
+    text: "A documentary film in development, preserving the life and wisdom of Pete Edochie for the next generation.",
   },
   {
     title: "Mentorship",
@@ -315,7 +345,7 @@ export const AWARDS = [
     year: "2023",
   },
   {
-    name: "Member of the Order of the Federal Republic",
+    name: "Member of the Order of the Federal Republic of Nigeria",
     body: "Federal Republic of Nigeria",
     year: "2011",
   },
@@ -398,12 +428,12 @@ export const FAQ_SECTIONS = [
     title: "The platform",
     items: [
       {
-        q: "What is the Peter Edochie Legacy platform?",
-        a: "It is the official digital home of Peter Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
+        q: "What is the Pete Edochie Legacy platform?",
+        a: "It is the official digital home of Pete Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
       },
       {
         q: "Who operates this website?",
-        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Peter Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
+        a: "King Dawie Publishing is the official owner, publisher and rights holder of the Pete Edochie Legacy. All publishing, licensing, event administration and archive content on this platform is managed by the publishing office.",
       },
       {
         q: "Do I need an account to browse the site?",
