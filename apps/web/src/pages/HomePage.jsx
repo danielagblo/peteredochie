@@ -182,7 +182,7 @@ const HomePage = () => {
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
                 <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
                     {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic of Nigeria', 'The Autobiography (2026)'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic of Nigeria'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
                                         {t}
                                         <span className="text-[hsl(var(--gold))]">◆</span>
                                     </span>)}
