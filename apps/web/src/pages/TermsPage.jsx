@@ -6,7 +6,7 @@ import { IMG, PUBLISHER } from '@/lib/content';
 const SECTIONS = [
     {
         h: '1. The platform operator',
-        p: `These Terms of Service govern your use of the Pete Edochie Legacy platform. The platform is owned, published and operated by ${PUBLISHER.name}, the official owner and rights holder of the Pete Edochie Legacy. By accessing or using any part of the platform — the archive, the autobiography, events, the Meet & Greet, the mentorship programme or member dashboard — you agree to be bound by these terms.`,
+        p: `These Terms of Service govern your use of the Pete Edochie Legacy platform. The platform is owned, published and operated by ${PUBLISHER.name}, the official owner and rights holder of the Pete Edochie Legacy. By accessing or using any part of the platform, the archive, the autobiography, events, the Meet & Greet, the mentorship programme or member dashboard, you agree to be bound by these terms.`,
     },
     {
         h: '2. Ownership & intellectual property',
@@ -22,7 +22,7 @@ const SECTIONS = [
     },
     {
         h: '5. Acceptable use',
-        p: 'You agree not to misuse the platform — including attempting unauthorised access, disrupting service, scraping content, infringing rights, or submitting false, unlawful or abusive enquiries or applications. Mentorship and partnership applications must be accurate and made in good faith.',
+        p: 'You agree not to misuse the platform, including attempting unauthorised access, disrupting service, scraping content, infringing rights, or submitting false, unlawful or abusive enquiries or applications. Mentorship and partnership applications must be accurate and made in good faith.',
     },
     {
         h: '6. Third-party links',

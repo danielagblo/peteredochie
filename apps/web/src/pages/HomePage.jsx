@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import CountUp from '@/components/CountUp';
 import Seo from '@/components/Seo';
@@ -14,86 +14,175 @@ import {
   AWARDS,
   BOOK,
   DOCUMENTARY,
-  ENDORSEMENTS,
   IMG,
   LEGACY,
+  LEGACY_QUOTES,
   MENTORSHIP_BRIDGE,
   MERCH_PREVIEW,
   ARCHIVE_PREVIEW,
   MILESTONES,
   OFFICIAL_EVENTS,
   PROJECT,
-  TESTIMONIALS,
+  QUOTE_HANDLE,
   TIERS,
 } from '@/lib/content';
 import { apiCrud } from '@/lib/api';
+
+const EVENT_IMAGE_FALLBACK = {
+  arrival: IMG.cover,
+  amc: IMG.portraitArt,
+  ghana_launch: IMG.portrait,
+  meet_and_greet: IMG.portraitExtra,
+  lecture_series: IMG.portraitBw,
+};
+
+const eventImage = (e) => {
+  if (e.image) return e.image;
+  if (EVENT_IMAGE_FALLBACK[e.event_type]) return EVENT_IMAGE_FALLBACK[e.event_type];
+  const title = e.title || '';
+  if (/^Arrival/i.test(title)) return IMG.cover;
+  if (/^AMC/i.test(title)) return IMG.portraitArt;
+  if (/^Gala/i.test(title)) return IMG.portrait;
+  if (/Meet and Greet/i.test(title)) return IMG.portraitExtra;
+  if (/Lecture Series/i.test(title)) return IMG.portraitBw;
+  return IMG.cover;
+};
+
+const HERO_SLIDES = [
+  { src: IMG.cover, position: 'object-[center_28%]' },
+  { src: IMG.portrait, position: 'object-[center_18%]' },
+  { src: IMG.portraitArt, position: 'object-[center_20%]' },
+  { src: IMG.portraitBw, position: 'object-[center_25%]' },
+  { src: IMG.portraitExtra, position: 'object-[center_28%]' },
+];
+
 const HomePage = () => {
   const [events, setEvents] = useState([]);
+  const [slide, setSlide] = useState(0);
+
   useEffect(() => {
     apiCrud.list('events', { sort: 'starts', page: 1, perPage: 5 }).then((items) => {
       const stale =
-        /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening|Press Conference|Private Legacy Session|Project Launch — Ghana/i;
+        /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening|Press Conference|Private Legacy Session|Project Launch, Ghana/i;
       const cleaned = (items || []).filter((e) => !stale.test(e.title || ''));
       const lineupTitles = /^(Arrival|AMC|Gala|Meet and Greet|Lecture Series)/i;
       const lineup = cleaned.filter((e) => lineupTitles.test(e.title || ''));
       setEvents((lineup.length >= 3 ? lineup : OFFICIAL_EVENTS).slice(0, 5));
     }).catch(() => setEvents(OFFICIAL_EVENTS.slice(0, 5)));
   }, []);
-  return <div>
-            <PageHead title="Pete Edochie — Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor — biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
-            <Seo title="Pete Edochie — Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie — Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Pete Edochie Legacy — King Dawie Publishing" />
 
-            {/* HERO — Pete campaign portrait, below fixed header */}
-            <section className="relative mt-[4.25rem] flex min-h-[56svh] flex-col justify-end overflow-hidden bg-[#0A0A0A] md:mt-[4.5rem] md:min-h-[68svh]">
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setSlide((i) => (i + 1) % HERO_SLIDES.length);
+    }, 6500);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const goPrev = () => setSlide((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const goNext = () => setSlide((i) => (i + 1) % HERO_SLIDES.length);
+
+  return <div>
+            <PageHead title="Pete Edochie, Actor | The Official Legacy Platform | King Dawie Publishing" description="The official digital home of Pete Edochie, the Nigerian actor: biography, screen archive, autobiography, events, Meet & Greet, and the African Youth Mentorship Initiative. Published by King Dawie Publishing." />
+            <Seo title="Pete Edochie, Actor | The Official Legacy Platform" description="The screen archive, autobiography, events and mentorship of Pete Edochie, Nigerian actor and elder statesman of African cinema. Published by King Dawie Publishing." image={IMG.cover} siteName="The Pete Edochie Legacy | King Dawie Publishing" />
+
+            {/* HERO, Hilces-style full-bleed slideshow + left copy */}
+            <section className="relative flex h-[100svh] items-center overflow-hidden bg-[#7A0C19]">
                 <div className="absolute inset-0">
-                    <motion.img
-                        src={IMG.cover}
-                        alt="Pete Edochie — The Legacy Project"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute inset-0 h-full w-full object-cover object-[center_22%] md:object-[center_28%]"
-                    />
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            background:
-                                "linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.48) 40%, rgba(10,10,10,0.18) 70%, rgba(10,10,10,0.35) 100%)",
-                        }}
-                    />
+                    {HERO_SLIDES.map((item, i) => (
+                        <motion.img
+                            key={item.src}
+                            src={item.src}
+                            alt=""
+                            aria-hidden={i !== slide}
+                            initial={false}
+                            animate={{ opacity: i === slide ? 1 : 0, scale: i === slide ? 1 : 1.05 }}
+                            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+                            className={`absolute inset-0 h-full w-full object-cover ${item.position}`}
+                        />
+                    ))}
+                    <div className="absolute inset-0 hidden bg-gradient-to-r from-[#7A0C19]/95 via-[#7A0C19]/60 to-black/20 md:block" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#7A0C19]/80 via-[#7A0C19]/40 to-[#7A0C19]/95 md:hidden" />
                 </div>
-                <div className="relative z-10 mx-auto w-full max-w-[90rem] px-5 pb-8 pt-10 md:px-10 md:pb-11 md:pt-12">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.45, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                        className="font-hero max-w-5xl text-[clamp(2.35rem,5.8vw,4.5rem)] font-medium leading-[1.05] tracking-tight text-white"
+
+                <div className="relative z-10 mx-auto w-full max-w-7xl -translate-y-6 px-5 pt-24 sm:px-6 md:-translate-y-10 md:px-10 md:pt-28 lg:px-8">
+                    <motion.div
+                        initial={{ opacity: 0, x: -40 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        className="max-w-3xl"
                     >
-                        <span className="md:hidden">
+                        <h1 className="mb-6 font-hero text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl">
                             A voice that taught
                             <br />
-                            a continent
-                        </span>
-                        <span className="hidden md:inline">A voice that taught a continent</span>
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.85, duration: 0.8 }}
-                        className="mt-5 max-w-2xl text-sm leading-relaxed text-white/80 md:text-[0.95rem]"
-                    >
-                        {PROJECT.whatItIs}
-                    </motion.p>
+                            <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text pr-2 italic text-transparent">
+                                a continent
+                            </span>
+                        </h1>
+
+                        <p className="mb-6 max-w-xl border-l-4 border-white pl-6 text-lg font-medium leading-relaxed text-white/90 md:mb-7 md:text-xl">
+                            {PROJECT.whyItMatters}
+                        </p>
+
+                        <div className="flex flex-col gap-5 sm:flex-row">
+                            <Link
+                                to="/book"
+                                className="inline-flex items-center justify-center gap-3 rounded-full bg-white px-10 py-4 font-bold text-[#7A0C19] shadow-[0_0_30px_rgba(255,255,255,0.18)] transition-all hover:scale-105 hover:bg-white/90"
+                            >
+                                Pre-Order Now
+                                <ChevronRight size={20} strokeWidth={3} />
+                            </Link>
+                            <Link
+                                to="/peter-edochie"
+                                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-10 py-4 font-bold text-white backdrop-blur-md transition-all hover:bg-white/20"
+                            >
+                                Discover Our Story
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+
+                <div className="absolute bottom-6 right-4 z-20 flex flex-col items-end gap-6 md:bottom-10 md:right-10 md:flex-row md:items-center md:gap-8">
+                    <div className="flex gap-3">
+                        {HERO_SLIDES.map((_, i) => (
+                            <button
+                                key={i}
+                                type="button"
+                                aria-label={`Show portrait ${i + 1}`}
+                                onClick={() => setSlide(i)}
+                                className={`h-1.5 rounded-full transition-all duration-500 ${
+                                    i === slide ? 'w-12 bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)]' : 'w-4 bg-white/40 hover:bg-white/60'
+                                }`}
+                            />
+                        ))}
+                    </div>
+                    <div className="flex gap-2 rounded-full border border-white/10 bg-black/30 p-2 backdrop-blur-md">
+                        <button
+                            type="button"
+                            aria-label="Previous portrait"
+                            onClick={goPrev}
+                            className="flex h-12 w-12 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19]"
+                        >
+                            <ChevronLeft size={24} />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label="Next portrait"
+                            onClick={goNext}
+                            className="flex h-12 w-12 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19]"
+                        >
+                            <ChevronRight size={24} />
+                        </button>
+                    </div>
                 </div>
             </section>
 
             <LaunchCountdown />
 
-            {/* MARQUEE — rolling catalogue */}
+            {/* MARQUEE, rolling catalogue */}
             <div className="overflow-hidden border-y border-border bg-[hsl(var(--surface))] py-5">
                 <div className="flex w-max animate-[marquee_38s_linear_infinite] gap-14 whitespace-nowrap">
                     {[0, 1].map(k => <div key={k} className="flex gap-14">
-                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic of Nigeria', 'The Autobiography — 2026'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
+                            {['Things Fall Apart', 'Over 200 screen roles', 'Member of the Order of the Federal Republic of Nigeria', 'The Autobiography (2026)'].map(t => <span key={t} className="flex items-center gap-14 font-display text-lg text-muted-foreground">
                                         {t}
                                         <span className="text-[hsl(var(--gold))]">◆</span>
                                     </span>)}
@@ -102,7 +191,7 @@ const HomePage = () => {
                 <style>{`@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }`}</style>
             </div>
 
-            {/* SUPPORTERS — after catalogue */}
+            {/* SUPPORTERS, after catalogue */}
             <div className="border-b border-border bg-background py-8 md:py-10">
                 <div className="mx-auto flex w-full max-w-[90rem] flex-col items-center justify-center gap-5 px-5 text-center md:px-10">
                     <p className="text-[0.62rem] uppercase tracking-[0.28em] text-muted-foreground">
@@ -158,7 +247,7 @@ const HomePage = () => {
                     <SectionTitle eyebrow="The Man" title={<>Not a performance.<br />A way of carrying culture.</>} />
                     <Reveal delay={0.1}>
                         <p className="mt-6 text-base leading-[1.85] text-muted-foreground">
-                            Long before the cameras, there was the voice — trained in broadcasting, tempered by the
+                            Long before the cameras, there was the voice, trained in broadcasting, tempered by the
                             proverbs of Anambra, and unwilling to shout when stillness would do. When he became Okonkwo,
                             an entire continent recognised something it already knew about itself.
                         </p>
@@ -240,7 +329,7 @@ const HomePage = () => {
                             </Reveal>)}
                     </div>
                     <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                        Premium apparel, framed and limited-edition prints, and keepsakes drawn from six decades of storytelling — produced and shipped by King Dawie Publishing.
+                        Premium apparel, framed and limited-edition prints, and keepsakes drawn from six decades of storytelling, produced and shipped by King Dawie Publishing.
                     </p>
                 </Section>
             </div>
@@ -248,7 +337,7 @@ const HomePage = () => {
             {/* MENTORSHIP */}
             <Section className="grid gap-14 py-24 md:grid-cols-[1.1fr_1fr] md:items-center md:py-32" width="max-w-[80rem]">
                 <Reveal>
-                    <img src={IMG.portraitArt} alt="Pete Edochie — mentorship and legacy" className="w-full object-cover object-[center_22%]" />
+                    <img src={IMG.portraitArt} alt="Pete Edochie, mentorship and legacy" className="w-full object-cover object-[center_22%]" />
                 </Reveal>
                 <div>
                     <SectionTitle eyebrow="Mentorship" title="The African Youth Mentorship Initiative" lead={MENTORSHIP_BRIDGE.text} />
@@ -284,25 +373,32 @@ const HomePage = () => {
                         <SectionTitle
                             eyebrow="Events"
                             title="Where to meet the legacy"
-                            lead="Project Launch week — Accra. Lineup: Arrival, AMC, Gala, Meet and Greet, Lecture Series (African Youth Mentorship — 2027 Cohort). Book pre-order and event registration are separate actions."
+                            lead="Project Launch week in Accra. Lineup: Arrival, AMC, Gala, Meet and Greet, Lecture Series (African Youth Mentorship 2027 Cohort). Book pre-order and event registration are separate actions."
                         />
                         <Link to="/events" className="text-[0.72rem] uppercase tracking-[0.24em] text-[hsl(var(--gold))]">
                             Event registration
                         </Link>
                     </div>
-                    <div className="mt-12 space-y-px">
+                    <div className="mt-12 space-y-4">
                         {events.length === 0 ? <p className="py-8 text-sm text-muted-foreground">Dates are being confirmed. Please check back shortly.</p> : events.map((e, i) => <Reveal key={e.id} delay={i * 0.06}>
-                                    <Link to="/events" className="grid items-center gap-3 border-t border-border py-7 transition-colors hover:bg-white/[0.02] md:grid-cols-[10rem_1fr_14rem_2rem]">
-                                        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
-                                            {e.starts ? new Date(e.starts).toLocaleDateString('en-GB', {
+                                    <Link to="/events" className="group grid items-center gap-4 border border-border bg-background p-3 transition-colors hover:border-[hsl(var(--gold))]/50 md:grid-cols-[9rem_1fr_12rem_2rem] md:gap-6 md:p-4">
+                                        <img
+                                            src={eventImage(e)}
+                                            alt=""
+                                            className="aspect-[4/3] w-full object-cover object-[center_22%]"
+                                        />
+                                        <div className="min-w-0 px-1">
+                                            <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
+                                                {e.starts ? new Date(e.starts).toLocaleDateString('en-GB', {
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric'
                 }) : 'TBC'}
-                                        </span>
-                                        <span className="font-display text-2xl md:text-3xl">{e.title}</span>
-                                        <span className="text-sm text-muted-foreground">{e.city}</span>
-                                        <ArrowRight size={16} strokeWidth={1.4} className="hidden justify-self-end text-muted-foreground md:block" />
+                                            </span>
+                                            <span className="mt-1 block font-display text-2xl md:text-3xl">{e.title}</span>
+                                        </div>
+                                        <span className="px-1 text-sm text-muted-foreground">{e.city}</span>
+                                        <ArrowRight size={16} strokeWidth={1.4} className="hidden justify-self-end text-muted-foreground transition-transform group-hover:translate-x-0.5 md:block" />
                                     </Link>
                                 </Reveal>)}
                     </div>
@@ -324,35 +420,24 @@ const HomePage = () => {
                 </Link>
             </Section>
 
-            {/* TESTIMONIALS + ENDORSEMENTS */}
-            <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
-                <Section width="max-w-[80rem]">
-                    <SectionTitle eyebrow="Social proof" title="Voices around the legacy" />
-                    <div className="mt-12 grid gap-12 md:grid-cols-3">
-                        {TESTIMONIALS.map((t, i) => <Reveal key={t.name} delay={i * 0.08}>
-                                <figure>
-                                    <span className="font-display text-5xl text-[hsl(var(--gold))]">“</span>
-                                    <blockquote className="mt-3 font-display text-2xl leading-snug">{t.quote}</blockquote>
-                                    <figcaption className="mt-6 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                                        {t.name} · {t.role}
-                                    </figcaption>
-                                </figure>
-                            </Reveal>)}
-                    </div>
-                    <div className="mt-16 grid gap-8 border-t border-border pt-12 md:grid-cols-2">
-                        {ENDORSEMENTS.map((e, i) => (
-                            <Reveal key={e.name} delay={i * 0.06}>
-                                <figure>
-                                    <blockquote className="font-display text-xl leading-snug text-foreground/90">{e.quote}</blockquote>
-                                    <figcaption className="mt-4 text-[0.62rem] uppercase tracking-[0.18em] text-muted-foreground">
-                                        {e.name} · {e.role}
-                                    </figcaption>
-                                </figure>
-                            </Reveal>
-                        ))}
-                    </div>
-                </Section>
-            </div>
+            {/* LEGACY QUOTES — gallery-style grid */}
+            <Section className="border-y border-border bg-white py-24 md:py-32" width="max-w-[90rem]">
+                <SectionTitle eyebrow="Quotes" title="Words that carry forward" />
+                <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {LEGACY_QUOTES.map((item, i) => (
+                        <Reveal key={item.quote} delay={i * 0.05}>
+                            <figure className="flex h-full flex-col border border-border bg-white p-6 md:p-7">
+                                <blockquote className="flex-1 text-[1.05rem] font-medium leading-snug text-[#0A0A0A] md:text-lg">
+                                    “{item.quote}”
+                                </blockquote>
+                                <figcaption className="mt-6 text-[0.62rem] uppercase tracking-[0.2em] text-[#7A0C19]">
+                                    {QUOTE_HANDLE}
+                                </figcaption>
+                            </figure>
+                        </Reveal>
+                    ))}
+                </div>
+            </Section>
 
             {/* MEMBERSHIP */}
             <Section className="py-24 md:py-32" width="max-w-[80rem]">

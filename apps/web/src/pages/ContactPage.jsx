@@ -58,7 +58,7 @@ const ContactPage = () => {
         setSentVia('whatsapp');
         setSent(true);
         resetForm();
-        toast({ title: 'Opening WhatsApp', description: 'Your message is ready to send to the publishing office.' });
+        toast({ title: 'Opening WhatsApp', description: 'Your message is ready to send to the Pete Edochie Legacy team.' });
         setSending(null);
     };
 
@@ -76,7 +76,7 @@ const ContactPage = () => {
         ]
             .filter(Boolean)
             .join('\n');
-        const mailto = `mailto:${PUBLISHER.email}?subject=${encodeURIComponent(`Contact — ${form.subject}`)}&body=${encodeURIComponent(body)}`;
+        const mailto = `mailto:${PUBLISHER.email}?subject=${encodeURIComponent(`Contact, ${form.subject}`)}&body=${encodeURIComponent(body)}`;
         window.location.href = mailto;
         await saveEnquiry();
         setSentVia('email');
@@ -96,18 +96,16 @@ const ContactPage = () => {
             />
             <PageHero
                 eyebrow="Contact"
-                title="The office"
-                lead="Media, bookings, publishing & rights, partnership, sponsorship and general enquiries are handled by the legacy office in Lagos, administered by King Dawie Publishing."
+                title={<>The Pete Edochie<br />Legacy</>}
+                lead="Media, bookings, publishing and rights, partnership, sponsorship and general enquiries for the Pete Edochie Legacy are administered by King Dawie Publishing."
                 image={IMG.cover}
             />
 
             <Section className="grid gap-14 py-24 md:grid-cols-[1fr_1.1fr] md:py-32" width="max-w-[80rem]">
                 <div>
-                    <SectionTitle eyebrow="Reach us" title="Write to the office" />
+                    <SectionTitle eyebrow="Reach us" title="Write to the Legacy" />
                     <div className="mt-10 space-y-8 text-sm">
                         {[
-                            ['Office', 'Victoria Island, Lagos, Nigeria'],
-                            ['Archive', 'Nteje, Anambra State, Nigeria'],
                             ['Publisher & rights holder', PUBLISHER.name],
                             ['WhatsApp', PUBLISHER.phoneDisplay],
                             ['Publishing & rights', PUBLISHER.email],
@@ -138,15 +136,6 @@ const ContactPage = () => {
                             </div>
                         ))}
                     </div>
-                    <div className="mt-10 border border-border p-6">
-                        <p className="eyebrow">Publishing &amp; rights</p>
-                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                            All publishing, licensing, translation, broadcast and rights inquiries relating to the
-                            autobiography, the events or the archive are administered by {PUBLISHER.name}. Select
-                            <span className="text-foreground"> Publishing &amp; rights</span> in the form and your
-                            message is routed directly to the publishing office.
-                        </p>
-                    </div>
                 </div>
 
                 <div className="border border-border p-8 md:p-10">
@@ -155,7 +144,7 @@ const ContactPage = () => {
                             <p className="font-display text-3xl text-[hsl(var(--gold))]">Thank you.</p>
                             <p className="mt-3 text-sm text-muted-foreground">
                                 {sentVia === 'email'
-                                    ? 'Your email client should have opened with the message. If it did not, write to the publishing office directly.'
+                                    ? 'Your email client should have opened with the message. If it did not, write to us directly.'
                                     : 'WhatsApp should have opened with your message. If it did not, use the green button on this page.'}
                             </p>
                             <button type="button" onClick={() => setSent(false)} className="mt-8 text-[0.68rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">

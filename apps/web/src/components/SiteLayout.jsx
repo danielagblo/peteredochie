@@ -16,7 +16,7 @@ import { useCart } from "@/contexts/CartContext";
 import { whatsappHref } from "@/lib/whatsapp";
 
 const OVERLAY_PATHS = new Set([
-  // Home keeps a solid header so it never sits on the collage faces
+  "/",
   "/peter-edochie",
   "/legacy",
   "/book",
@@ -52,6 +52,7 @@ const SiteLayout = ({ children }) => {
   const { count } = useCart();
   const location = useLocation();
   const isOverlayPage = OVERLAY_PATHS.has(location.pathname);
+  const isHome = location.pathname === "/";
   const overlay = isOverlayPage && !solid && !open;
 
   useEffect(() => {
@@ -89,7 +90,9 @@ const SiteLayout = ({ children }) => {
       <header
         className={`fixed inset-x-0 top-0 z-[80] transition-[background-color,border-color,box-shadow] duration-300 ${
           overlay
-            ? "border-b border-white/10 bg-black/25 backdrop-blur-sm"
+            ? isHome
+              ? "border-b border-transparent bg-transparent"
+              : "border-b border-white/10 bg-black/25 backdrop-blur-sm"
             : "border-b border-border bg-background/95 backdrop-blur-md"
         }`}
       >
@@ -252,7 +255,7 @@ const SiteLayout = ({ children }) => {
             <p className="font-display text-2xl">{LEGACY.name}</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               The official digital home of {LEGACY.name},{" "}
-              {LEGACY.descriptor.toLowerCase()} — archive, autobiography, events
+              {LEGACY.descriptor.toLowerCase()}, archive, autobiography, events
               and mentorship.
             </p>
             <p className="mt-5 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground">

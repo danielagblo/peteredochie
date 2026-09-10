@@ -6,7 +6,7 @@ const Reveal = ({ children, delay = 0, y = 24, className = '', as = 'div', once 
     const MotionTag = motion[as] || motion.div;
     // `delay` is in seconds (framer-motion's unit), but callers often pass the
     // milliseconds they'd use with a CSS transition. No reveal waits 10s, so a
-    // value that large is milliseconds — convert rather than hang the content.
+    // value that large is milliseconds, convert rather than hang the content.
     const delaySeconds = delay > 10 ? delay / 1000 : delay;
 
     return (

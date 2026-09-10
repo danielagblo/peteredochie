@@ -121,7 +121,7 @@ const SubscriberDashboard = () => {
 
     const downloadInvoice = (order) => {
         const items = orderItems[order.id] || [];
-        const lines = items.map((it) => `${it.product_name} x${it.quantity} — USD ${Number(it.total_price || 0).toFixed(2)}`).join('\n');
+        const lines = items.map((it) => `${it.product_name} x${it.quantity}, USD ${Number(it.total_price || 0).toFixed(2)}`).join('\n');
         const addr = order.shipping_address || {};
         const body = `KING DAWIE PUBLISHING\nOrder ${order.payment_reference || order.id}\nDate: ${fmtDate(order.created)}\n\n${lines}\n\nTotal: USD ${Number(order.total_price || 0).toFixed(2)}\nPayment: ${order.payment_status}\nStatus: ${order.order_status}\n${addr.address_line ? `\nShip to:\n${addr.full_name || ''}\n${addr.address_line}\n${addr.city} ${addr.region || ''} ${addr.country}` : ''}${order.tracking_number ? `\nTracking: ${order.tracking_number}` : ''}${order.estimated_delivery ? `\nEst. delivery: ${fmtDate(order.estimated_delivery)}` : ''}\n`;
         const blob = new Blob([body], { type: 'text/plain' });
@@ -435,7 +435,7 @@ const SubscriberDashboard = () => {
                     ) : null}
 
                     {tab === 'orders' ? (
-                        <Panel title="Your orders" lead="Preorders, books and tickets — with payment, shipping and delivery status.">
+                        <Panel title="Your orders" lead="Preorders, books and tickets, with payment, shipping and delivery status.">
                             {orders.length === 0 ? (
                                 <EmptyState>You have no orders yet. Preorder an edition from the book page.</EmptyState>
                             ) : (
@@ -453,7 +453,7 @@ const SubscriberDashboard = () => {
                                                         <p className="mt-2 text-sm text-[hsl(var(--gold))]">{formatUSD(o.total_price)} · payment {o.payment_status}</p>
                                                         {items.length > 0 ? (
                                                             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                                                                {items.map((it) => <li key={it.id}>{it.product_name} × {it.quantity} — {formatUSD(it.total_price)}</li>)}
+                                                                {items.map((it) => <li key={it.id}>{it.product_name} × {it.quantity}, {formatUSD(it.total_price)}</li>)}
                                                             </ul>
                                                         ) : null}
                                                         {addr.address_line ? (
@@ -488,7 +488,7 @@ const SubscriberDashboard = () => {
                                     <li className="flex items-start gap-3 py-4">
                                         <Mail size={15} strokeWidth={1.6} className="mt-1 shrink-0 text-[hsl(var(--gold))]" />
                                         <div>
-                                            <p className="text-sm">Mentorship application — {STATUS_META[mentorship.status || 'pending'].label}</p>
+                                            <p className="text-sm">Mentorship application, {STATUS_META[mentorship.status || 'pending'].label}</p>
                                             <p className="mt-1 text-xs text-muted-foreground">{mentorship.cohort || '2027'} cohort · updated {fmtDate(mentorship.updated || mentorship.created)}</p>
                                         </div>
                                     </li>
@@ -497,7 +497,7 @@ const SubscriberDashboard = () => {
                                     <li key={t.id} className="flex items-start gap-3 py-4">
                                         <Ticket size={15} strokeWidth={1.6} className="mt-1 shrink-0 text-[hsl(var(--gold))]" />
                                         <div>
-                                            <p className="text-sm">Meet & Greet ticket confirmed — {t.tier === 'vip' ? 'VIP' : 'Standard'}</p>
+                                            <p className="text-sm">Meet & Greet ticket confirmed, {t.tier === 'vip' ? 'VIP' : 'Standard'}</p>
                                             <p className="mt-1 text-xs text-muted-foreground">{t.confirmation_code} · {fmtDate(t.created)}</p>
                                         </div>
                                     </li>

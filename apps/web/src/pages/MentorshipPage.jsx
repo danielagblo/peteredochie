@@ -59,7 +59,7 @@ const MentorshipPage = () => {
         e.preventDefault();
         setSending(true);
         openWhatsApp(
-            composeWhatsApp('Mentorship application — 2027 cohort', {
+            composeWhatsApp('Mentorship application (2027 cohort)', {
                 Name: form.name,
                 Email: form.email,
                 Country: form.country,
@@ -95,7 +95,7 @@ const MentorshipPage = () => {
     return (
         <div>
             <PageHead
-                title="African Youth Mentorship Initiative — 2027 Cohort | Pete Edochie"
+                title="African Youth Mentorship Initiative 2027 Cohort | Pete Edochie"
                 description="Apply to the African Youth Mentorship Initiative 2027 cohort: craft, cultural memory, creative business and a continental cohort of young storytellers. An application, not a registration."
             />
             <PageHero

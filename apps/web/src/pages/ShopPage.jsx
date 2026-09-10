@@ -56,13 +56,13 @@ const ShopPage = () => {
     return (
         <div>
             <PageHead
-                title="Shop — Official Merchandise | Pete Edochie Legacy | King Dawie Publishing"
+                title="Shop | Official Merchandise | Pete Edochie Legacy | King Dawie Publishing"
                 description="Official Pete Edochie Legacy merchandise: premium T-shirts, framed and limited-edition prints, tote bags, caps and homeware. Published by King Dawie Publishing."
             />
             <PageHero
                 eyebrow="The Shop"
                 title="Carry the legacy with you"
-                lead="A curated collection of official merchandise — apparel, prints and keepsakes drawn from six decades of storytelling. Every piece is produced and shipped by King Dawie Publishing."
+                lead="A curated collection of official merchandise, apparel, prints and keepsakes drawn from six decades of storytelling. Every piece is produced and shipped by King Dawie Publishing."
                 image={IMG.cover}
             />
 
@@ -141,7 +141,7 @@ const ShopPage = () => {
                                                     className="mt-6 flex items-center justify-center gap-2 bg-[hsl(var(--primary))] py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))] transition-transform active:scale-[0.98]"
                                                 >
                                                     <ShoppingCart size={13} strokeWidth={1.6} />
-                                                    {added === p.id ? 'Added to cart' : cartLine ? `In cart (${cartLine.quantity}) — add another` : 'Add to cart'}
+                                                    {added === p.id ? 'Added to cart' : cartLine ? `In cart (${cartLine.quantity}), add another` : 'Add to cart'}
                                                 </button>
                                             ) : (
                                                 <p className="mt-6 border border-dashed border-border py-3.5 text-center text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">

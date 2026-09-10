@@ -6,7 +6,7 @@ import {
 import { api } from '@/lib/api';
 import { Panel, Stat, EmptyState } from '@/components/dashboard/DashboardShell';
 
-const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
+const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })  : '-');
 
 const SmsBroadcastPanel = () => {
     const [subView, setSubView] = useState('compose'); // 'compose' | 'history'
@@ -141,7 +141,7 @@ const SmsBroadcastPanel = () => {
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <Stat
                         label="Available Phone Contacts"
-                        value={smsStatus?.audience?.allUsers ?? '—'}
+                        value={smsStatus?.audience?.allUsers ?? '-'}
                         hint="Subscribers, Distributors & Sponsors"
                     />
                     <Stat
@@ -151,7 +151,7 @@ const SmsBroadcastPanel = () => {
                     />
                     <Stat
                         label="Distributor Partners"
-                        value={smsStatus?.audience?.distributors ?? '—'}
+                        value={smsStatus?.audience?.distributors ?? '-'}
                         hint="Wholesale partner network"
                     />
                 </div>

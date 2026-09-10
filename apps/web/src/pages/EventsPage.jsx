@@ -42,7 +42,7 @@ const EventCard = ({ event, onParticipate }) => {
         <Reveal>
             <article className="grid gap-8 border-t border-border py-12 md:grid-cols-[18rem_1fr]">
                 <div className="relative">
-                    <img src={event.image} alt="" className="hidden h-48 w-full object-cover md:block" />
+                    <img src={event.image || IMG.cover} alt="" className="hidden h-48 w-full object-cover object-[center_22%] md:block" />
                     <div className="mt-5 flex items-center gap-3 text-[hsl(var(--gold))]">
                         <Icon size={18} strokeWidth={1.4} />
                         <span className="text-[0.66rem] uppercase tracking-[0.22em]">{meta.label}</span>
@@ -105,7 +105,7 @@ const EventCard = ({ event, onParticipate }) => {
                     <div className="mt-8 flex flex-wrap items-center gap-4">
                         {event.invitation_only ? (
                             <span className="flex items-center gap-2 border border-border px-6 py-4 text-[0.66rem] uppercase tracking-[0.22em] text-muted-foreground">
-                                <Lock size={14} strokeWidth={1.4} /> Invitation only — no public registration
+                                <Lock size={14} strokeWidth={1.4} /> Invitation only, no public registration
                             </span>
                         ) : event.event_type === 'meet_and_greet' && tiers.length > 0 ? (
                             <button
@@ -155,7 +155,7 @@ const EventsPage = () => {
             .list('events', { sort: 'starts' })
             .then((items) => {
                 const stale =
-                    /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening|Press Conference|Private Legacy Session|Project Launch — Ghana/i;
+                    /Cumberland|Eko Hotel|Journey Continues|Writing With Purpose|Intimate Evening|Press Conference|Private Legacy Session|Project Launch, Ghana/i;
                 const cleaned = (items || []).filter((e) => !stale.test(e.title || ''));
                 const lineupTitles = /^(Arrival|AMC|Gala|Meet and Greet|Lecture Series)/i;
                 const hasLineup = cleaned.filter((e) => lineupTitles.test(e.title || '')).length >= 3;
@@ -182,7 +182,7 @@ const EventsPage = () => {
     }, [status, events, params]);
 
     // Handle the Paystack redirect back after a Meet & Greet ticket payment:
-    // /events?ticket=REFERENCE — verify the payment, load the ticket + event,
+    // /events?ticket=REFERENCE, verify the payment, load the ticket + event,
     // and open the dialog in the confirmation state.
     useEffect(() => {
         const ticketRef = params.get('ticket');
@@ -205,7 +205,7 @@ const EventsPage = () => {
                 setPaidTicket({ ...ticket, kind: 'ticket' });
                 setActive(ev);
             } catch (_) {
-                /* ticket not found — silently ignore */
+                /* ticket not found, silently ignore */
             }
         })();
         return () => {
@@ -227,12 +227,12 @@ const EventsPage = () => {
         <div>
             <PageHead
                 title="Events & Ghana Activation | The Pete Edochie Legacy"
-                description="Project Launch event lineup in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series — plus the African Youth Mentorship Initiative."
+                description="Project Launch event lineup in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series, plus the African Youth Mentorship Initiative."
             />
             <PageHero
                 eyebrow="Events"
                 title="Where to meet the legacy"
-                lead="Project Launch week in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series (African Youth Mentorship — 2027 Cohort). Book pre-order and event registration are separate: secure your edition on The Book page; register here to attend. Mentorship applications remain a separate track."
+                lead="Project Launch week in Accra: Arrival, AMC, Gala, Meet and Greet, and Lecture Series (African Youth Mentorship 2027 Cohort). Book pre-order and event registration are separate: secure your edition on The Book page; register here to attend. Mentorship applications remain a separate track."
                 image={IMG.cover}
             />
 
@@ -279,13 +279,13 @@ const EventsPage = () => {
             <div className="border-y border-border bg-[hsl(var(--surface))] py-24 md:py-32">
                 <Section className="grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center" width="max-w-[84rem]">
                     <Reveal>
-                        <img src={IMG.youth} alt="Pete Edochie — handing on the craft" className="w-full object-cover object-[center_20%]" />
+                        <img src={IMG.youth} alt="Pete Edochie, handing on the craft" className="w-full object-cover object-[center_20%]" />
                     </Reveal>
                     <div>
                         <SectionTitle
                             eyebrow="Mentorship Initiative"
-                            title="African Youth Mentorship — 2027 cohort"
-                            lead="A structured six-month programme for young storytellers across the continent. Applications are read personally by the programme team — this is an application, not a registration."
+                            title="African Youth Mentorship 2027 cohort"
+                            lead="A structured six-month programme for young storytellers across the continent. Applications are read personally by the programme team, this is an application, not a registration."
                         />
                         <div className="mt-8 grid gap-4 sm:grid-cols-2">
                             <Detail icon={Users} label="Places" value="5,000 per cohort" />
@@ -314,8 +314,8 @@ const EventsPage = () => {
                 <div className="mt-12 grid gap-10 md:grid-cols-3">
                     {[
                         ['01', 'Book pre-order', 'Reserve your autobiography edition on The Book page with Paystack or Order via WhatsApp. This does not register you for Accra.'],
-                        ['02', 'Event lineup', 'Register separately for Arrival, AMC, Gala, Meet and Greet, and the Lecture Series (African Youth Mentorship — 2027 Cohort) during Project Launch week.'],
-                        ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track — not as an event ticket and not as a book purchase.'],
+                        ['02', 'Event lineup', 'Register separately for Arrival, AMC, Gala, Meet and Greet, and the Lecture Series (African Youth Mentorship 2027 Cohort) during Project Launch week.'],
+                        ['03', 'Mentorship', 'The African Youth Mentorship Initiative runs on its own application track, not as an event ticket and not as a book purchase.'],
                     ].map(([n, t, d]) => (
                         <Reveal key={n}>
                             <div className="border-t border-border pt-6">

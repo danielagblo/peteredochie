@@ -12,7 +12,7 @@ const claimOrdersQuietly = async () => {
     try {
         await claimGuestOrders();
     } catch (_) {
-        /* best-effort — dashboard still works for owned orders */
+        /* best-effort, dashboard still works for owned orders */
     }
 };
 

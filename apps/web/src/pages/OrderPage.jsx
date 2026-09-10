@@ -10,7 +10,7 @@ import { DistributorPanel } from '@/components/CountryCollectionFields';
 import { apiCrud } from '@/lib/api';
 
 const fmtDate = (iso) =>
-    iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
+    iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })  : '-';
 
 const OrderPage = () => {
     const { reference } = useParams();

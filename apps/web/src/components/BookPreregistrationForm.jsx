@@ -102,7 +102,7 @@ const BookPreregistrationForm = ({ product }) => {
                     country: form.country,
                     region: form.region,
                     city: form.city || form.region,
-                    address_line: form.notes || 'Digital edition — email delivery',
+                    address_line: form.notes || 'Digital edition, email delivery',
                     postal_code: form.postal_code || '',
                 }
                 : collecting

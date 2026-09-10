@@ -11,8 +11,8 @@ import { INTEREST_OPTIONS } from '@/lib/accounts';
 import { Panel, Stat } from '@/components/dashboard/DashboardShell';
 import { useAuth } from '@/contexts/AuthContext';
 
-const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
-const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
+const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })  : '-');
+const fmtDateTime = (iso) => (iso ? new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })  : '-');
 
 const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) => {
     const { user } = useAuth();
@@ -796,7 +796,7 @@ const NewsletterBroadcastPanel = ({ subscribers = [], onRefreshSubscribers }) =>
                                                     <p className="text-muted-foreground text-[0.7rem]">{s.email}</p>
                                                 </td>
                                                 <td className="px-4 py-3 text-muted-foreground">
-                                                    {s.country || '—'}
+                                                    {s.country || '-'}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <div className="flex flex-wrap gap-1">

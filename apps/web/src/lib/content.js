@@ -5,7 +5,7 @@ export const PUBLISHER = {
   email: "rights@kingdawiepublishing.com",
   phoneDisplay: "+233 533 330 800",
   whatsapp: "233533330800",
-  note: "All works on this platform — the autobiography, the archive, the events and the journal — are published and administered by King Dawie Publishing as the official rights holder.",
+  note: "All works on this platform, the autobiography, the archive, the events and the journal, are published and administered by King Dawie Publishing as the official rights holder.",
 };
 
 /** The Legacy Project brand system (see brand guide). */
@@ -20,7 +20,7 @@ export const BRAND = {
   },
 };
 
-/** The actor this platform celebrates — Pete Edochie, Nigerian screen legend. */
+/** The actor this platform celebrates, Pete Edochie, Nigerian screen legend. */
 export const LEGACY = {
   name: "Pete Edochie",
   legacyName: "Pete Edochie Legacy",
@@ -32,14 +32,14 @@ export const LEGACY = {
 };
 
 /**
- * Website expectations brief — first-seconds clarity & primary actions.
+ * Website expectations brief, first-seconds clarity & primary actions.
  * (Maps PDF “Pete” wording to Pete Edochie.)
  */
 export const PROJECT = {
   whatItIs:
     "The Pete Edochie Legacy Project preserves wisdom, inspires the next generation, and turns a life of experience into a lasting legacy through a book, a documentary film, and an African Youth Mentorship Initiative.",
   whyItMatters:
-    "It inspires people to think beyond personal success — to build a lasting legacy, develop others, and positively shape the next generation.",
+    "It inspires people to think beyond personal success, to build a lasting legacy, develop others, and positively shape the next generation.",
   actions: [
     { label: "Pre-Order Now", to: "/book" },
     { label: "Event Registration", to: "/events" },
@@ -61,9 +61,9 @@ export const BOOK = {
     "Create meaningful impact beyond your lifetime",
   ],
   whoItsFor:
-    "Anyone who wants to lead with purpose, make a meaningful impact, and build a legacy that extends beyond themselves — especially leaders, entrepreneurs, professionals, mentors, young people, educators, and anyone committed to shaping the next generation. If you want your life to mean more than what you achieve, this book is for you.",
+    "Anyone who wants to lead with purpose, make a meaningful impact, and build a legacy that extends beyond themselves, especially leaders, entrepreneurs, professionals, mentors, young people, educators, and anyone committed to shaping the next generation. If you want your life to mean more than what you achieve, this book is for you.",
   whyRead:
-    "Your legacy is being built today. This book challenges you to think differently about leadership, purpose, mentorship, personal growth, and the impact you will leave on the next generation. It is more than a book — it is an invitation to think, grow, act, and build something that outlives you.",
+    "Your legacy is being built today. This book challenges you to think differently about leadership, purpose, mentorship, personal growth, and the impact you will leave on the next generation. It is more than a book: it is an invitation to think, grow, act, and build something that outlives you.",
 };
 
 /** How mentorship extends the book’s message into action. */
@@ -72,28 +72,53 @@ export const MENTORSHIP_BRIDGE = {
   text: "The African Youth Mentorship Initiative turns the book’s message into action by connecting experienced leadership with the next generation. It helps share wisdom, develop future leaders, and build a legacy that continues beyond us.",
 };
 
-/** Documentary pillar — teaser only (no invented synopsis). */
+/** Documentary pillar, teaser only (no invented synopsis). */
 export const DOCUMENTARY = {
   eyebrow: "Documentary",
   title: "A film in development",
-  text: "Alongside the autobiography and mentorship programme, a documentary film is in development — preserving Pete Edochie’s story for audiences across the continent and beyond.",
+  text: "Alongside the autobiography and mentorship programme, a documentary film is in development, preserving Pete Edochie’s story for audiences across the continent and beyond.",
 };
 
-/** Static recognition / social-proof labels (editorial; not paid media claims). */
-export const ENDORSEMENTS = [
+/** Legacy Project quote cards (@peteedochielegacyproject). */
+export const LEGACY_QUOTES = [
   {
-    quote:
-      "A continental voice on purpose, craft and the responsibility of handing culture forward.",
-    name: "Community readers",
-    role: "Legacy Project audience",
+    quote: "Legacy begins when you stop living for yourself.",
+  },
+  {
+    quote: "Build something that outlives you.",
   },
   {
     quote:
-      "The mentorship track makes the book’s invitation concrete — develop others, don’t only succeed alone.",
-    name: "Programme partners",
-    role: "African Youth Mentorship Initiative",
+      "A meaningful life is measured not only by what you achieve, but by what you inspire others to become.",
+  },
+  {
+    quote:
+      "Legacy is not what you leave behind; it is what continues because you were here.",
+  },
+  {
+    quote:
+      "Your greatest legacy may be the knowledge you choose to pass on.",
+  },
+  {
+    quote: "The right mentor can shorten your journey.",
+  },
+  {
+    quote:
+      "What you teach today may become someone else's strength tomorrow.",
   },
 ];
+
+export const QUOTE_HANDLE = "@peteedochielegacyproject";
+
+/** @deprecated Prefer LEGACY_QUOTES. Kept empty so older imports do not crash. */
+export const ENDORSEMENTS = [];
+
+/** @deprecated Prefer LEGACY_QUOTES. */
+export const TESTIMONIALS = LEGACY_QUOTES.map((q) => ({
+  ...q,
+  name: QUOTE_HANDLE,
+  role: "The Legacy Project",
+}));
 
 /** Official platform image assets (Hostinger Horizons export). */
 export const ASSET_HOST = "https://images.hostinger.com";
@@ -124,16 +149,16 @@ export const PORTRAIT_BW = "/images/pete-portrait-bw.jpg";
 export const PORTRAIT_EXTRA = "/images/pete-portrait-extra.jpg";
 /** Optional atmospheric banner (kept for reuse). */
 export const PAGE_HERO = "/images/page-hero-cover.jpg";
-/** Legacy collage — still available for gallery / archive. */
+/** Legacy collage, still available for gallery / archive. */
 export const COLLAGE = "/images/peter-edochie-cover.jpg";
 
 export const IMG = {
-  /** Homepage & page heroes — wide campaign portrait. */
+  /** Homepage & page heroes, wide campaign portrait. */
   cover: COVER,
   pageHero: COVER,
-  /** Formal seated portrait — biography, story, login. */
+  /** Formal seated portrait, biography, story, login. */
   portrait: PORTRAIT,
-  /** Red isiagu portrait — mentorship, closing CTAs, cultural pages. */
+  /** Red isiagu portrait, mentorship, closing CTAs, cultural pages. */
   portraitArt: PORTRAIT_ART,
   /** Black-and-white contemplative portrait. */
   portraitBw: PORTRAIT_BW,
@@ -151,7 +176,7 @@ export const IMG = {
   theatre: COVER,
 };
 
-/** Shop preview tiles on the homepage — photographs of Pete Edochie. */
+/** Shop preview tiles on the homepage, photographs of Pete Edochie. */
 export const MERCH_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
@@ -159,24 +184,23 @@ export const MERCH_PREVIEW = [
   PORTRAIT_BW,
 ];
 
-/** Curated archive strip — photographs of Pete Edochie. */
+/** Curated archive strip, photographs of Pete Edochie. */
 export const ARCHIVE_PREVIEW = [
   PORTRAIT,
   PORTRAIT_ART,
   COVER,
   PORTRAIT_BW,
-  COLLAGE,
-  assetUrl(ASSETS.premiere),
+  PORTRAIT_EXTRA,
 ];
 
-/** Ghana activation — master plan: Project Launch, 20 September 2026. */
+/** Ghana activation, master plan: Project Launch, 20 September 2026. */
 export const LAUNCH = {
   activationDate: "20 September 2026",
   activationAt: "2026-09-20T18:00:00+00:00",
   activationCity: "Accra, Ghana",
   venue: "Accra International Conference Centre",
   headline: "Project Launch",
-  lead: "The continental launch peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page, then register here to attend Project Launch — and apply separately to the mentorship programme.",
+  lead: "The continental launch peaks in Accra on 20 September 2026. Book pre-order and event registration are separate: secure your edition on The Book page, then register here to attend Project Launch, and apply separately to the mentorship programme.",
   distinction:
     "Pre-ordering the book does not register you for the Ghana activation. Event registration does not reserve a book. Choose each action deliberately.",
   revealDate: "12 September 2026",
@@ -196,7 +220,7 @@ export const OFFICIAL_EVENTS = [
     starts: "2026-09-16T14:00:00.000Z",
     ends: "2026-09-16T18:00:00.000Z",
     summary:
-      "Welcome into Project Launch week in Accra — guest check-in, orientation and the opening of the activation programme. Distinct from book pre-order; register to attend.",
+      "Welcome into Project Launch week in Accra, guest check-in, orientation and the opening of the activation programme. Distinct from book pre-order; register to attend.",
     category: "arrival",
     event_type: "arrival",
     invitation_only: false,
@@ -211,7 +235,7 @@ export const OFFICIAL_EVENTS = [
     starts: "2026-09-17T10:00:00.000Z",
     ends: "2026-09-17T16:00:00.000Z",
     summary:
-      "AMC — a flagship session in the Project Launch lineup. Programme details and speakers will be published closer to the date. Register to attend.",
+      "AMC, a flagship session in the Project Launch lineup. Programme details and speakers will be published closer to the date. Register to attend.",
     category: "amc",
     event_type: "amc",
     invitation_only: false,
@@ -226,7 +250,7 @@ export const OFFICIAL_EVENTS = [
     starts: "2026-09-20T18:00:00.000Z",
     ends: "2026-09-20T22:00:00.000Z",
     summary:
-      "The Project Launch gala evening in Accra — celebration, speeches and community gathering with Pete Edochie. Distinct from book pre-order; register to attend.",
+      "The Project Launch gala evening in Accra, celebration, speeches and community gathering with Pete Edochie. Distinct from book pre-order; register to attend.",
     category: "launch",
     event_type: "ghana_launch",
     invitation_only: false,
@@ -246,22 +270,22 @@ export const OFFICIAL_EVENTS = [
     event_type: "meet_and_greet",
     invitation_only: false,
     ticket_tiers: [],
-    image: COVER,
+    image: PORTRAIT_EXTRA,
   },
   {
     id: "lecture-series-accra",
-    title: "Lecture Series — African Youth Mentorship 2027 Cohort",
+    title: "Lecture Series: African Youth Mentorship 2027 Cohort",
     city: "Accra",
     venue: "Accra International Conference Centre",
     starts: "2026-09-18T10:00:00.000Z",
     ends: "2026-09-18T13:00:00.000Z",
     summary:
-      "Lecture series for the African Youth Mentorship Initiative — 2027 cohort: leadership, purpose, craft and legacy. Apply to the mentorship programme separately; register here to attend the sessions.",
+      "Lecture series for the African Youth Mentorship Initiative 2027 cohort: leadership, purpose, craft and legacy. Apply to the mentorship programme separately; register here to attend the sessions.",
     category: "lecture",
     event_type: "lecture_series",
     invitation_only: false,
     ticket_tiers: [],
-    image: PORTRAIT_ART,
+    image: PORTRAIT_BW,
   },
 ];
 
@@ -269,7 +293,7 @@ export const OFFICIAL_EVENTS = [
 export const MESSAGING_PILLARS = [
   {
     title: "The book",
-    text: "The official autobiography — hardcover, signed and digital editions — published by King Dawie Publishing.",
+    text: "The official autobiography, hardcover, signed and digital editions, published by King Dawie Publishing.",
   },
   {
     title: "Documentary",
@@ -277,11 +301,11 @@ export const MESSAGING_PILLARS = [
   },
   {
     title: "Mentorship",
-    text: "The African Youth Mentorship Initiative turns the book’s message into action — craft, discipline and cultural memory.",
+    text: "The African Youth Mentorship Initiative turns the book’s message into action, craft, discipline and cultural memory.",
   },
   {
     title: "Community",
-    text: "Join the legacy community for launch news, event dates and early access — email and SMS updates when you opt in.",
+    text: "Join the legacy community for launch news, event dates and early access, email and SMS updates when you opt in.",
   },
 ];
 
@@ -370,27 +394,6 @@ export const AWARDS = [
   },
 ];
 
-export const TESTIMONIALS = [
-  {
-    quote:
-      "He did not act the elder. He carried the elder inside him, and the camera simply agreed.",
-    name: "Adaeze Nwankwo",
-    role: "Film scholar, University of Nsukka",
-  },
-  {
-    quote:
-      "Every proverb he speaks on screen is a door into a culture that refuses to be footnoted.",
-    name: "Kwame Ofori",
-    role: "Director, National Theatre of Ghana",
-  },
-  {
-    quote:
-      "A week in his mentorship room taught me more about restraint than four years of training.",
-    name: "Ifeoma Balogun",
-    role: "Mentorship alumna, 2025 cohort",
-  },
-];
-
 export const TIERS = [
   {
     name: "Supporter",
@@ -438,7 +441,7 @@ export const FAQ_SECTIONS = [
     items: [
       {
         q: "What is the Pete Edochie Legacy platform?",
-        a: "It is the official digital home of Pete Edochie, the Nigerian actor — his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
+        a: "It is the official digital home of Pete Edochie, the Nigerian actor, his biography, screen archive, autobiography, events, mentorship programme and journal. The platform is owned, published and administered by King Dawie Publishing as the official rights holder.",
       },
       {
         q: "Who operates this website?",
@@ -459,7 +462,7 @@ export const FAQ_SECTIONS = [
       },
       {
         q: "Can I buy without creating an account?",
-        a: "Yes. Guest checkout is available. Keep your order reference safe — you can track your order at any time from the Track an order page. If you later create an account with the same email, previous guest orders can be linked to your dashboard.",
+        a: "Yes. Guest checkout is available. Keep your order reference safe, you can track your order at any time from the Track an order page. If you later create an account with the same email, previous guest orders can be linked to your dashboard.",
       },
       {
         q: "What is the QR code on a book edition?",
@@ -530,7 +533,7 @@ export const FAQ_SECTIONS = [
         a: "Your dashboard shows orders, event tickets, mentorship status, sponsorship applications and programme materials you have access to. It is the central place to manage your participation on the platform.",
       },
       {
-        q: "I checked out as a guest — can I claim my orders later?",
+        q: "I checked out as a guest. Can I claim my orders later?",
         a: "Yes. Create an account or sign in using the same email address you used at checkout. Guest orders linked to that email are automatically associated with your account.",
       },
       {

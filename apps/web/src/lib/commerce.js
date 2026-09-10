@@ -86,7 +86,7 @@ export const initializeOrder = async (payload) => {
     });
     const data = await res.json();
     // A 503 with configured:false is the expected "Paystack not set up yet"
-    // state — the order is still recorded as pending, so treat it as a result.
+    // state, the order is still recorded as pending, so treat it as a result.
     if (!res.ok && data?.configured !== false) {
         const err = new Error(data?.message || data?.error || 'Could not start checkout.');
         err.payload = data;

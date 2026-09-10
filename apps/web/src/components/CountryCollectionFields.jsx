@@ -14,7 +14,7 @@ const DistributorPanel = ({ details, countryName: cName }) => {
     return (
         <div className="mt-4 border border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5 p-5">
             <p className="flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--gold))]">
-                <Store size={14} strokeWidth={1.6} /> Collection point — {cName}
+                <Store size={14} strokeWidth={1.6} /> Collection point, {cName}
             </p>
             <p className="mt-3 font-display text-xl">{details.organisation || details.name}</p>
             {details.name && details.organisation ? (
@@ -151,7 +151,7 @@ const CountryCollectionFields = ({
                                     <span className="block text-sm">{m.label}</span>
                                     <span className="mt-1 block text-xs text-muted-foreground">
                                         {disabled && m.value === 'distributor_collection'
-                                            ? 'No distributor listed for this country yet — choose shipping instead.'
+                                            ? 'No distributor listed for this country yet, choose shipping instead.'
                                             : m.hint}
                                     </span>
                                 </span>

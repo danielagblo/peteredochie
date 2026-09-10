@@ -122,7 +122,7 @@ const BookPage = () => {
     return (
         <div>
             <PageHead
-                title={`${BOOK.title} — Preorder | Pete Edochie | King Dawie Publishing`}
+                title={`${BOOK.title} | Preorder | Pete Edochie | King Dawie Publishing`}
                 description={BOOK.shortDescription}
             />
             <PageHero
@@ -156,7 +156,7 @@ const BookPage = () => {
                         </a>
                     </div>
                     <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                        Select an edition, enter your details, pay securely — or message us on WhatsApp if you need help.
+                        Select an edition, enter your details, pay securely, or message us on WhatsApp if you need help.
                         Confirmation may arrive by email and SMS.
                     </p>
                 </Reveal>

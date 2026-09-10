@@ -6,13 +6,13 @@ import { AWARDS, IMG, LEGACY, MILESTONES, PUBLISHER } from '@/lib/content';
 const PetePage = () => (
     <div>
         <PageHead
-            title={`${LEGACY.name} — Actor | Biography, Career and Honours | King Dawie Publishing`}
-            description={`The life and screen career of ${LEGACY.name}, the Nigerian actor — childhood in Enugu, the broadcasting years, Things Fall Apart, four decades of Nollywood, and the honours that followed.`}
+            title={`${LEGACY.name}, Actor | Biography, Career and Honours | King Dawie Publishing`}
+            description={`The life and screen career of ${LEGACY.name}, the Nigerian actor, childhood in Enugu, the broadcasting years, Things Fall Apart, four decades of Nollywood, and the honours that followed.`}
         />
         <PageHero
             eyebrow="The Man"
             title={<>{LEGACY.name}</>}
-            lead={`${LEGACY.title}, broadcaster, elder. The biography of one of Africa's most recognised screen actors — written the way he speaks: slowly, and with weight on every word.`}
+            lead={`${LEGACY.title}, broadcaster, elder. The biography of one of Africa's most recognised screen actors, written the way he speaks: slowly, and with weight on every word.`}
             image={IMG.cover}
         />
 
@@ -25,7 +25,7 @@ const PetePage = () => (
                 <p>
                     Enugu in the years after independence was a city of radio. Voices carried further than pictures, and
                     the young Pete Edochie learned early that a sentence delivered with patience defeats a sentence
-                    delivered with volume. That training — first in the classroom, then in broadcasting — became the
+                    delivered with volume. That training, first in the classroom, then in broadcasting, became the
                     foundation of everything the cameras would later capture.
                 </p>
                 <p>
@@ -36,7 +36,7 @@ const PetePage = () => (
                 </p>
                 <p>
                     In the decades since, across more than two hundred screen appearances, he has played the father, the
-                    chief, the conscience, the warning. He has also refused a great deal — roles that mocked the culture,
+                    chief, the conscience, the warning. He has also refused a great deal, roles that mocked the culture,
                     scripts that mistook noise for drama. That refusal is as much a part of the legacy as the work
                     itself.
                 </p>
@@ -106,7 +106,7 @@ const PetePage = () => (
                 </ul>
             </div>
             <Reveal delay={0.1}>
-                <img src={IMG.portraitBw} alt="Pete Edochie — contemplative portrait" className="w-full object-cover object-[center_25%]" />
+                <img src={IMG.portraitBw} alt="Pete Edochie, contemplative portrait" className="w-full object-cover object-[center_25%]" />
             </Reveal>
         </Section>
 
@@ -118,8 +118,8 @@ const PetePage = () => (
                         <p className="mt-4 font-display text-3xl text-[hsl(var(--gold))]">{PUBLISHER.name}</p>
                     </div>
                     <p className="text-sm leading-relaxed text-muted-foreground">
-                        The Pete Edochie Legacy — including this biography, the archive, the autobiography and the
-                        events — is owned, published and administered by {PUBLISHER.name} as the official rights
+                        The Pete Edochie Legacy, including this biography, the archive, the autobiography and the
+                        events, is owned, published and administered by {PUBLISHER.name} as the official rights
                         holder. All biographical material, photographs and recordings on this platform are protected
                         under copyright held by {PUBLISHER.name}. Reproduction, adaptation or commercial use requires
                         written authorisation from the publishing office.

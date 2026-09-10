@@ -7,7 +7,7 @@ export const FULFILLMENT_METHODS = [
 ];
 
 export const fulfillmentLabel = (value) =>
-    FULFILLMENT_METHODS.find((m) => m.value === value)?.label || value || '—';
+    FULFILLMENT_METHODS.find((m) => m.value === value)?.label || value || '-';
 
 export async function fetchCountryDistributor(countryCode) {
     if (!countryCode || countryCode === 'OTHER') return null;

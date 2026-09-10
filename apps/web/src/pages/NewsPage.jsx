@@ -21,7 +21,7 @@ const NewsPage = () => {
     return (
         <div>
             <PageHead
-                title="Journal — News from the Pete Edochie Legacy"
+                title="Journal | News from the Pete Edochie Legacy"
                 description="Announcements and dispatches from the Pete Edochie Legacy: the autobiography, events, mentorship cohorts and honours."
             />
             <PageHero eyebrow="Journal" title="Dispatches" lead="Announcements, notes from the archive and news from the road." image={IMG.cover} />

@@ -149,7 +149,7 @@ const DistributorDashboard = () => {
                                                 className="border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[hsl(var(--gold))]">
                                                 <option value="">Select a title</option>
                                                 {products.map((p) => (
-                                                    <option key={p.id} value={p.id}>{p.name} — {formatUSD(p.price)}</option>
+                                                    <option key={p.id} value={p.id}>{p.name}, {formatUSD(p.price)}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -159,7 +159,7 @@ const DistributorDashboard = () => {
                                                 className="border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-[hsl(var(--gold))]">
                                                 <option value="">Select a tier</option>
                                                 {tiers.map((t) => (
-                                                    <option key={t.id} value={t.id}>{t.name} — {t.discount}% off</option>
+                                                    <option key={t.id} value={t.id}>{t.name}, {t.discount}% off</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -228,7 +228,7 @@ const DistributorDashboard = () => {
                                         <div key={o.id} className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
                                             <div>
                                                 <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground">{o.payment_reference || o.id.slice(0, 8)}</p>
-                                                <p className="mt-1 text-sm">{o.items_summary || '—'}</p>
+                                                <p className="mt-1 text-sm">{o.items_summary || '-'}</p>
                                             </div>
                                             <div className="text-right">
                                                 <p className="font-display text-lg">{formatUSD(o.total_price)}</p>
@@ -244,9 +244,9 @@ const DistributorDashboard = () => {
                     {tab === 'performance' ? (
                         <Panel title="Performance" lead="Sell-through, returns and reorder cadence across your markets.">
                             <div className="grid gap-4 sm:grid-cols-3">
-                                <Stat label="Sell-through" value="—" />
-                                <Stat label="Reorder rate" value="—" />
-                                <Stat label="Returns" value="—" />
+                                <Stat label="Sell-through" value=", " />
+                                <Stat label="Reorder rate" value=", " />
+                                <Stat label="Returns" value=", " />
                             </div>
                         </Panel>
                     ) : null}

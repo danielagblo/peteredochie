@@ -2,12 +2,12 @@ import React from 'react';
 import { REGISTRATION_TYPES, registrationTypeLabel } from '@/lib/mentorship';
 
 const fmtDate = (iso) =>
-    iso ? new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    iso ? new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })  : '-';
 
 const Detail = ({ label, value }) => (
     <div>
         <p className="text-[0.58rem] uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
-        <p className="mt-1 text-sm text-foreground">{value || '—'}</p>
+        <p className="mt-1 text-sm text-foreground">{value || '-'}</p>
     </div>
 );
 
@@ -70,7 +70,7 @@ const MentorshipApplicationRow = ({
                             Why this programme
                         </p>
                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                            {a.statement || '—'}
+                            {a.statement || '-'}
                         </p>
                     </div>
                 </div>

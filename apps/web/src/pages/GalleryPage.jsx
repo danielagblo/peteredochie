@@ -2,20 +2,14 @@ import React, { useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import { PageHead, PageHero, Section } from '@/components/Section';
-import { ASSETS, assetUrl, IMG } from '@/lib/content';
+import { IMG } from '@/lib/content';
 
 const ITEMS = [
-    { src: IMG.cover, cat: 'Portraits', caption: 'Campaign portrait — The Legacy Project' },
+    { src: IMG.cover, cat: 'Portraits', caption: 'Campaign portrait for The Legacy Project' },
     { src: IMG.portrait, cat: 'Portraits', caption: 'Seated in blue isiagu with coral beads' },
-    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Red isiagu — smile and coral' },
-    { src: IMG.portraitBw, cat: 'Portraits', caption: 'Black and white — contemplative study' },
-    { src: IMG.portraitExtra, cat: 'Portraits', caption: 'Campaign study — warm light' },
-    { src: IMG.collage, cat: 'Legacy', caption: 'Legacy Project cover collage' },
-    { src: assetUrl(ASSETS.premiere), cat: 'On screen', caption: 'Documentary premiere, Enugu' },
-    { src: assetUrl(ASSETS.honours), cat: 'Honours', caption: 'Continental screen awards' },
-    { src: assetUrl(ASSETS.tour), cat: 'Speaking', caption: 'Africa Tour — Accra Conversations' },
-    { src: assetUrl(ASSETS.okonkwo), cat: 'Legacy', caption: 'Okonkwo — landmark screen role' },
-    { src: assetUrl(ASSETS.launch), cat: 'Events', caption: 'Legacy launch evening' },
+    { src: IMG.portraitArt, cat: 'Portraits', caption: 'Red isiagu with smile and coral' },
+    { src: IMG.portraitBw, cat: 'Portraits', caption: 'Black and white contemplative study' },
+    { src: IMG.portraitExtra, cat: 'Portraits', caption: 'Campaign study in warm light' },
 ];
 
 const GalleryPage = () => {
@@ -27,10 +21,10 @@ const GalleryPage = () => {
     return (
         <div>
             <PageHead
-                title="Gallery — The Pete Edochie Photographic Archive"
-                description="A curated photographic archive: portraits, film stills, award ceremonies, speaking engagements, family moments and cultural artifacts."
+                title="Gallery | The Pete Edochie Photographic Archive"
+                description="A curated photographic archive of Pete Edochie: campaign portraits and studies from The Legacy Project."
             />
-            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Curated images of Pete Edochie from six decades, held and captioned like a collection." image={IMG.cover} />
+            <PageHero eyebrow="Gallery" title="The photographic archive" lead="Portraits of Pete Edochie, held and captioned like a collection." image={IMG.cover} />
 
             <Section className="py-20 md:py-28" width="max-w-[90rem]">
                 <div className="flex flex-wrap gap-3 border-b border-border pb-6">

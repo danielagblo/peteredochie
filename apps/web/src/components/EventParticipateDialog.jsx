@@ -79,7 +79,7 @@ const TIER_META = {
             'Exclusive one-on-one access to Pete Edochie',
             'Professional photographer on standby',
             'All photos included and delivered after the event',
-            'Limited slots — intimate setting',
+            'Limited slots, intimate setting',
         ],
     },
     standard: {
@@ -171,7 +171,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                 window.location.href = result.authorization_url;
                 return; // page is navigating away
             }
-            // Paystack not configured yet — record the pending ticket and
+            // Paystack not configured yet, record the pending ticket and
             // surface a pending confirmation.
             setTicket({
                 id: result.ticket_id,
@@ -210,7 +210,7 @@ const EventParticipateDialog = ({ event, open, onClose, paidTicket }) => {
                     <DialogTitle className="font-display text-3xl">{event.title}</DialogTitle>
                     <DialogDescription className="mt-2 text-sm text-muted-foreground">
                         {fmtDate(event.starts)} · {event.venue} · {fmtTime(event.starts)}
-                        {event.ends ? `–${fmtTime(event.ends)}` : ''}
+                        {event.ends ? ` to ${fmtTime(event.ends)}` : ''}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -355,7 +355,7 @@ const PaymentReview = ({
             <p className="eyebrow">Secure checkout</p>
             <div className="mt-5 flex items-center justify-between border border-border p-5">
                 <div>
-                    <p className="font-display text-xl">{label} — Meet & Greet</p>
+                    <p className="font-display text-xl">{label}, Meet & Greet</p>
                     <p className="mt-1 text-xs text-muted-foreground">{event.venue} · {event.city}</p>
                 </div>
                 <p className="font-display text-2xl text-[hsl(var(--gold))]">{currency} {price.toLocaleString()}</p>
@@ -395,7 +395,7 @@ const PaymentReview = ({
                 </button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-                You will be redirected to Paystack to complete payment. Your QR pass is issued on confirmation — look for email and SMS.
+                You will be redirected to Paystack to complete payment. Your QR pass is issued on confirmation, look for email and SMS.
             </p>
         </div>
     );

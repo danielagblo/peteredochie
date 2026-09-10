@@ -150,7 +150,7 @@ const SponsorDashboard = () => {
                                 <>
                                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                                         <Stat label="Sponsorship status" value={sponsorship.status || 'pending'} hint={sponsorship.company_name} />
-                                        <Stat label="Package" value={pkg?.name || TIER_LABEL[sponsorship.package_tier] || '—'} hint={pkg?.duration || '12 months'} />
+                                        <Stat label="Package" value={pkg?.name || TIER_LABEL[sponsorship.package_tier] || '-'} hint={pkg?.duration || '12 months'} />
                                         <Stat label="Investment" value={formatUSD(sponsorship.investment_amount || pkg?.price)} hint={sponsorship.currency || 'USD'} />
                                         <Stat label="Payment" value={sponsorship.payment_status || 'unpaid'} hint={approved ? 'Invoice ready' : 'Pending approval'} />
                                     </div>

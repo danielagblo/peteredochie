@@ -94,7 +94,7 @@ const SponsorApplyPage = () => {
                 window.location.assign(result.authorization_url);
                 return;
             }
-            // Paystack not configured yet — record kept as pending; also open
+            // Paystack not configured yet, record kept as pending; also open
             // WhatsApp so the partnership team still receives the enquiry.
             openWhatsApp(
                 composeWhatsApp(`${intentLabel} application`, {

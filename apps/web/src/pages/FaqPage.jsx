@@ -9,7 +9,7 @@ const FaqPage = () => (
     <div>
         <PageHead
             title="Frequently Asked Questions | The Pete Edochie Legacy | King Dawie Publishing"
-            description="Answers about the Pete Edochie Legacy platform — the autobiography, events, mentorship, orders, accounts and publishing enquiries."
+            description="Answers about the Pete Edochie Legacy platform, the autobiography, events, mentorship, orders, accounts and publishing enquiries."
         />
         <PageHero
             eyebrow="Help"

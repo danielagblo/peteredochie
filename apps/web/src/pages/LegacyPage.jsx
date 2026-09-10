@@ -14,7 +14,7 @@ const WORKS = [
 ];
 
 const IMPACT = [
-    { t: 'Language', d: 'Proverb restored to screen dialogue as argument, not decoration — a grammar later adopted across the industry.' },
+    { t: 'Language', d: 'Proverb restored to screen dialogue as argument, not decoration, a grammar later adopted across the industry.' },
     { t: 'Craft', d: 'Stillness over spectacle. A generation of actors learned that the camera moves toward whoever is calm.' },
     { t: 'Standards', d: 'Public refusal of work that caricatured the culture, at a time when refusing was expensive.' },
     { t: 'Continuity', d: 'Direct mentorship of younger performers, producers and writers across Nigeria, Ghana and Kenya.' },
@@ -23,7 +23,7 @@ const IMPACT = [
 const LegacyPage = () => (
     <div>
         <PageHead
-            title="Legacy Archive — The Work and Cultural Impact of Pete Edochie"
+            title="Legacy Archive | The Work and Cultural Impact of Pete Edochie"
             description="A curated archive of Pete Edochie's screen work and an account of his cultural impact on African cinema, language and craft."
         />
         <PageHero

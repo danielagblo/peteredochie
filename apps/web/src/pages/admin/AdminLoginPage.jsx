@@ -45,7 +45,7 @@ const AdminLoginPage = () => {
                 <title>Admin Sign in | King Dawie Publishing</title>
                 <meta
                     name="description"
-                    content="Secure administrator portal for the Pete Edochie Legacy platform — King Dawie Publishing staff and employee management."
+                    content="Secure administrator portal for the Pete Edochie Legacy platform, King Dawie Publishing staff and employee management."
                 />
             </Helmet>
 
@@ -61,7 +61,7 @@ const AdminLoginPage = () => {
                     </p>
                     <p className="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">
                         Inventory, orders, sponsorships, mentorship, country operations and
-                        employee access — managed by {PUBLISHER.name} staff.
+                        employee access, managed by {PUBLISHER.name} staff.
                     </p>
                     <div className="rule-gold mt-8 w-32" />
                 </div>

@@ -44,7 +44,7 @@ const input = 'w-full border border-border bg-card text-foreground px-4 py-3 tex
 const smallBtn = 'border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--gold))] hover:text-[hsl(var(--gold))]';
 const dangerBtn = 'border border-border px-4 py-2 text-[0.58rem] uppercase tracking-[0.18em] hover:border-[hsl(var(--primary))] hover:text-[hsl(var(--primary))]';
 
-const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
+const fmtDate = (iso) => (iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })  : '-');
 
 const PRODUCT_TYPES = ['book', 'merchandise', 'ticket'];
 const FORMATS = ['hardcopy', 'digital'];
@@ -881,7 +881,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <input type="number" placeholder="Inventory limit" value={productForm.inventory_limit} onChange={(e) => setProductForm({ ...productForm, inventory_limit: e.target.value })} className={input} />
                                 <input type="number" placeholder="Current stock" value={productForm.current_stock} onChange={(e) => setProductForm({ ...productForm, current_stock: e.target.value })} className={input} />
                                 <input type="number" placeholder="Low-stock threshold" value={productForm.low_stock_threshold} onChange={(e) => setProductForm({ ...productForm, low_stock_threshold: e.target.value })} className={input} />
-                                <input placeholder="External URL (Amazon) — optional" value={productForm.external_url} onChange={(e) => setProductForm({ ...productForm, external_url: e.target.value })} className={input} />
+                                <input placeholder="External URL (Amazon), optional" value={productForm.external_url} onChange={(e) => setProductForm({ ...productForm, external_url: e.target.value })} className={input} />
                                 <input placeholder="Image URL" value={productForm.image} onChange={(e) => setProductForm({ ...productForm, image: e.target.value })} className={input} />
                                 {productForm.product_type === 'book' ? (
                                     <>
@@ -971,7 +971,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                         <p className="mt-2 text-sm text-[hsl(var(--gold))]">{formatUSD(o.total_price)} · payment {o.payment_status}</p>
                                                         {items.length > 0 ? (
                                                             <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                                                                {items.map((it) => <li key={it.id}>{it.product_name} × {it.quantity} — {formatUSD(it.total_price)}</li>)}
+                                                                {items.map((it) => <li key={it.id}>{it.product_name} × {it.quantity}, {formatUSD(it.total_price)}</li>)}
                                                             </ul>
                                                         ) : null}
                                                         {addr.address_line ? (
@@ -1007,7 +1007,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                     <div className="mb-6 border border-[hsl(var(--primary))]/40 bg-[hsl(var(--primary))]/5 px-5 py-4">
                                         <p className="text-[0.62rem] uppercase tracking-[0.2em] text-[hsl(var(--primary))]">Low stock alert</p>
                                         <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
-                                            {lowStockProducts.map((p) => <li key={p.id}>{p.name} — {p.current_stock} left (threshold {p.low_stock_threshold})</li>)}
+                                            {lowStockProducts.map((p) => <li key={p.id}>{p.name}, {p.current_stock} left (threshold {p.low_stock_threshold})</li>)}
                                         </ul>
                                     </div>
                                 ) : null}
@@ -1099,7 +1099,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                     {tab === 'events' ? (
                         <Panel title="Event management" lead="Create, publish and remove events. Ticketing follows each published event.">
                             {editingEventId ? (
-                                <p className="mb-4 border border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[hsl(var(--gold))]">Editing event — save to apply changes</p>
+                                <p className="mb-4 border border-[hsl(var(--gold))]/40 bg-[hsl(var(--gold))]/5 px-4 py-3 text-xs uppercase tracking-[0.18em] text-[hsl(var(--gold))]">Editing event, save to apply changes</p>
                             ) : null}
                             <form onSubmit={submitEvent} className="grid gap-4 md:grid-cols-2">
                                 <input required placeholder="Title" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} className={input} />
@@ -1115,7 +1115,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                 <input placeholder="Summary" value={eventForm.summary} onChange={(e) => setEventForm({ ...eventForm, summary: e.target.value })} className={input} />
                                 <label className="flex items-center gap-3 md:col-span-2 border border-border px-4 py-3">
                                     <input type="checkbox" checked={eventForm.invitation_only} onChange={(e) => setEventForm({ ...eventForm, invitation_only: e.target.checked })} className="h-4 w-4 accent-[hsl(var(--gold))]" />
-                                    <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Invitation only — no public registration</span>
+                                    <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Invitation only, no public registration</span>
                                 </label>
                                 <div className="flex flex-wrap gap-3 md:col-span-2">
                                     <button type="submit" className="bg-[hsl(var(--primary))] px-8 py-3.5 text-[0.66rem] uppercase tracking-[0.22em] text-[hsl(var(--primary-foreground))]">{editingEventId ? 'Save changes' : 'Publish event'}</button>
@@ -1220,7 +1220,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
 
                     {tab === 'mentorship' ? (
                         <>
-                        <Panel title="Mentorship applications" lead="Every field submitted on the public mentorship application form — name, email, country, discipline, registration type, cohort and personal statement.">
+                        <Panel title="Mentorship applications" lead="Every field submitted on the public mentorship application form, name, email, country, discipline, registration type, cohort and personal statement.">
                             <ul className="divide-y divide-border">
                                 {applications.length === 0 ? <EmptyState>No applications submitted.</EmptyState> : null}
                                 {applications.map((a) => (
@@ -1355,7 +1355,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                     <div className="max-w-2xl">
                                                         <p className="font-display text-xl">{p.edition || p.name}</p>
                                                         <p className="mt-1 text-xs text-muted-foreground">
-                                                            {p.author || '—'} · {p.isbn || 'No ISBN'} · {p.format} · {formatUSD(p.price)} · {p.enabled ? 'Live' : 'Hidden'}
+                                                            {p.author || '-'} · {p.isbn || 'No ISBN'} · {p.format} · {formatUSD(p.price)} · {p.enabled ? 'Live' : 'Hidden'}
                                                         </p>
                                                         <p className="mt-2 text-xs text-[hsl(var(--gold))]">
                                                             {preregStats.byProduct[p.id]
@@ -1405,7 +1405,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                         <li key={r.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
                                             <div>
                                                 <p className="font-display text-lg">{r.full_name}</p>
-                                                <p className="mt-1 text-xs text-muted-foreground">{r.email} · {r.phone || 'No phone'} · {r.city || '—'}, {r.country || '—'}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">{r.email} · {r.phone || 'No phone'} · {r.city || '-'}, {r.country || '-'}</p>
                                                 <p className="mt-2 text-sm text-[hsl(var(--gold))]">{r.edition || r.product?.edition || r.expand?.product?.edition || r.product_name}</p>
                                                 <p className="mt-1 text-xs font-medium text-foreground">{Number(r.quantity) || 1} {(Number(r.quantity) || 1) === 1 ? 'copy' : 'copies'}</p>
                                                 {r.notes ? <p className="mt-2 text-sm text-muted-foreground">{r.notes}</p> : null}
@@ -1614,7 +1614,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                         <li key={p.id} className="flex flex-wrap items-start justify-between gap-4 py-5">
                                             <div className="max-w-md">
                                                 <p className="font-display text-lg">{p.name} <span className="text-xs text-muted-foreground">({p.tier})</span></p>
-                                                <p className="mt-1 text-xs text-muted-foreground">{formatUSD(p.price)} {p.currency} · {p.duration || '—'} · {p.enabled ? 'Enabled' : 'Disabled'}</p>
+                                                <p className="mt-1 text-xs text-muted-foreground">{formatUSD(p.price)} {p.currency} · {p.duration || '-'} · {p.enabled ? 'Enabled' : 'Disabled'}</p>
                                                 {Array.isArray(p.benefits) && p.benefits.length ? (
                                                     <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{p.benefits.map((b, i) => <li key={i}>• {b}</li>)}</ul>
                                                 ) : null}
@@ -1652,7 +1652,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                             <div>
                                                 <p className="font-display text-lg">{t.name}</p>
                                                 <p className="mt-1 text-xs text-muted-foreground">
-                                                    {t.discount}% off retail · {t.min_units ?? 0}{t.max_units ? ` – ${t.max_units} units` : '+ units'} · {t.terms || '—'} · {t.enabled ? 'Enabled' : 'Disabled'}
+                                                    {t.discount}% off retail · {t.min_units ?? 0}{t.max_units ? ` – ${t.max_units} units` : '+ units'} · {t.terms || '-'} · {t.enabled ? 'Enabled' : 'Disabled'}
                                                 </p>
                                             </div>
                                             <div className="flex flex-wrap items-center gap-2">
@@ -1744,7 +1744,7 @@ const AdminDashboard = ({ role = 'super_admin' }) => {
                                                     <div>
                                                         <p className="font-display text-xl">{c.name} <span className="font-mono text-xs text-muted-foreground">({c.code})</span></p>
                                                         <p className="mt-1 text-xs text-muted-foreground">
-                                                            Currency: {c.currency || '—'} · {countryRegions.length} regions · Coordinator: {coord?.name || coord?.email || 'Unassigned'}
+                                                            Currency: {c.currency || '-'} · {countryRegions.length} regions · Coordinator: {coord?.name || coord?.email || 'Unassigned'}
                                                         </p>
                                                         <p className="mt-1 text-xs text-muted-foreground">
                                                             Primary distributor: {dist?.organisation || dist?.name || dist?.email || 'Unassigned'}

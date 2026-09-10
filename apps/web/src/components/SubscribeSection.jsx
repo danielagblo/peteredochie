@@ -72,7 +72,7 @@ const SubscribeSection = () => {
                         <h2 className="mt-4 font-display text-4xl leading-tight md:text-5xl">Join the community</h2>
                         <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
                             No account required. Receive event announcements, Meet &amp; Greet news, book launch news,
-                            mentorship programme calls and future country launches across Africa — by email and, when you
+                            mentorship programme calls and future country launches across Africa, by email and, when you
                             opt in, by SMS.
                         </p>
                         <p className="mt-6 text-sm text-muted-foreground">

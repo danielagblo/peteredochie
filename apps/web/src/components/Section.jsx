@@ -10,7 +10,7 @@ export const PageHead = ({ title, description }) => (
     </Helmet>
 );
 
-/** Shared page header — same campaign portrait as the homepage hero, brand-shaded. */
+/** Shared page header, same campaign portrait as the homepage hero, brand-shaded. */
 export const PageHero = ({ eyebrow, title, lead, image = IMG.cover, align = 'left' }) => (
     <section className="relative flex min-h-[48vh] items-end overflow-hidden bg-[#0A0A0A] md:min-h-[52vh]">
         <img

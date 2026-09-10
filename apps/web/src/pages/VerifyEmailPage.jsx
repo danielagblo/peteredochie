@@ -60,7 +60,7 @@ const VerifyEmailPage = () => {
                         <h1 className="font-display text-3xl">Email verified</h1>
                         {needsApproval ? (
                             <p className="text-sm leading-relaxed text-muted-foreground">
-                                Thank you! Your email address has been successfully verified. Your application is under review — pricing, resources and ordering unlock once an administrator approves your account.
+                                Thank you! Your email address has been successfully verified. Your application is under review, pricing, resources and ordering unlock once an administrator approves your account.
                             </p>
                         ) : (
                             <p className="text-sm leading-relaxed text-muted-foreground">
