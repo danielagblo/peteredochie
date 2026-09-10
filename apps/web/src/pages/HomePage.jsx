@@ -100,8 +100,8 @@ const HomePage = () => {
                             className={`absolute inset-0 h-full w-full object-cover ${item.position}`}
                         />
                     ))}
-                    <div className="absolute inset-0 hidden bg-gradient-to-r from-[#7A0C19]/95 via-[#7A0C19]/60 to-black/20 md:block" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-[#7A0C19]/80 via-[#7A0C19]/40 to-[#7A0C19]/95 md:hidden" />
+                    <div className="absolute inset-0 hidden bg-gradient-to-r from-[#7A0C19]/55 via-[#7A0C19]/25 to-black/10 md:block" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#7A0C19]/45 via-[#7A0C19]/20 to-[#7A0C19]/50 md:hidden" />
                 </div>
 
                 <div className="relative z-10 mx-auto w-full max-w-7xl -translate-y-6 px-5 pt-24 sm:px-6 md:-translate-y-10 md:px-10 md:pt-28 lg:px-8">
