@@ -104,14 +104,14 @@ const HomePage = () => {
                     <div className="absolute inset-0 bg-gradient-to-b from-[#7A0C19]/45 via-[#7A0C19]/20 to-[#7A0C19]/50 md:hidden" />
                 </div>
 
-                <div className="relative z-10 mx-auto w-full max-w-7xl -translate-y-6 px-5 pt-24 sm:px-6 md:-translate-y-10 md:px-10 md:pt-28 lg:px-8">
+                <div className="relative z-10 mx-auto w-full max-w-7xl -translate-y-4 px-4 pt-20 sm:px-6 md:-translate-y-8 md:px-10 md:pt-24 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, x: -40 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                         className="max-w-3xl"
                     >
-                        <h1 className="mb-6 font-hero text-4xl font-medium leading-[1.05] tracking-tight text-white sm:text-5xl md:text-7xl lg:text-8xl">
+                        <h1 className="mb-3 font-hero text-[2.15rem] font-medium leading-[1.05] tracking-tight text-white sm:mb-4 sm:text-5xl md:mb-5 md:text-7xl lg:text-8xl">
                             A voice that taught
                             <br />
                             <span className="bg-gradient-to-r from-white via-white to-white/70 bg-clip-text pr-2 italic text-transparent">
@@ -119,21 +119,21 @@ const HomePage = () => {
                             </span>
                         </h1>
 
-                        <p className="mb-6 max-w-xl border-l-4 border-white pl-6 text-lg font-medium leading-relaxed text-white/90 md:mb-7 md:text-xl">
+                        <p className="mb-4 max-w-xl border-l-[3px] border-white pl-4 text-base font-medium leading-snug text-white/90 sm:mb-5 sm:pl-5 sm:text-lg sm:leading-relaxed md:mb-6 md:border-l-4 md:pl-6 md:text-xl">
                             {PROJECT.whyItMatters}
                         </p>
 
-                        <div className="flex flex-col gap-5 sm:flex-row">
+                        <div className="flex flex-row items-stretch gap-2 sm:gap-3 md:gap-4">
                             <Link
                                 to="/book"
-                                className="inline-flex items-center justify-center gap-3 rounded-full bg-white px-10 py-4 font-bold text-[#7A0C19] shadow-[0_0_30px_rgba(255,255,255,0.18)] transition-all hover:scale-105 hover:bg-white/90"
+                                className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full bg-white px-3 py-3 text-[0.72rem] font-bold leading-none text-[#7A0C19] shadow-[0_0_30px_rgba(255,255,255,0.18)] transition-all hover:scale-[1.02] hover:bg-white/90 sm:flex-none sm:gap-2 sm:px-7 sm:py-3.5 sm:text-sm md:gap-3 md:px-10 md:py-4 md:text-base"
                             >
                                 Pre-Order Now
-                                <ChevronRight size={20} strokeWidth={3} />
+                                <ChevronRight className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" strokeWidth={3} />
                             </Link>
                             <Link
                                 to="/peter-edochie"
-                                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-10 py-4 font-bold text-white backdrop-blur-md transition-all hover:bg-white/20"
+                                className="inline-flex min-w-0 flex-1 items-center justify-center rounded-full border border-white/20 bg-white/10 px-3 py-3 text-[0.72rem] font-bold leading-none text-white backdrop-blur-md transition-all hover:bg-white/20 sm:flex-none sm:px-7 sm:py-3.5 sm:text-sm md:px-10 md:py-4 md:text-base"
                             >
                                 Discover Our Story
                             </Link>
@@ -141,8 +141,8 @@ const HomePage = () => {
                     </motion.div>
                 </div>
 
-                <div className="absolute bottom-6 right-4 z-20 flex flex-col items-end gap-6 md:bottom-10 md:right-10 md:flex-row md:items-center md:gap-8">
-                    <div className="flex gap-3">
+                <div className="absolute bottom-5 right-3 z-20 flex flex-row items-center gap-3 md:bottom-10 md:right-10 md:gap-6">
+                    <div className="flex gap-2 md:gap-3">
                         {HERO_SLIDES.map((_, i) => (
                             <button
                                 key={i}
@@ -150,27 +150,27 @@ const HomePage = () => {
                                 aria-label={`Show portrait ${i + 1}`}
                                 onClick={() => setSlide(i)}
                                 className={`h-1.5 rounded-full transition-all duration-500 ${
-                                    i === slide ? 'w-12 bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)]' : 'w-4 bg-white/40 hover:bg-white/60'
+                                    i === slide ? 'w-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)] md:w-12' : 'w-3 bg-white/40 hover:bg-white/60 md:w-4'
                                 }`}
                             />
                         ))}
                     </div>
-                    <div className="flex gap-2 rounded-full border border-white/10 bg-black/30 p-2 backdrop-blur-md">
+                    <div className="flex gap-1 rounded-full border border-white/10 bg-black/30 p-1.5 backdrop-blur-md md:gap-2 md:p-2">
                         <button
                             type="button"
                             aria-label="Previous portrait"
                             onClick={goPrev}
-                            className="flex h-12 w-12 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19] md:h-12 md:w-12"
                         >
-                            <ChevronLeft size={24} />
+                            <ChevronLeft size={22} />
                         </button>
                         <button
                             type="button"
                             aria-label="Next portrait"
                             onClick={goNext}
-                            className="flex h-12 w-12 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19]"
+                            className="flex h-10 w-10 items-center justify-center rounded-full text-white transition-colors hover:bg-white hover:text-[#7A0C19] md:h-12 md:w-12"
                         >
-                            <ChevronRight size={24} />
+                            <ChevronRight size={22} />
                         </button>
                     </div>
                 </div>
